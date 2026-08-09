@@ -6,6 +6,7 @@ const TEAMS = [
     key: "real-madrid",
     name: "Real Madrid",
     teamId: "86",
+    sportsDbId: "133738",
     logo: "assets/teams/real-madrid.webp",
     color: "#ffffff",
     badgeTextColor: "#111111",
@@ -27,6 +28,7 @@ const TEAMS = [
     key: "santos-laguna",
     name: "Santos Laguna",
     teamId: "225",
+    sportsDbId: "134192",
     logo: "assets/teams/santos.png",
     color: "#0f9d58",
     badgeTextColor: "#ffffff",
@@ -164,6 +166,33 @@ function parseEvent({ event, competitionName }, team) {
   };
 }
 
+async function getSportsDbUpcoming(team) {
+  if (!team.sportsDbId) return null;
+  try {
+    const data = await fetchJson(`https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=${team.sportsDbId}`);
+    const event = (data.events || [])[0];
+    if (!event) return null;
+    const isTeamHome = event.strHomeTeam === team.name;
+    const rivalName = isTeamHome ? event.strAwayTeam : event.strHomeTeam;
+    const date = new Date(`${event.strTimestamp}Z`);
+    if (Number.isNaN(date.getTime())) return null;
+    return {
+      date,
+      completed: false,
+      statusDetail: "",
+      isTeamHome,
+      rivalName,
+      teamScore: "",
+      rivalScore: "",
+      result: null,
+      competitionName: event.strLeague || "",
+      rivalryLabel: findRivalry(team, rivalName),
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function getSeasonStatus(team) {
   const primaryCompetition = team.competitions[0];
   try {
@@ -257,10 +286,21 @@ async function gatherTeamData(team, order) {
       .slice(0, 5);
 
     lastUpdated = finished.length ? finished[0].date.getTime() : 0;
-    const upcoming = parsed
-      .filter((e) => !e.completed && e.date >= now)
-      .sort((a, b) => a.date - b.date)
-      .slice(0, rowLimit);
+    const upcomingBase = parsed.filter((e) => !e.completed && e.date >= now).sort((a, b) => a.date - b.date);
+
+    // ESPN aun no publica el calendario de algunos equipos; TheSportsDB rellena
+    // al menos el proximo partido mientras tanto.
+    const sportsDbEvent = await getSportsDbUpcoming(team);
+    let upcoming = upcomingBase;
+    if (sportsDbEvent) {
+      const alreadyHave = upcomingBase.some(
+        (e) => e.rivalName === sportsDbEvent.rivalName && Math.abs(e.date - sportsDbEvent.date) < 12 * 60 * 60 * 1000
+      );
+      if (!alreadyHave) {
+        upcoming = [sportsDbEvent, ...upcomingBase].sort((a, b) => a.date - b.date);
+      }
+    }
+    upcoming = upcoming.slice(0, rowLimit);
 
     nextMatch = upcoming.length ? upcoming[0] : null;
 
@@ -268,8 +308,9 @@ async function gatherTeamData(team, order) {
       ? finished.map((e) => renderResultRow(e, showCompetition)).join("")
       : `<p class="muted">Sin resultados recientes disponibles.</p>`;
 
+    const showUpcomingCompetition = showCompetition || new Set(upcoming.map((e) => e.competitionName)).size > 1;
     proximos = upcoming.length
-      ? upcoming.map((e) => renderUpcomingRow(e, showCompetition)).join("")
+      ? upcoming.map((e) => renderUpcomingRow(e, showUpcomingCompetition)).join("")
       : `<p class="muted">Calendario aun no publicado.</p>`;
   } catch (err) {
     resultados = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
