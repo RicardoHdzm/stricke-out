@@ -308,7 +308,8 @@ async function gatherTeamData(team, order) {
       ? finished.map((e) => renderResultRow(e, showCompetition)).join("")
       : `<p class="muted">Sin resultados recientes disponibles.</p>`;
 
-    const showUpcomingCompetition = showCompetition || new Set(upcoming.map((e) => e.competitionName)).size > 1;
+    const primaryCompetitionNames = new Set(team.competitions.map((c) => c.name));
+    const showUpcomingCompetition = showCompetition || upcoming.some((e) => !primaryCompetitionNames.has(e.competitionName));
     proximos = upcoming.length
       ? upcoming.map((e) => renderUpcomingRow(e, showUpcomingCompetition)).join("")
       : `<p class="muted">Calendario aun no publicado.</p>`;
