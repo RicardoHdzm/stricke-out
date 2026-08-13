@@ -166,31 +166,55 @@ function parseEvent({ event, competitionName }, team) {
   };
 }
 
-async function getSportsDbUpcoming(team) {
+function parseSportsDbEvent(event, team, completed) {
+  const isTeamHome = event.strHomeTeam === team.name;
+  const rivalName = isTeamHome ? event.strAwayTeam : event.strHomeTeam;
+  const date = new Date(`${event.strTimestamp}Z`);
+  if (Number.isNaN(date.getTime())) return null;
+
+  let result = null;
+  let teamScore = "";
+  let rivalScore = "";
+  if (completed && event.intHomeScore != null && event.intAwayScore != null) {
+    const homeScore = Number(event.intHomeScore);
+    const awayScore = Number(event.intAwayScore);
+    teamScore = String(isTeamHome ? homeScore : awayScore);
+    rivalScore = String(isTeamHome ? awayScore : homeScore);
+    result = homeScore === awayScore ? "draw" : (isTeamHome ? homeScore > awayScore : awayScore > homeScore) ? "win" : "loss";
+  }
+
+  return {
+    date,
+    completed,
+    statusDetail: "",
+    isTeamHome,
+    rivalName,
+    teamScore,
+    rivalScore,
+    result,
+    competitionName: event.strLeague || "",
+    rivalryLabel: findRivalry(team, rivalName),
+  };
+}
+
+async function getSportsDbEvent(team, endpoint, resultsKey, completed) {
   if (!team.sportsDbId) return null;
   try {
-    const data = await fetchJson(`https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=${team.sportsDbId}`);
-    const event = (data.events || [])[0];
+    const data = await fetchJson(`https://www.thesportsdb.com/api/v1/json/3/${endpoint}.php?id=${team.sportsDbId}`);
+    const event = (data[resultsKey] || [])[0];
     if (!event) return null;
-    const isTeamHome = event.strHomeTeam === team.name;
-    const rivalName = isTeamHome ? event.strAwayTeam : event.strHomeTeam;
-    const date = new Date(`${event.strTimestamp}Z`);
-    if (Number.isNaN(date.getTime())) return null;
-    return {
-      date,
-      completed: false,
-      statusDetail: "",
-      isTeamHome,
-      rivalName,
-      teamScore: "",
-      rivalScore: "",
-      result: null,
-      competitionName: event.strLeague || "",
-      rivalryLabel: findRivalry(team, rivalName),
-    };
+    return parseSportsDbEvent(event, team, completed);
   } catch {
     return null;
   }
+}
+
+function getSportsDbUpcoming(team) {
+  return getSportsDbEvent(team, "eventsnext", "events", false);
+}
+
+function getSportsDbLast(team) {
+  return getSportsDbEvent(team, "eventslast", "results", true);
 }
 
 async function getSeasonStatus(team) {
@@ -280,17 +304,25 @@ async function gatherTeamData(team, order) {
     const parsed = rawEvents.map((e) => parseEvent(e, team));
     const now = new Date();
 
-    const finished = parsed
-      .filter((e) => e.completed)
-      .sort((a, b) => b.date - a.date)
-      .slice(0, 5);
-
-    lastUpdated = finished.length ? finished[0].date.getTime() : 0;
+    const finishedBase = parsed.filter((e) => e.completed).sort((a, b) => b.date - a.date);
     const upcomingBase = parsed.filter((e) => !e.completed && e.date >= now).sort((a, b) => a.date - b.date);
 
-    // ESPN aun no publica el calendario de algunos equipos; TheSportsDB rellena
-    // al menos el proximo partido mientras tanto.
-    const sportsDbEvent = await getSportsDbUpcoming(team);
+    // ESPN aun no publica el calendario/resultados de algunas competiciones (ej. Leagues Cup);
+    // TheSportsDB rellena el ultimo y el proximo partido mientras tanto.
+    const [sportsDbLast, sportsDbEvent] = await Promise.all([getSportsDbLast(team), getSportsDbUpcoming(team)]);
+
+    let finished = finishedBase;
+    if (sportsDbLast) {
+      const alreadyHave = finishedBase.some(
+        (e) => e.rivalName === sportsDbLast.rivalName && Math.abs(e.date - sportsDbLast.date) < 12 * 60 * 60 * 1000
+      );
+      if (!alreadyHave) {
+        finished = [sportsDbLast, ...finishedBase].sort((a, b) => b.date - a.date);
+      }
+    }
+    finished = finished.slice(0, 5);
+    lastUpdated = finished.length ? finished[0].date.getTime() : 0;
+
     let upcoming = upcomingBase;
     if (sportsDbEvent) {
       const alreadyHave = upcomingBase.some(
@@ -304,11 +336,12 @@ async function gatherTeamData(team, order) {
 
     nextMatch = upcoming.length ? upcoming[0] : null;
 
+    const primaryCompetitionNames = new Set(team.competitions.map((c) => c.name));
+    const showResultCompetition = showCompetition || finished.some((e) => !primaryCompetitionNames.has(e.competitionName));
     resultados = finished.length
-      ? finished.map((e) => renderResultRow(e, showCompetition)).join("")
+      ? finished.map((e) => renderResultRow(e, showResultCompetition)).join("")
       : `<p class="muted">Sin resultados recientes disponibles.</p>`;
 
-    const primaryCompetitionNames = new Set(team.competitions.map((c) => c.name));
     const showUpcomingCompetition = showCompetition || upcoming.some((e) => !primaryCompetitionNames.has(e.competitionName));
     proximos = upcoming.length
       ? upcoming.map((e) => renderUpcomingRow(e, showUpcomingCompetition)).join("")
