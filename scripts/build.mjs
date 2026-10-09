@@ -655,7 +655,7 @@ async function main() {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
-  h1 { text-align: center; margin: 1.75rem 0 .4rem; line-height: 1; }
+  h1 { text-align: center; margin: 3rem 0 .4rem; line-height: 1; }
   .brand {
     display: inline-block; font-family: "Anton", "Arial Black", sans-serif; transform: skewX(-8deg);
     font-size: clamp(2.75rem, 11vw, 5rem);
@@ -667,7 +667,7 @@ async function main() {
     font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-weight: 500;
   }
   .updated { text-align: center; color: var(--muted); font-size: .85rem; margin: .35rem 0 1.25rem; }
-  .sort-bar { display: flex; justify-content: center; gap: .5rem; margin-bottom: 1.25rem; }
+  .sort-bar { display: flex; justify-content: center; gap: .5rem; margin-bottom: 2.5rem; }
   .sort-btn {
     font-family: inherit; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
     color: var(--muted); background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
