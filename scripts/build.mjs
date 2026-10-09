@@ -301,7 +301,6 @@ async function gatherTeamData(team, order) {
   let lastUpdated = 0;
   let nextMatch = null;
   const showCompetition = team.competitions.length > 1;
-  const rowLimit = showCompetition ? 8 : 5;
 
   try {
     const rawEvents = await getSchedule(team);
@@ -333,7 +332,7 @@ async function gatherTeamData(team, order) {
         upcoming = [sportsDbEvent, ...upcomingBase].sort((a, b) => a.date - b.date);
       }
     }
-    upcoming = upcoming.slice(0, rowLimit);
+    upcoming = upcoming.slice(0, 5);
 
     nextMatch = upcoming.length ? upcoming[0] : null;
 
