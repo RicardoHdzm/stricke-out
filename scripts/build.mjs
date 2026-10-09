@@ -159,15 +159,30 @@ function parseEvent({ event, competitionName }, team) {
   return {
     date: new Date(event.date),
     completed,
-    statusDetail: comp.status?.type?.shortDetail || comp.status?.type?.description || "",
+    live: comp.status?.type?.state === "in",
+    timeValid: comp.timeValid !== false,
+    statusDetail: liveDetail(comp.status),
     isTeamHome: self?.homeAway === "home",
     rivalName,
-    teamScore: self?.score?.displayValue ?? "",
-    rivalScore: rival?.score?.displayValue ?? "",
+    teamScore: scoreValue(self?.score),
+    rivalScore: scoreValue(rival?.score),
     result,
     competitionName,
     rivalryLabel: findRivalry(team, rivalName),
   };
+}
+
+// /schedule devuelve el marcador como objeto y /scoreboard como texto.
+function scoreValue(score) {
+  if (score == null) return "";
+  return typeof score === "object" ? score.displayValue ?? "" : String(score);
+}
+
+function liveDetail(status) {
+  if (status?.type?.state === "in" && status.displayClock && status.displayClock !== "0'") {
+    return status.type.name === "STATUS_HALFTIME" ? "Medio tiempo" : status.displayClock;
+  }
+  return status?.type?.shortDetail || status?.type?.description || "";
 }
 
 function parseSportsDbEvent(event, team, completed) {
@@ -190,6 +205,8 @@ function parseSportsDbEvent(event, team, completed) {
   return {
     date,
     completed,
+    live: false,
+    timeValid: true,
     statusDetail: "",
     isTeamHome,
     rivalName,
@@ -270,10 +287,28 @@ function fmtTime(d) {
   return d.toLocaleTimeString("es-MX", { hour: "numeric", minute: "2-digit", timeZone: MAZATLAN_TZ });
 }
 
+// Etiquetas cortas para que las filas no ocupen dos lineas (incluye nombres de TheSportsDB).
+const COMPETITION_SHORT = {
+  "Champions League": "UCL",
+  "Copa del Rey": "Copa",
+  "Supercopa de España": "Supercopa",
+  "Spanish La Liga": "LaLiga",
+  "Mexican Primera League": "Liga MX",
+};
+
+function compTagHtml(ev, showCompetition) {
+  if (!showCompetition || !ev.competitionName) return "";
+  return `<span class="comp-tag">${COMPETITION_SHORT[ev.competitionName] || ev.competitionName}</span>`;
+}
+
+function fmtMatchTime(ev) {
+  return ev.timeValid === false ? "Por confirmar" : fmtTime(ev.date);
+}
+
 function renderResultRow(ev, showCompetition) {
   const sede = ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
-  const compTag = showCompetition ? `<span class="comp-tag">${ev.competitionName}</span>` : "";
+  const compTag = compTagHtml(ev, showCompetition);
   const score = ev.rivalScore !== "" ? `${ev.teamScore}&ndash;${ev.rivalScore}` : ev.teamScore;
   return `<div class="result-row ${ev.result}${ev.rivalryLabel ? " rivalry" : ""}">
     <span class="result-badge">${RESULT_LABEL[ev.result]}</span>
@@ -286,12 +321,38 @@ function renderResultRow(ev, showCompetition) {
 function renderUpcomingRow(ev, showCompetition) {
   const sede = ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
-  const compTag = showCompetition ? `<span class="comp-tag">${ev.competitionName}</span>` : "";
+  const compTag = compTagHtml(ev, showCompetition);
   return `<div class="upcoming-row${ev.rivalryLabel ? " rivalry" : ""}">
     <span class="result-date">${fmtDate(ev.date)}</span>
     <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
-    <span class="upcoming-time">${fmtTime(ev.date)}</span>
+    <span class="upcoming-time${ev.timeValid === false ? " tbd" : ""}">${fmtMatchTime(ev)}</span>
   </div>`;
+}
+
+function renderLiveRow(ev, showCompetition) {
+  const sede = ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
+  const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
+  const compTag = compTagHtml(ev, showCompetition);
+  const score = ev.rivalScore !== "" ? `${ev.teamScore || 0}&ndash;${ev.rivalScore}` : ev.teamScore;
+  return `<div class="live-row${ev.rivalryLabel ? " rivalry" : ""}">
+    <span class="live-badge">EN VIVO</span>
+    <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
+    <span class="live-clock">${ev.statusDetail}</span>
+    <span class="result-score">${score}</span>
+  </div>`;
+}
+
+function renderLiveSection(liveEvents, showCompetition) {
+  if (!liveEvents.length) return "";
+  return `<h3 class="live-title">En vivo</h3>${liveEvents.map((e) => renderLiveRow(e, showCompetition)).join("")}`;
+}
+
+// Quita el año de temporada ("2026-27 LALIGA" -> "LALIGA") y no repite la competicion.
+function standingLabel(groupName, competitionName) {
+  const group = groupName.replace(/^\d{4}(-\d{2,4})?\s*/, "").trim();
+  const compact = (str) => normalize(str).replace(/\s/g, "");
+  if (!group || compact(group).includes(compact(competitionName))) return competitionName;
+  return `${group} (${competitionName})`;
 }
 
 async function gatherTeamData(team, order) {
@@ -300,6 +361,8 @@ async function gatherTeamData(team, order) {
   let standingsHtml = "";
   let lastUpdated = 0;
   let nextMatch = null;
+  let envivo = "";
+  let form = [];
   const showCompetition = team.competitions.length > 1;
 
   try {
@@ -308,7 +371,8 @@ async function gatherTeamData(team, order) {
     const now = new Date();
 
     const finishedBase = parsed.filter((e) => e.completed).sort((a, b) => b.date - a.date);
-    const upcomingBase = parsed.filter((e) => !e.completed && e.date >= now).sort((a, b) => a.date - b.date);
+    const liveEvents = parsed.filter((e) => e.live).sort((a, b) => a.date - b.date);
+    const upcomingBase = parsed.filter((e) => !e.completed && !e.live && e.date >= now).sort((a, b) => a.date - b.date);
 
     // ESPN aun no publica el calendario/resultados de algunas competiciones (ej. Leagues Cup);
     // TheSportsDB rellena el ultimo y el proximo partido mientras tanto. Se compara solo por fecha
@@ -317,26 +381,28 @@ async function gatherTeamData(team, order) {
 
     let finished = finishedBase;
     if (sportsDbLast) {
-      const alreadyHave = finishedBase.some((e) => Math.abs(e.date - sportsDbLast.date) < 12 * 60 * 60 * 1000);
+      const alreadyHave = parsed.some((e) => Math.abs(e.date - sportsDbLast.date) < 12 * 60 * 60 * 1000);
       if (!alreadyHave) {
         finished = [sportsDbLast, ...finishedBase].sort((a, b) => b.date - a.date);
       }
     }
     finished = finished.slice(0, 5);
-    lastUpdated = finished.length ? finished[0].date.getTime() : 0;
+    form = finished.map((e) => e.result);
+    lastUpdated = liveEvents.length ? now.getTime() : finished.length ? finished[0].date.getTime() : 0;
 
     let upcoming = upcomingBase;
     if (sportsDbEvent) {
-      const alreadyHave = upcomingBase.some((e) => Math.abs(e.date - sportsDbEvent.date) < 12 * 60 * 60 * 1000);
+      const alreadyHave = parsed.some((e) => Math.abs(e.date - sportsDbEvent.date) < 12 * 60 * 60 * 1000);
       if (!alreadyHave) {
         upcoming = [sportsDbEvent, ...upcomingBase].sort((a, b) => a.date - b.date);
       }
     }
     upcoming = upcoming.slice(0, 5);
 
-    nextMatch = upcoming.length ? upcoming[0] : null;
+    nextMatch = liveEvents[0] || upcoming[0] || null;
 
     const primaryCompetitionNames = new Set(team.competitions.map((c) => c.name));
+    envivo = renderLiveSection(liveEvents, showCompetition || liveEvents.some((e) => !primaryCompetitionNames.has(e.competitionName)));
     const showResultCompetition = showCompetition || finished.some((e) => !primaryCompetitionNames.has(e.competitionName));
     resultados = finished.length
       ? finished.map((e) => renderResultRow(e, showResultCompetition)).join("")
@@ -358,21 +424,30 @@ async function gatherTeamData(team, order) {
     standingsHtml = standing
       ? `<div class="standing-row">
           <span class="rank-badge">${standing.rank}º</span>
-          <span class="standing-detail">de ${standing.totalInGroup} en ${standing.groupName} (${standing.competitionName})</span>
+          <span class="standing-detail">de ${standing.totalInGroup} en ${standingLabel(standing.groupName, standing.competitionName)}</span>
         </div>`
       : `<p class="muted">Posicion no disponible.</p>`;
   } catch (err) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos };
+  return { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form };
+}
+
+// Racha: ultimos resultados del mas antiguo (izquierda) al mas reciente (derecha).
+function renderForm(form) {
+  if (!form || !form.length) return "";
+  const squares = [...form].reverse().map((r) => `<span class="form-dot ${r}">${RESULT_LABEL[r]}</span>`).join("");
+  return `<div class="form" title="Ultimos ${form.length} resultados, del mas antiguo al mas reciente">${squares}</div>`;
 }
 
 function renderTeamCard(data) {
-  const { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos } = data;
-  const countdownHtml = nextMatch
-    ? `<span class="countdown" data-target="${nextMatch.date.getTime()}">Calculando...</span>`
-    : `<span class="countdown no-match">Sin Anunciar</span>`;
+  const { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo = "", form } = data;
+  const countdownHtml = nextMatch?.live
+    ? `<span class="countdown live">● EN VIVO</span>`
+    : nextMatch
+      ? `<span class="countdown" data-target="${nextMatch.date.getTime()}">Calculando...</span>`
+      : `<span class="countdown no-match">Sin Anunciar</span>`;
   return `
   <section class="card" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
     <span class="status-dot ${seasonStatus}" title="${seasonStatus === "started" ? "Temporada en curso" : "Temporada aun no comienza"}"></span>
@@ -380,7 +455,9 @@ function renderTeamCard(data) {
       <img class="logo" src="${team.logo}" alt="${team.name}" />
       <h2>${team.name}</h2>
       <span class="league">${team.badgeLabel || team.competitions.map((c) => c.name).join(" · ")}</span>
+      ${renderForm(form)}
     </div>
+    ${envivo}
     <h3>Tabla de posiciones</h3>
     ${standingsHtml}
     <h3>Ultimos resultados</h3>
@@ -398,6 +475,8 @@ async function gatherMcLarenData(order) {
   let lastUpdated = 0;
   let nextMatch = null;
   let seasonStatus = "not-started";
+  let envivo = "";
+  let form = [];
 
   try {
     const year = new Date().getUTCFullYear();
@@ -415,6 +494,7 @@ async function gatherMcLarenData(order) {
     const parsed = [...eventsById.values()].map((event) => {
       const comp = event.competitions[0];
       const completed = !!comp.status?.type?.completed;
+      const live = comp.status?.type?.state === "in";
       const mclarenDrivers = (comp.competitors || [])
         .filter((c) => MCLAREN.drivers.includes(c.athlete?.displayName))
         .sort((a, b) => Number(a.order) - Number(b.order));
@@ -429,7 +509,9 @@ async function gatherMcLarenData(order) {
       return {
         date: new Date(event.date),
         completed,
-        statusDetail: "",
+        live,
+        timeValid: comp.timeValid !== false,
+        statusDetail: live ? comp.status?.type?.shortDetail || "" : "",
         isTeamHome: true,
         rivalName: event.shortName || event.name,
         teamScore: positions,
@@ -444,14 +526,17 @@ async function gatherMcLarenData(order) {
       .filter((e) => e.completed)
       .sort((a, b) => b.date - a.date)
       .slice(0, 5);
-    lastUpdated = finished.length ? finished[0].date.getTime() : 0;
+    const liveEvents = parsed.filter((e) => e.live);
+    form = finished.map((e) => e.result).filter(Boolean);
+    lastUpdated = liveEvents.length ? now.getTime() : finished.length ? finished[0].date.getTime() : 0;
     seasonStatus = finished.length ? "started" : "not-started";
 
     const upcoming = parsed
-      .filter((e) => !e.completed && e.date >= now)
+      .filter((e) => !e.completed && !e.live && e.date >= now)
       .sort((a, b) => a.date - b.date)
       .slice(0, 5);
-    nextMatch = upcoming.length ? upcoming[0] : null;
+    nextMatch = liveEvents[0] || upcoming[0] || null;
+    envivo = renderLiveSection(liveEvents, false);
 
     resultados = finished.length
       ? finished.map((e) => renderResultRow(e, false)).join("")
@@ -473,14 +558,14 @@ async function gatherMcLarenData(order) {
       idx !== -1
         ? `<div class="standing-row">
             <span class="rank-badge">${idx + 1}º</span>
-            <span class="standing-detail">de ${entries.length} en Constructor Standings (F1)</span>
+            <span class="standing-detail">de ${entries.length} en Constructores (F1)</span>
           </div>`
         : `<p class="muted">Posicion no disponible.</p>`;
   } catch (err) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team: MCLAREN, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos };
+  return { team: MCLAREN, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form };
 }
 
 async function gatherSinnerData(order) {
@@ -489,6 +574,7 @@ async function gatherSinnerData(order) {
   let standingsHtml = "";
   let lastUpdated = 0;
   let nextMatch = null;
+  let form = [];
 
   try {
     const year = new Date().getUTCFullYear();
@@ -541,6 +627,7 @@ async function gatherSinnerData(order) {
       .sort((a, b) => b.date - a.date)
       .slice(0, 5);
     lastUpdated = finished.length ? finished[0].date.getTime() : 0;
+    form = finished.map((e) => e.result);
 
     const upcoming = parsed
       .filter((e) => !e.completed && e.date >= now)
@@ -572,7 +659,7 @@ async function gatherSinnerData(order) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team: SINNER, order, lastUpdated, nextMatch, seasonStatus: "started", standingsHtml, resultados, proximos };
+  return { team: SINNER, order, lastUpdated, nextMatch, seasonStatus: "started", standingsHtml, resultados, proximos, form };
 }
 
 async function main() {
@@ -591,7 +678,7 @@ async function main() {
   }
   const tickerHtml = nextUp
     ? (() => {
-        const msg = `Proximo partido: <strong>${nextUp.team.name}</strong> vs <strong>${nextUp.match.rivalName}</strong> &mdash; ${fmtDate(nextUp.match.date)}, ${fmtTime(nextUp.match.date)}`;
+        const msg = `Proximo partido: <strong>${nextUp.team.name}</strong> vs <strong>${nextUp.match.rivalName}</strong> &mdash; ${fmtDate(nextUp.match.date)}, ${fmtMatchTime(nextUp.match)}`;
         const repeated = Array.from({ length: 10 }, () => msg).join(" &nbsp;•&nbsp; ");
         return `<div class="ticker"><div class="ticker-track"><span class="ticker-copy">${repeated} &nbsp;•&nbsp; </span><span class="ticker-copy">${repeated} &nbsp;•&nbsp; </span></div></div>`;
       })()
@@ -748,6 +835,32 @@ async function main() {
     color: var(--muted); background: rgba(255,255,255,0.08); border-radius: 4px;
     padding: .05rem .4rem; margin-left: .35rem;
   }
+  .upcoming-time.tbd { font-style: italic; }
+  .form { display: flex; gap: .25rem; margin-top: .6rem; }
+  .form-dot {
+    width: 1.15rem; height: 1.15rem; border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .62rem; font-weight: 800; color: #fff;
+  }
+  .form-dot.win { background: var(--win); }
+  .form-dot.loss { background: var(--loss); }
+  .form-dot.draw { background: var(--draw); }
+  .card h3.live-title { color: var(--loss); }
+  .live-row {
+    display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+    padding: .4rem .5rem; margin-bottom: .3rem;
+    border-radius: 6px; font-size: .85rem;
+    background: rgba(239,68,68,0.12);
+    border-left: 4px solid var(--loss);
+  }
+  .live-badge {
+    flex: none; font-size: .62rem; font-weight: 800; letter-spacing: .05em;
+    color: #fff; background: var(--loss); border-radius: 4px; padding: .15rem .35rem;
+    animation: live-blink 1.6s infinite;
+  }
+  .live-clock { flex: none; color: var(--muted); font-size: .78rem; }
+  .countdown.live { color: #fff; background: var(--loss); animation: live-blink 1.6s infinite; }
+  @keyframes live-blink { 50% { opacity: .55; } }
   @media (max-width: 480px) {
     h1 { padding: 0 .75rem; }
     .ticker-track { animation-duration: 110s; }
@@ -818,11 +931,14 @@ async function main() {
 </html>`;
 
   const fs = await import("node:fs/promises");
-  await fs.mkdir("docs", { recursive: true });
-  await fs.writeFile("docs/index.html", html, "utf8");
-  await fs.cp("assets/teams", "docs/assets/teams", { recursive: true });
-  await fs.cp("assets/favicon", "docs/assets/favicon", { recursive: true });
-  console.log("docs/index.html y assets generados.");
+  // Solo GitHub Actions publica en docs/; localmente se genera en preview/ (ignorada por git)
+  // para no chocar con los commits automaticos del bot.
+  const outDir = process.env.GITHUB_ACTIONS ? "docs" : "preview";
+  await fs.mkdir(outDir, { recursive: true });
+  await fs.writeFile(`${outDir}/index.html`, html, "utf8");
+  await fs.cp("assets/teams", `${outDir}/assets/teams`, { recursive: true });
+  await fs.cp("assets/favicon", `${outDir}/assets/favicon`, { recursive: true });
+  console.log(`${outDir}/index.html y assets generados.`);
 }
 
 main().catch((err) => {

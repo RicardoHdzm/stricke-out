@@ -2,13 +2,18 @@ name: Actualizar dashboard
 
 on:
   schedule:
-    - cron: "0 */4 * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch: {}
   push:
     branches: [main]
 
 permissions:
   contents: write
+
+# Evita que dos ejecuciones (cron + push) publiquen al mismo tiempo.
+concurrency:
+  group: actualizar-dashboard
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -32,5 +37,6 @@ jobs:
             echo "Sin cambios."
           else
             git commit -m "Actualizar dashboard"
+            git pull --rebase
             git push
           fi
