@@ -632,7 +632,7 @@ async function main() {
   html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body {
     font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    margin: 0; padding: 0 .5rem 2rem; color: var(--text);
+    margin: 0; padding: 0 .25rem 2rem; color: var(--text);
     background-color: var(--bg);
     background-image:
       repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 14px);
@@ -641,7 +641,7 @@ async function main() {
   }
   .ticker {
     overflow: hidden; white-space: nowrap; background: rgba(0,0,0,0.5);
-    border-bottom: 1px solid var(--card-border); padding: .55rem 0; margin: 0 -.5rem 0;
+    border-bottom: 1px solid var(--card-border); padding: .55rem 0; margin: 0 -.25rem 0;
   }
   .ticker-track {
     display: flex; width: max-content;
