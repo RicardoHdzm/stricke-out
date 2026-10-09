@@ -26,7 +26,7 @@
   html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body {
     font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    margin: 0; padding: 0 1rem 4rem; color: var(--text);
+    margin: 0; padding: 0 .5rem 2rem; color: var(--text);
     background-color: var(--bg);
     background-image:
       repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 14px);
@@ -35,7 +35,7 @@
   }
   .ticker {
     overflow: hidden; white-space: nowrap; background: rgba(0,0,0,0.5);
-    border-bottom: 1px solid var(--card-border); padding: .55rem 0; margin: 0 -1rem 0;
+    border-bottom: 1px solid var(--card-border); padding: .55rem 0; margin: 0 -.5rem 0;
   }
   .ticker-track {
     display: flex; width: max-content;
@@ -49,7 +49,7 @@
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
-  h1 { text-align: center; margin: 3rem 0 .4rem; line-height: 1; }
+  h1 { text-align: center; margin: 1.75rem 0 .4rem; line-height: 1; }
   .brand {
     display: inline-block; font-family: "Anton", "Arial Black", sans-serif; transform: skewX(-8deg);
     font-size: clamp(2.75rem, 11vw, 5rem);
@@ -61,21 +61,21 @@
     font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-weight: 500;
   }
   .updated { text-align: center; color: var(--muted); font-size: .85rem; margin: .35rem 0 1.25rem; }
-  .sort-bar { display: flex; justify-content: center; gap: .5rem; margin-bottom: 2rem; }
+  .sort-bar { display: flex; justify-content: center; gap: .5rem; margin-bottom: 1.25rem; }
   .sort-btn {
     font-family: inherit; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
     color: var(--muted); background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
     border-radius: 999px; padding: .4rem 1.1rem; cursor: pointer;
   }
   .sort-btn.active { color: #0a0a0b; background: #ffffff; border-color: #ffffff; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; max-width: 1200px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: .75rem; max-width: 1200px; margin: 0 auto; }
   .card {
     position: relative;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-top: 5px solid var(--team-color);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1.1rem;
   }
   .status-dot {
     position: absolute; top: .9rem; right: .9rem; width: 12px; height: 12px; border-radius: 50%;
@@ -156,7 +156,7 @@
       <span class="brand-sub">SPORTS DASHBOARD</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: 08 oct 2026, 10:51 p.m.</p>
+  <p class="updated">Actualizado: 08 oct 2026, 10:54 p.m.</p>
   <div class="sort-bar">
     <button class="sort-btn active" data-sort="deporte">Deporte</button>
     <button class="sort-btn" data-sort="reciente">Más reciente</button>
