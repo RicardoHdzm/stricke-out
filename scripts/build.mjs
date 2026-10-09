@@ -116,6 +116,10 @@ async function getSchedule(team) {
   for (const comp of team.competitions) {
     requests.push({ comp, url: `${BASE}/${comp.path}/teams/${team.teamId}/schedule` });
     requests.push({ comp, url: `${BASE}/${comp.path}/teams/${team.teamId}/schedule?season=${previousYear}` });
+    // En futbol, /schedule solo trae partidos jugados; los proximos vienen con fixture=true.
+    if (comp.path.startsWith("soccer/")) {
+      requests.push({ comp, url: `${BASE}/${comp.path}/teams/${team.teamId}/schedule?fixture=true` });
+    }
   }
   const results = await Promise.allSettled(requests.map((r) => fetchJson(r.url)));
   const eventsById = new Map();
@@ -308,14 +312,13 @@ async function gatherTeamData(team, order) {
     const upcomingBase = parsed.filter((e) => !e.completed && e.date >= now).sort((a, b) => a.date - b.date);
 
     // ESPN aun no publica el calendario/resultados de algunas competiciones (ej. Leagues Cup);
-    // TheSportsDB rellena el ultimo y el proximo partido mientras tanto.
+    // TheSportsDB rellena el ultimo y el proximo partido mientras tanto. Se compara solo por fecha
+    // porque los nombres de rival difieren entre APIs (ej. "Atletico de San Luis" vs "Atlético de San Luis").
     const [sportsDbLast, sportsDbEvent] = await Promise.all([getSportsDbLast(team), getSportsDbUpcoming(team)]);
 
     let finished = finishedBase;
     if (sportsDbLast) {
-      const alreadyHave = finishedBase.some(
-        (e) => e.rivalName === sportsDbLast.rivalName && Math.abs(e.date - sportsDbLast.date) < 12 * 60 * 60 * 1000
-      );
+      const alreadyHave = finishedBase.some((e) => Math.abs(e.date - sportsDbLast.date) < 12 * 60 * 60 * 1000);
       if (!alreadyHave) {
         finished = [sportsDbLast, ...finishedBase].sort((a, b) => b.date - a.date);
       }
@@ -325,9 +328,7 @@ async function gatherTeamData(team, order) {
 
     let upcoming = upcomingBase;
     if (sportsDbEvent) {
-      const alreadyHave = upcomingBase.some(
-        (e) => e.rivalName === sportsDbEvent.rivalName && Math.abs(e.date - sportsDbEvent.date) < 12 * 60 * 60 * 1000
-      );
+      const alreadyHave = upcomingBase.some((e) => Math.abs(e.date - sportsDbEvent.date) < 12 * 60 * 60 * 1000);
       if (!alreadyHave) {
         upcoming = [sportsDbEvent, ...upcomingBase].sort((a, b) => a.date - b.date);
       }
