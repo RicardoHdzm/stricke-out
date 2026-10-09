@@ -674,7 +674,7 @@ async function main() {
     border-radius: 999px; padding: .4rem 1.1rem; cursor: pointer;
   }
   .sort-btn.active { color: #0a0a0b; background: #ffffff; border-color: #ffffff; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: .75rem; max-width: 1200px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: .75rem; max-width: 1500px; margin: 0 auto; }
   .card {
     position: relative;
     background: var(--card-bg);
