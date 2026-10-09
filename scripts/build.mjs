@@ -80,6 +80,8 @@ const MCLAREN = {
   badgeTextColor: "#111111",
   badgeLabel: "F1",
   drivers: ["Lando Norris", "Oscar Piastri"],
+  sport: "racing",
+  calendarTitle: (ev) => `F1: ${ev.rivalName}`,
 };
 
 const SINNER = {
@@ -90,6 +92,7 @@ const SINNER = {
   badgeTextColor: "#ffffff",
   badgeLabel: "ATP",
   athleteId: "3623",
+  sport: "tennis",
 };
 
 const BASE = "https://site.api.espn.com/apis/site/v2/sports";
@@ -318,7 +321,32 @@ function renderResultRow(ev, showCompetition) {
   </div>`;
 }
 
-function renderUpcomingRow(ev, showCompetition) {
+// Duracion aproximada del evento en el calendario, segun el deporte.
+const EVENT_HOURS = { soccer: 2, football: 3.5, baseball: 3, basketball: 2.5, hockey: 2.5, racing: 2, tennis: 3 };
+
+function toCalendarDate(d, allDay) {
+  const iso = d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return allDay ? iso.slice(0, 8) : iso;
+}
+
+// Enlace de Google Calendar; si la hora no es oficial se agrega como evento de todo el dia.
+function googleCalendarUrl(ev, team) {
+  const title = team.calendarTitle
+    ? team.calendarTitle(ev)
+    : ev.isTeamHome ? `${team.name} vs ${ev.rivalName}` : `${ev.rivalName} vs ${team.name}`;
+  const allDay = ev.timeValid === false;
+  const start = allDay ? new Date(`${ev.date.toLocaleDateString("en-CA", { timeZone: MAZATLAN_TZ })}T00:00:00Z`) : ev.date;
+  const end = new Date(start.getTime() + (allDay ? 24 : EVENT_HOURS[team.sport || team.competitions?.[0]?.path.split("/")[0]] || 2) * 60 * 60 * 1000);
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${toCalendarDate(start, allDay)}/${toCalendarDate(end, allDay)}`,
+    details: [ev.competitionName, "Agregado desde STRICKEOUT"].filter(Boolean).join(" · "),
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString().replace(/&/g, "&amp;")}`;
+}
+
+function renderUpcomingRow(ev, showCompetition, team) {
   const sede = ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
   const compTag = compTagHtml(ev, showCompetition);
@@ -326,6 +354,9 @@ function renderUpcomingRow(ev, showCompetition) {
     <span class="result-date">${fmtDate(ev.date)}</span>
     <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
     <span class="upcoming-time${ev.timeValid === false ? " tbd" : ""}">${fmtMatchTime(ev)}</span>
+    <a class="cal-link" href="${googleCalendarUrl(ev, team)}" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
+    </a>
   </div>`;
 }
 
@@ -410,7 +441,7 @@ async function gatherTeamData(team, order) {
 
     const showUpcomingCompetition = showCompetition || upcoming.some((e) => !primaryCompetitionNames.has(e.competitionName));
     proximos = upcoming.length
-      ? upcoming.map((e) => renderUpcomingRow(e, showUpcomingCompetition)).join("")
+      ? upcoming.map((e) => renderUpcomingRow(e, showUpcomingCompetition, team)).join("")
       : `<p class="muted">Calendario aun no publicado.</p>`;
   } catch (err) {
     resultados = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
@@ -542,7 +573,7 @@ async function gatherMcLarenData(order) {
       ? finished.map((e) => renderResultRow(e, false)).join("")
       : `<p class="muted">Sin resultados recientes disponibles.</p>`;
     proximos = upcoming.length
-      ? upcoming.map((e) => renderUpcomingRow(e, false)).join("")
+      ? upcoming.map((e) => renderUpcomingRow(e, false, MCLAREN)).join("")
       : `<p class="muted">Calendario aun no publicado.</p>`;
   } catch (err) {
     resultados = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
@@ -639,7 +670,7 @@ async function gatherSinnerData(order) {
       ? finished.map((e) => renderResultRow(e, true)).join("")
       : `<p class="muted">Sin resultados recientes disponibles.</p>`;
     proximos = upcoming.length
-      ? upcoming.map((e) => renderUpcomingRow(e, true)).join("")
+      ? upcoming.map((e) => renderUpcomingRow(e, true, SINNER)).join("")
       : `<p class="muted">Calendario aun no publicado.</p>`;
   } catch (err) {
     resultados = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
@@ -836,6 +867,11 @@ async function main() {
     padding: .05rem .4rem; margin-left: .35rem;
   }
   .upcoming-time.tbd { font-style: italic; }
+  .cal-link {
+    flex: none; display: flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem;
+    color: var(--muted); border-radius: 4px; transition: color .15s, background .15s;
+  }
+  .cal-link:hover, .cal-link:focus-visible { color: #fff; background: rgba(255,255,255,0.1); }
   .form { display: flex; gap: .25rem; margin-top: .6rem; }
   .form-dot {
     width: 1.15rem; height: 1.15rem; border-radius: 3px;
