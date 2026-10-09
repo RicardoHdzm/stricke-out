@@ -142,6 +142,32 @@
     color: var(--muted); background: rgba(255,255,255,0.08); border-radius: 4px;
     padding: .05rem .4rem; margin-left: .35rem;
   }
+  .upcoming-time.tbd { font-style: italic; }
+  .form { display: flex; gap: .25rem; margin-top: .6rem; }
+  .form-dot {
+    width: 1.15rem; height: 1.15rem; border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .62rem; font-weight: 800; color: #fff;
+  }
+  .form-dot.win { background: var(--win); }
+  .form-dot.loss { background: var(--loss); }
+  .form-dot.draw { background: var(--draw); }
+  .card h3.live-title { color: var(--loss); }
+  .live-row {
+    display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+    padding: .4rem .5rem; margin-bottom: .3rem;
+    border-radius: 6px; font-size: .85rem;
+    background: rgba(239,68,68,0.12);
+    border-left: 4px solid var(--loss);
+  }
+  .live-badge {
+    flex: none; font-size: .62rem; font-weight: 800; letter-spacing: .05em;
+    color: #fff; background: var(--loss); border-radius: 4px; padding: .15rem .35rem;
+    animation: live-blink 1.6s infinite;
+  }
+  .live-clock { flex: none; color: var(--muted); font-size: .78rem; }
+  .countdown.live { color: #fff; background: var(--loss); animation: live-blink 1.6s infinite; }
+  @keyframes live-blink { 50% { opacity: .55; } }
   @media (max-width: 480px) {
     h1 { padding: 0 .75rem; }
     .ticker-track { animation-duration: 110s; }
@@ -156,7 +182,7 @@
       <span class="brand-sub">SPORTS DASHBOARD</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: 08 oct 2026, 11:09 p.m.</p>
+  <p class="updated">Actualizado: 08 oct 2026, 11:23 p.m.</p>
   <div class="sort-bar">
     <button class="sort-btn active" data-sort="deporte">Deporte</button>
     <button class="sort-btn" data-sort="reciente">Más reciente</button>
@@ -169,11 +195,13 @@
       <img class="logo" src="assets/teams/real-madrid.webp" alt="Real Madrid" />
       <h2>Real Madrid</h2>
       <span class="league">LALIGA</span>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot loss">D</span></div>
     </div>
+    
     <h3>Tabla de posiciones</h3>
     <div class="standing-row">
           <span class="rank-badge">4º</span>
-          <span class="standing-detail">de 20 en 2026-27 LALIGA (LaLiga)</span>
+          <span class="standing-detail">de 20 en LaLiga</span>
         </div>
     <h3>Ultimos resultados</h3>
     <div class="result-row loss rivalry">
@@ -194,7 +222,7 @@
   </div><div class="result-row win">
     <span class="result-badge">V</span>
     <span class="result-date">08 sep 2026</span>
-    <span class="result-matchup">vs Internazionale <span class="comp-tag">Champions League</span></span>
+    <span class="result-matchup">vs Internazionale <span class="comp-tag">UCL</span></span>
     <span class="result-score">2&ndash;1</span>
   </div><div class="result-row loss">
     <span class="result-badge">D</span>
@@ -209,7 +237,7 @@
     <span class="upcoming-time">12:00 p.m.</span>
   </div><div class="upcoming-row">
     <span class="result-date">14 oct 2026</span>
-    <span class="result-matchup"><span class="away-marker">@</span> AS Roma <span class="comp-tag">Champions League</span></span>
+    <span class="result-matchup"><span class="away-marker">@</span> AS Roma <span class="comp-tag">UCL</span></span>
     <span class="upcoming-time">12:00 p.m.</span>
   </div><div class="upcoming-row">
     <span class="result-date">18 oct 2026</span>
@@ -217,7 +245,7 @@
     <span class="upcoming-time">12:00 p.m.</span>
   </div><div class="upcoming-row">
     <span class="result-date">21 oct 2026</span>
-    <span class="result-matchup">vs RB Leipzig <span class="comp-tag">Champions League</span></span>
+    <span class="result-matchup">vs RB Leipzig <span class="comp-tag">UCL</span></span>
     <span class="upcoming-time">12:00 p.m.</span>
   </div><div class="upcoming-row rivalry">
     <span class="result-date">25 oct 2026</span>
@@ -233,11 +261,13 @@
       <img class="logo" src="assets/teams/santos.png" alt="Santos Laguna" />
       <h2>Santos Laguna</h2>
       <span class="league">Liga MX</span>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot draw">E</span><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
     </div>
+    
     <h3>Tabla de posiciones</h3>
     <div class="standing-row">
           <span class="rank-badge">16º</span>
-          <span class="standing-detail">de 18 en 2026 Torneo Apertura (Liga MX)</span>
+          <span class="standing-detail">de 18 en Torneo Apertura (Liga MX)</span>
         </div>
     <h3>Ultimos resultados</h3>
     <div class="result-row win">
@@ -297,7 +327,9 @@
       <img class="logo" src="assets/teams/raiders.webp" alt="Las Vegas Raiders" />
       <h2>Las Vegas Raiders</h2>
       <span class="league">NFL</span>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot loss">D</span></div>
     </div>
+    
     <h3>Tabla de posiciones</h3>
     <div class="standing-row">
           <span class="rank-badge">6º</span>
@@ -361,7 +393,9 @@
       <img class="logo" src="assets/teams/cubs.webp" alt="Chicago Cubs" />
       <h2>Chicago Cubs</h2>
       <span class="league">MLB</span>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
     </div>
+    
     <h3>Tabla de posiciones</h3>
     <div class="standing-row">
           <span class="rank-badge">2º</span>
@@ -405,7 +439,9 @@
       <img class="logo" src="assets/teams/bulls.png" alt="Chicago Bulls" />
       <h2>Chicago Bulls</h2>
       <span class="league">NBA</span>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
     </div>
+    
     <h3>Tabla de posiciones</h3>
     <div class="standing-row">
           <span class="rank-badge">11º</span>
@@ -465,7 +501,9 @@
       <img class="logo" src="assets/teams/la.png" alt="Los Angeles Kings" />
       <h2>Los Angeles Kings</h2>
       <span class="league">NHL</span>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
     </div>
+    
     <h3>Tabla de posiciones</h3>
     <div class="standing-row">
           <span class="rank-badge">15º</span>
@@ -529,11 +567,13 @@
       <img class="logo" src="assets/teams/mclaren.png" alt="McLaren" />
       <h2>McLaren</h2>
       <span class="league">F1</span>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot draw">E</span><span class="form-dot draw">E</span><span class="form-dot draw">E</span><span class="form-dot loss">D</span></div>
     </div>
+    
     <h3>Tabla de posiciones</h3>
     <div class="standing-row">
             <span class="rank-badge">3º</span>
-            <span class="standing-detail">de 11 en Constructor Standings (F1)</span>
+            <span class="standing-detail">de 11 en Constructores (F1)</span>
           </div>
     <h3>Ultimos resultados</h3>
     <div class="result-row loss">
@@ -593,7 +633,9 @@
       <img class="logo" src="assets/teams/sinner.png" alt="Jannik Sinner" />
       <h2>Jannik Sinner</h2>
       <span class="league">ATP</span>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
     </div>
+    
     <h3>Tabla de posiciones</h3>
     <div class="standing-row">
           <span class="rank-badge">1º</span>
