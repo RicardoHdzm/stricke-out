@@ -179,6 +179,19 @@
   }
   .site-footer p { margin: 0 0 .35rem; }
   .site-footer a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+  .card-next, .card-toggle { display: none; }
+  /* En movil cada tarjeta muestra un resumen; el resto aparece al tocarla. */
+  @media (max-width: 600px) {
+    .card { cursor: pointer; }
+    .card .logo { width: 64px; height: 64px; }
+    .card:not(.expanded) .card-details { display: none; }
+    .card:not(.expanded) .card-next { display: block; }
+    .card-toggle {
+      display: block; margin: .9rem auto 0; font-family: inherit; font-size: .75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+      background: none; border: 1px solid var(--card-border); border-radius: 999px; padding: .35rem 1rem; cursor: pointer;
+    }
+  }
   @media (max-width: 480px) {
     h1 { padding: 0 .75rem; }
     .ticker-track { animation-duration: 110s; }
@@ -193,7 +206,7 @@
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: 17 oct 2026, 12:26 a.m.</p>
+  <p class="updated">Actualizado: 17 oct 2026, 12:29 a.m.</p>
   <div class="sort-bar">
     <button class="sort-btn active" data-sort="deporte">Deporte</button>
     <button class="sort-btn" data-sort="reciente">Más reciente</button>
@@ -214,8 +227,17 @@
           <span class="rank-badge">4º</span>
           <span class="standing-detail">de 20 en LaLiga</span>
         </div>
-    <h3>Ultimos resultados</h3>
-    <div class="result-row win">
+    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
+    <span class="result-date">18 oct 2026</span>
+    <span class="result-matchup">vs Sevilla <span class="comp-tag">LaLiga</span></span>
+    <span class="upcoming-time">12:00 p.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Madrid+vs+Sevilla&amp;dates=20261018T190000Z%2F20261018T210000Z&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
+    </a>
+  </div></div>
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      <div class="result-row win">
     <span class="result-badge">V</span>
     <span class="result-date">14 oct 2026</span>
     <span class="result-matchup"><span class="away-marker">@</span> AS Roma <span class="comp-tag">UCL</span></span>
@@ -241,8 +263,8 @@
     <span class="result-matchup">vs Rayo Vallecano <span class="comp-tag">LaLiga</span></span>
     <span class="result-score">4&ndash;1</span>
   </div>
-    <h3>Proximos partidos</h3>
-    <div class="upcoming-row">
+      <h3>Proximos partidos</h3>
+      <div class="upcoming-row">
     <span class="result-date">18 oct 2026</span>
     <span class="result-matchup">vs Sevilla <span class="comp-tag">LaLiga</span></span>
     <span class="upcoming-time">12:00 p.m.</span>
@@ -278,7 +300,9 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div>
+    </div>
     <span class="countdown" data-target="1792350000000">Calculando...</span>
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
   <section class="card" data-order="1" data-updated="1791759600000" style="--team-color: #0f9d58; --team-badge-text: #ffffff">
@@ -295,8 +319,17 @@
           <span class="rank-badge">14º</span>
           <span class="standing-detail">de 18 en Torneo Apertura (Liga MX)</span>
         </div>
-    <h3>Ultimos resultados</h3>
-    <div class="result-row win">
+    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
+    <span class="result-date">17 oct 2026</span>
+    <span class="result-matchup">vs Querétaro <span class="comp-tag">Liga MX</span></span>
+    <span class="upcoming-time">4:00 p.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Santos+Laguna+vs+Quer%C3%A9taro&amp;dates=20261017T230000Z%2F20261018T010000Z&amp;details=Liga+MX+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
+    </a>
+  </div></div>
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      <div class="result-row win">
     <span class="result-badge">V</span>
     <span class="result-date">11 oct 2026</span>
     <span class="result-matchup"><span class="away-marker">@</span> Atlético de San Luis </span>
@@ -322,8 +355,8 @@
     <span class="result-matchup"><span class="away-marker">@</span> Cruz Azul </span>
     <span class="result-score">0&ndash;1</span>
   </div>
-    <h3>Proximos partidos</h3>
-    <div class="upcoming-row">
+      <h3>Proximos partidos</h3>
+      <div class="upcoming-row">
     <span class="result-date">17 oct 2026</span>
     <span class="result-matchup">vs Querétaro </span>
     <span class="upcoming-time">4:00 p.m.</span>
@@ -359,7 +392,9 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div>
+    </div>
     <span class="countdown" data-target="1792278000000">Calculando...</span>
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
   <section class="card" data-order="2" data-updated="1791738000000" style="--team-color: #a5acaf; --team-badge-text: #111111">
@@ -376,8 +411,17 @@
           <span class="rank-badge">7º</span>
           <span class="standing-detail">de 16 en American Football Conference (NFL)</span>
         </div>
-    <h3>Ultimos resultados</h3>
-    <div class="result-row loss">
+    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
+    <span class="result-date">18 oct 2026</span>
+    <span class="result-matchup">vs Buffalo Bills <span class="comp-tag">NFL</span></span>
+    <span class="upcoming-time">1:25 p.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Las+Vegas+Raiders+vs+Buffalo+Bills&amp;dates=20261018T202500Z%2F20261018T235500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
+    </a>
+  </div></div>
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      <div class="result-row loss">
     <span class="result-badge">D</span>
     <span class="result-date">11 oct 2026</span>
     <span class="result-matchup"><span class="away-marker">@</span> New England Patriots </span>
@@ -403,8 +447,8 @@
     <span class="result-matchup">vs Miami Dolphins </span>
     <span class="result-score">27&ndash;13</span>
   </div>
-    <h3>Proximos partidos</h3>
-    <div class="upcoming-row">
+      <h3>Proximos partidos</h3>
+      <div class="upcoming-row">
     <span class="result-date">18 oct 2026</span>
     <span class="result-matchup">vs Buffalo Bills </span>
     <span class="upcoming-time">1:25 p.m.</span>
@@ -440,7 +484,9 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div>
+    </div>
     <span class="countdown" data-target="1792355100000">Calculando...</span>
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
   <section class="card" data-order="3" data-updated="1790820000000" style="--team-color: #0e3386; --team-badge-text: #ffffff">
@@ -457,8 +503,10 @@
           <span class="rank-badge">2º</span>
           <span class="standing-detail">de 15 en National League (MLB)</span>
         </div>
-    <h3>Ultimos resultados</h3>
-    <div class="result-row loss">
+    
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      <div class="result-row loss">
     <span class="result-badge">D</span>
     <span class="result-date">30 sep 2026</span>
     <span class="result-matchup"><span class="away-marker">@</span> San Diego Padres </span>
@@ -484,9 +532,11 @@
     <span class="result-matchup">vs St. Louis Cardinals </span>
     <span class="result-score">12&ndash;1</span>
   </div>
-    <h3>Proximos partidos</h3>
-    <p class="muted">Calendario aun no publicado.</p>
+      <h3>Proximos partidos</h3>
+      <p class="muted">Calendario aun no publicado.</p>
+    </div>
     <span class="countdown no-match">Sin Anunciar</span>
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
   <section class="card" data-order="4" data-updated="1792195200000" style="--team-color: #ce1141; --team-badge-text: #ffffff">
@@ -503,8 +553,10 @@
           <span class="rank-badge">9º</span>
           <span class="standing-detail">de 15 en Eastern Conference (NBA)</span>
         </div>
-    <h3>Ultimos resultados</h3>
-    <div class="result-row win">
+    
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      <div class="result-row win">
     <span class="result-badge">V</span>
     <span class="result-date">16 oct 2026</span>
     <span class="result-matchup">vs Minnesota Timberwolves </span>
@@ -530,9 +582,11 @@
     <span class="result-matchup">vs Phoenix Suns </span>
     <span class="result-score">124&ndash;117</span>
   </div>
-    <h3>Proximos partidos</h3>
-    <p class="muted">Calendario aun no publicado.</p>
+      <h3>Proximos partidos</h3>
+      <p class="muted">Calendario aun no publicado.</p>
+    </div>
     <span class="countdown no-match">Sin Anunciar</span>
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
   <section class="card" data-order="5" data-updated="1791945000000" style="--team-color: #8b5cf6; --team-badge-text: #ffffff">
@@ -549,8 +603,17 @@
           <span class="rank-badge">15º</span>
           <span class="standing-detail">de 16 en Western Conference (NHL)</span>
         </div>
-    <h3>Ultimos resultados</h3>
-    <div class="result-row loss">
+    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
+    <span class="result-date">17 oct 2026</span>
+    <span class="result-matchup">vs Boston Bruins <span class="comp-tag">NHL</span></span>
+    <span class="upcoming-time">6:00 p.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Los+Angeles+Kings+vs+Boston+Bruins&amp;dates=20261018T010000Z%2F20261018T033000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
+    </a>
+  </div></div>
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      <div class="result-row loss">
     <span class="result-badge">D</span>
     <span class="result-date">13 oct 2026</span>
     <span class="result-matchup">vs Edmonton Oilers </span>
@@ -576,8 +639,8 @@
     <span class="result-matchup"><span class="away-marker">@</span> Colorado Avalanche </span>
     <span class="result-score">4&ndash;8</span>
   </div>
-    <h3>Proximos partidos</h3>
-    <div class="upcoming-row">
+      <h3>Proximos partidos</h3>
+      <div class="upcoming-row">
     <span class="result-date">17 oct 2026</span>
     <span class="result-matchup">vs Boston Bruins </span>
     <span class="upcoming-time">6:00 p.m.</span>
@@ -613,7 +676,9 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div>
+    </div>
     <span class="countdown" data-target="1792285200000">Calculando...</span>
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
   <section class="card" data-order="6" data-updated="1791534600000" style="--team-color: #ff8700; --team-badge-text: #111111">
@@ -630,8 +695,17 @@
             <span class="rank-badge">3º</span>
             <span class="standing-detail">de 11 en Constructores (F1)</span>
           </div>
-    <h3>Ultimos resultados</h3>
-    <div class="result-row win">
+    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
+    <span class="result-date">23 oct 2026</span>
+    <span class="result-matchup">vs MSC Cruises United States GP <span class="comp-tag">F1</span></span>
+    <span class="upcoming-time">10:30 a.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+MSC+Cruises+United+States+GP&amp;dates=20261023T173000Z%2F20261023T193000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
+    </a>
+  </div></div>
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      <div class="result-row win">
     <span class="result-badge">V</span>
     <span class="result-date">09 oct 2026</span>
     <span class="result-matchup">vs Singapore Airlines Singapore GP </span>
@@ -657,8 +731,8 @@
     <span class="result-matchup">vs Pirelli Italian GP </span>
     <span class="result-score">P6 · P11</span>
   </div>
-    <h3>Proximos partidos</h3>
-    <div class="upcoming-row">
+      <h3>Proximos partidos</h3>
+      <div class="upcoming-row">
     <span class="result-date">23 oct 2026</span>
     <span class="result-matchup">vs MSC Cruises United States GP </span>
     <span class="upcoming-time">10:30 a.m.</span>
@@ -694,7 +768,9 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div>
+    </div>
     <span class="countdown" data-target="1792776600000">Calculando...</span>
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
   <section class="card" data-order="7" data-updated="1783868700000" style="--team-color: #1d4ed8; --team-badge-text: #ffffff">
@@ -711,8 +787,10 @@
           <span class="rank-badge">1º</span>
           <span class="standing-detail">Ranking ATP &middot; 11000 pts</span>
         </div>
-    <h3>Ultimos resultados</h3>
-    <div class="result-row win">
+    
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      <div class="result-row win">
     <span class="result-badge">V</span>
     <span class="result-date">12 jul 2026</span>
     <span class="result-matchup">vs Alexander Zverev <span class="comp-tag">Wimbledon</span></span>
@@ -738,9 +816,11 @@
     <span class="result-matchup">vs Jenson Brooksby <span class="comp-tag">Wimbledon</span></span>
     <span class="result-score"></span>
   </div>
-    <h3>Proximos partidos</h3>
-    <p class="muted">Calendario aun no publicado.</p>
+      <h3>Proximos partidos</h3>
+      <p class="muted">Calendario aun no publicado.</p>
+    </div>
     <span class="countdown no-match">Sin Anunciar</span>
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
   </div>
   <footer class="site-footer">
@@ -788,6 +868,20 @@
           btn.classList.add("active");
           sortBy(btn.dataset.sort);
         });
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      var mobile = window.matchMedia("(max-width: 600px)");
+      document.getElementById("grid").addEventListener("click", function (e) {
+        var card = e.target.closest(".card");
+        if (!card || !mobile.matches) return;
+        if (e.target.closest("a")) return;
+        var expanded = card.classList.toggle("expanded");
+        var btn = card.querySelector(".card-toggle");
+        btn.textContent = expanded ? "Ver menos" : "Ver más";
+        btn.setAttribute("aria-expanded", String(expanded));
       });
     })();
   </script>
