@@ -29,7 +29,9 @@
     margin: 0; padding: 0 .25rem 2rem; color: var(--text);
     background-color: var(--bg);
     background-image:
-      repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 14px);
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -92,8 +94,13 @@
     70% { box-shadow: 0 0 0 9px rgba(239,68,68,0); }
     100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
   }
-  .card-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 1.25rem; }
-  .logo { width: 88px; height: 88px; object-fit: contain; margin-bottom: .6rem; }
+  .card-header {
+    display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto auto; column-gap: 1rem;
+    align-items: center; justify-items: start; text-align: left;
+    margin: -1.1rem -1.1rem .25rem; padding: 1.1rem 2rem 1.1rem 1.1rem; border-radius: 7px 7px 0 0;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--team-color) 22%, transparent), transparent);
+  }
+  .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 3; margin: 0; }
   .card-header h2 { margin: 0; font-size: 1.25rem; font-weight: 800; }
   .league { margin-top: .35rem; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border: 1px solid currentColor; border-radius: 999px; padding: .15rem .6rem; text-align: center; }
   .countdown {
@@ -104,6 +111,13 @@
   .muted { color: var(--muted); font-size: .9rem; margin: 0; }
 
   .standing-row { display: flex; align-items: center; gap: .75rem; }
+  .card-header .standing-row {
+    grid-column: 3; grid-row: 1 / span 3; justify-self: end;
+    flex-direction: column; gap: .3rem; text-align: center;
+  }
+  .card-header .rank-badge { width: 3rem; height: 3rem; font-size: 1.1rem; }
+  .card-header .standing-detail { max-width: 5.5rem; font-size: .68rem; line-height: 1.3; color: var(--muted); }
+  .card-header .muted { grid-column: 3; grid-row: 1 / span 3; max-width: 6.5rem; font-size: .7rem; }
   .rank-badge {
     flex: none; display: flex; align-items: center; justify-content: center;
     width: 2.5rem; height: 2.5rem; border-radius: 50%;
@@ -179,11 +193,31 @@
   }
   .site-footer p { margin: 0 0 .35rem; }
   .site-footer a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+  .agenda {
+    max-width: 1500px; margin: 0 auto 1.25rem; padding: 1rem 1.1rem;
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px;
+  }
+  .agenda h2 { margin: 0 0 .25rem; font-size: 1rem; font-weight: 800; }
+  .agenda h3 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: .9rem 0 .4rem; font-weight: 700; }
+  .agenda-day { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); column-gap: .75rem; }
+  .agenda-day h3 { grid-column: 1 / -1; }
+  .agenda-row {
+    display: flex; align-items: center; gap: .6rem; padding: .4rem .5rem; margin-bottom: .3rem;
+    border-radius: 6px; font-size: .85rem; color: var(--text); text-decoration: none;
+    background: rgba(255,255,255,0.04); border-left: 4px solid var(--team-color);
+  }
+  .agenda-row:hover { background: rgba(255,255,255,0.08); }
+  .agenda-time { flex: none; width: 4.6rem; color: var(--muted); font-size: .78rem; }
+  .agenda-time.tbd { font-style: italic; }
+  .agenda-logo { flex: none; width: 22px; height: 22px; object-fit: contain; }
+  .agenda-match { flex: 1; min-width: 0; }
+  .agenda-match strong { font-weight: 700; }
   .card-next, .card-toggle { display: none; }
   /* En movil cada tarjeta muestra un resumen; el resto aparece al tocarla. */
   @media (max-width: 600px) {
     .card { cursor: pointer; }
     .card .logo { width: 64px; height: 64px; }
+    .card-header h2 { font-size: 1.05rem; }
     .card:not(.expanded) .card-details { display: none; }
     .card:not(.expanded) .card-next { display: block; }
     .card-toggle {
@@ -206,27 +240,67 @@
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: 17 oct 2026, 12:29 a.m.</p>
+  <p class="updated">Actualizado: 17 oct 2026, 12:54 a.m.</p>
   <div class="sort-bar">
     <button class="sort-btn active" data-sort="deporte">Deporte</button>
     <button class="sort-btn" data-sort="reciente">Más reciente</button>
   </div>
+  <section class="agenda"><h2>Esta semana</h2><div class="agenda-day"><h3>Hoy &middot; sábado 17 de oct</h3><a class="agenda-row" href="#santos-laguna" style="--team-color: #0f9d58">
+        <span class="agenda-time">4:00 p.m.</span>
+        <img class="agenda-logo" src="assets/teams/santos.png" alt="" />
+        <span class="agenda-match"><strong>Santos Laguna</strong> vs Querétaro</span>
+        <span class="comp-tag">Liga MX</span>
+      </a><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
+        <span class="agenda-time">6:00 p.m.</span>
+        <img class="agenda-logo" src="assets/teams/la.png" alt="" />
+        <span class="agenda-match"><strong>Los Angeles Kings</strong> vs Boston Bruins</span>
+        <span class="comp-tag">NHL</span>
+      </a></div><div class="agenda-day"><h3>Mañana &middot; domingo 18 de oct</h3><a class="agenda-row" href="#real-madrid" style="--team-color: #ffffff">
+        <span class="agenda-time">12:00 p.m.</span>
+        <img class="agenda-logo" src="assets/teams/real-madrid.webp" alt="" />
+        <span class="agenda-match"><strong>Real Madrid</strong> vs Sevilla</span>
+        <span class="comp-tag">LaLiga</span>
+      </a><a class="agenda-row" href="#raiders" style="--team-color: #a5acaf">
+        <span class="agenda-time">1:25 p.m.</span>
+        <img class="agenda-logo" src="assets/teams/raiders.webp" alt="" />
+        <span class="agenda-match"><strong>Las Vegas Raiders</strong> vs Buffalo Bills</span>
+        <span class="comp-tag">NFL</span>
+      </a></div><div class="agenda-day"><h3>martes 20 de oct</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
+        <span class="agenda-time">4:00 p.m.</span>
+        <img class="agenda-logo" src="assets/teams/la.png" alt="" />
+        <span class="agenda-match"><strong>Los Angeles Kings</strong> <span class="away-marker">@</span> Washington Capitals</span>
+        <span class="comp-tag">NHL</span>
+      </a></div><div class="agenda-day"><h3>miércoles 21 de oct</h3><a class="agenda-row" href="#real-madrid" style="--team-color: #ffffff">
+        <span class="agenda-time">12:00 p.m.</span>
+        <img class="agenda-logo" src="assets/teams/real-madrid.webp" alt="" />
+        <span class="agenda-match"><strong>Real Madrid</strong> vs RB Leipzig</span>
+        <span class="comp-tag">UCL</span>
+      </a><a class="agenda-row" href="#santos-laguna" style="--team-color: #0f9d58">
+        <span class="agenda-time">8:10 p.m.</span>
+        <img class="agenda-logo" src="assets/teams/santos.png" alt="" />
+        <span class="agenda-match"><strong>Santos Laguna</strong> vs Pumas UNAM</span>
+        <span class="comp-tag">Liga MX</span>
+      </a></div><div class="agenda-day"><h3>jueves 22 de oct</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
+        <span class="agenda-time">4:30 p.m.</span>
+        <img class="agenda-logo" src="assets/teams/la.png" alt="" />
+        <span class="agenda-match"><strong>Los Angeles Kings</strong> <span class="away-marker">@</span> New York Islanders</span>
+        <span class="comp-tag">NHL</span>
+      </a></div></section>
   <div class="grid" id="grid">
     
-  <section class="card" data-order="0" data-updated="1792004400000" style="--team-color: #ffffff; --team-badge-text: #111111">
+  <section class="card" id="real-madrid" data-order="0" data-updated="1792004400000" style="--team-color: #ffffff; --team-badge-text: #111111">
     <span class="status-dot started" title="Temporada en curso"></span>
     <div class="card-header">
       <img class="logo" src="assets/teams/real-madrid.webp" alt="Real Madrid" />
       <h2>Real Madrid</h2>
       <span class="league">LALIGA</span>
       <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
+      <div class="standing-row">
+          <span class="rank-badge">4º</span>
+          <span class="standing-detail" title="de 20 en LaLiga">de 20 &middot; LaLiga</span>
+        </div>
     </div>
     
-    <h3>Tabla de posiciones</h3>
-    <div class="standing-row">
-          <span class="rank-badge">4º</span>
-          <span class="standing-detail">de 20 en LaLiga</span>
-        </div>
     <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
     <span class="result-date">18 oct 2026</span>
     <span class="result-matchup">vs Sevilla <span class="comp-tag">LaLiga</span></span>
@@ -305,20 +379,19 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" data-order="1" data-updated="1791759600000" style="--team-color: #0f9d58; --team-badge-text: #ffffff">
+  <section class="card" id="santos-laguna" data-order="1" data-updated="1791759600000" style="--team-color: #0f9d58; --team-badge-text: #ffffff">
     <span class="status-dot started" title="Temporada en curso"></span>
     <div class="card-header">
       <img class="logo" src="assets/teams/santos.png" alt="Santos Laguna" />
       <h2>Santos Laguna</h2>
       <span class="league">Liga MX</span>
       <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
+      <div class="standing-row">
+          <span class="rank-badge">14º</span>
+          <span class="standing-detail" title="de 18 en Torneo Apertura (Liga MX)">de 18 &middot; Liga MX</span>
+        </div>
     </div>
     
-    <h3>Tabla de posiciones</h3>
-    <div class="standing-row">
-          <span class="rank-badge">14º</span>
-          <span class="standing-detail">de 18 en Torneo Apertura (Liga MX)</span>
-        </div>
     <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
     <span class="result-date">17 oct 2026</span>
     <span class="result-matchup">vs Querétaro <span class="comp-tag">Liga MX</span></span>
@@ -397,20 +470,19 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" data-order="2" data-updated="1791738000000" style="--team-color: #a5acaf; --team-badge-text: #111111">
+  <section class="card" id="raiders" data-order="2" data-updated="1791738000000" style="--team-color: #a5acaf; --team-badge-text: #111111">
     <span class="status-dot started" title="Temporada en curso"></span>
     <div class="card-header">
       <img class="logo" src="assets/teams/raiders.webp" alt="Las Vegas Raiders" />
       <h2>Las Vegas Raiders</h2>
       <span class="league">NFL</span>
       <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
+      <div class="standing-row">
+          <span class="rank-badge">7º</span>
+          <span class="standing-detail" title="de 16 en American Football Conference (NFL)">de 16 &middot; NFL</span>
+        </div>
     </div>
     
-    <h3>Tabla de posiciones</h3>
-    <div class="standing-row">
-          <span class="rank-badge">7º</span>
-          <span class="standing-detail">de 16 en American Football Conference (NFL)</span>
-        </div>
     <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
     <span class="result-date">18 oct 2026</span>
     <span class="result-matchup">vs Buffalo Bills <span class="comp-tag">NFL</span></span>
@@ -489,20 +561,19 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" data-order="3" data-updated="1790820000000" style="--team-color: #0e3386; --team-badge-text: #ffffff">
+  <section class="card" id="cubs" data-order="3" data-updated="1790820000000" style="--team-color: #0e3386; --team-badge-text: #ffffff">
     <span class="status-dot started" title="Temporada en curso"></span>
     <div class="card-header">
       <img class="logo" src="assets/teams/cubs.webp" alt="Chicago Cubs" />
       <h2>Chicago Cubs</h2>
       <span class="league">MLB</span>
       <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
+      <div class="standing-row">
+          <span class="rank-badge">2º</span>
+          <span class="standing-detail" title="de 15 en National League (MLB)">de 15 &middot; MLB</span>
+        </div>
     </div>
     
-    <h3>Tabla de posiciones</h3>
-    <div class="standing-row">
-          <span class="rank-badge">2º</span>
-          <span class="standing-detail">de 15 en National League (MLB)</span>
-        </div>
     
     <div class="card-details">
       <h3>Ultimos resultados</h3>
@@ -539,20 +610,19 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" data-order="4" data-updated="1792195200000" style="--team-color: #ce1141; --team-badge-text: #ffffff">
+  <section class="card" id="bulls" data-order="4" data-updated="1792195200000" style="--team-color: #ce1141; --team-badge-text: #ffffff">
     <span class="status-dot not-started" title="Temporada aun no comienza"></span>
     <div class="card-header">
       <img class="logo" src="assets/teams/bulls.png" alt="Chicago Bulls" />
       <h2>Chicago Bulls</h2>
       <span class="league">NBA</span>
       <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
+      <div class="standing-row">
+          <span class="rank-badge">9º</span>
+          <span class="standing-detail" title="de 15 en Eastern Conference (NBA)">de 15 &middot; NBA</span>
+        </div>
     </div>
     
-    <h3>Tabla de posiciones</h3>
-    <div class="standing-row">
-          <span class="rank-badge">9º</span>
-          <span class="standing-detail">de 15 en Eastern Conference (NBA)</span>
-        </div>
     
     <div class="card-details">
       <h3>Ultimos resultados</h3>
@@ -589,20 +659,19 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" data-order="5" data-updated="1791945000000" style="--team-color: #8b5cf6; --team-badge-text: #ffffff">
+  <section class="card" id="kings" data-order="5" data-updated="1791945000000" style="--team-color: #8b5cf6; --team-badge-text: #ffffff">
     <span class="status-dot started" title="Temporada en curso"></span>
     <div class="card-header">
       <img class="logo" src="assets/teams/la.png" alt="Los Angeles Kings" />
       <h2>Los Angeles Kings</h2>
       <span class="league">NHL</span>
       <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
+      <div class="standing-row">
+          <span class="rank-badge">15º</span>
+          <span class="standing-detail" title="de 16 en Western Conference (NHL)">de 16 &middot; NHL</span>
+        </div>
     </div>
     
-    <h3>Tabla de posiciones</h3>
-    <div class="standing-row">
-          <span class="rank-badge">15º</span>
-          <span class="standing-detail">de 16 en Western Conference (NHL)</span>
-        </div>
     <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
     <span class="result-date">17 oct 2026</span>
     <span class="result-matchup">vs Boston Bruins <span class="comp-tag">NHL</span></span>
@@ -681,112 +750,110 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" data-order="6" data-updated="1791534600000" style="--team-color: #ff8700; --team-badge-text: #111111">
+  <section class="card" id="mclaren" data-order="6" data-updated="1791720000000" style="--team-color: #ff8700; --team-badge-text: #111111">
     <span class="status-dot started" title="Temporada en curso"></span>
     <div class="card-header">
       <img class="logo" src="assets/teams/mclaren.png" alt="McLaren" />
       <h2>McLaren</h2>
       <span class="league">F1</span>
-      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot draw">E</span><span class="form-dot draw">E</span><span class="form-dot draw">E</span><span class="form-dot loss">D</span><span class="form-dot win">V</span></div>
+      <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot draw">4</span><span class="form-dot win">3</span><span class="form-dot loss">13</span><span class="form-dot draw">6</span><span class="form-dot draw">4</span></div>
+      <div class="standing-row">
+            <span class="rank-badge">3º</span>
+            <span class="standing-detail" title="de 11 en Constructores (F1)">de 11 &middot; Constructores</span>
+          </div>
     </div>
     
-    <h3>Tabla de posiciones</h3>
-    <div class="standing-row">
-            <span class="rank-badge">3º</span>
-            <span class="standing-detail">de 11 en Constructores (F1)</span>
-          </div>
-    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
-    <span class="result-date">23 oct 2026</span>
-    <span class="result-matchup">vs MSC Cruises United States GP <span class="comp-tag">F1</span></span>
-    <span class="upcoming-time">10:30 a.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+MSC+Cruises+United+States+GP&amp;dates=20261023T173000Z%2F20261023T193000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+    <div class="card-next"><h3>Proxima carrera</h3><div class="upcoming-row">
+    <span class="result-date">25 oct 2026</span>
+    <span class="result-matchup"> United States GP <span class="comp-tag">F1</span></span>
+    <span class="upcoming-time">1:00 p.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+United+States+GP&amp;dates=20261025T200000Z%2F20261025T220000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div></div>
     <div class="card-details">
       <h3>Ultimos resultados</h3>
-      <div class="result-row win">
-    <span class="result-badge">V</span>
-    <span class="result-date">09 oct 2026</span>
-    <span class="result-matchup">vs Singapore Airlines Singapore GP </span>
-    <span class="result-score">P3 · P5</span>
+      <div class="result-row draw">
+    <span class="result-badge">4</span>
+    <span class="result-date">11 oct 2026</span>
+    <span class="result-matchup"> Singapore GP </span>
+    <span class="result-score">P4 · P5</span>
+  </div><div class="result-row draw">
+    <span class="result-badge">6</span>
+    <span class="result-date">04 oct 2026</span>
+    <span class="result-matchup"> Bahrain GP in Malaysia </span>
+    <span class="result-score">P6 · P9</span>
   </div><div class="result-row loss">
-    <span class="result-badge">D</span>
-    <span class="result-date">01 oct 2026</span>
-    <span class="result-matchup">vs Gulf Air Bahrain GP in Malaysia </span>
-    <span class="result-score">P11 · P12</span>
+    <span class="result-badge">13</span>
+    <span class="result-date">26 sep 2026</span>
+    <span class="result-matchup"> Azerbaijan GP </span>
+    <span class="result-score">P13 · P19</span>
+  </div><div class="result-row win">
+    <span class="result-badge">3</span>
+    <span class="result-date">13 sep 2026</span>
+    <span class="result-matchup"> Spanish GP </span>
+    <span class="result-score">P3 · P8</span>
   </div><div class="result-row draw">
-    <span class="result-badge">E</span>
-    <span class="result-date">24 sep 2026</span>
-    <span class="result-matchup">vs Qatar Airways Azerbaijan GP </span>
-    <span class="result-score">P6 · P14</span>
-  </div><div class="result-row draw">
-    <span class="result-badge">E</span>
-    <span class="result-date">11 sep 2026</span>
-    <span class="result-matchup">vs Tag Heuer Spanish GP </span>
-    <span class="result-score">P6 · P8</span>
-  </div><div class="result-row draw">
-    <span class="result-badge">E</span>
-    <span class="result-date">04 sep 2026</span>
-    <span class="result-matchup">vs Pirelli Italian GP </span>
-    <span class="result-score">P6 · P11</span>
+    <span class="result-badge">4</span>
+    <span class="result-date">06 sep 2026</span>
+    <span class="result-matchup"> Italian GP </span>
+    <span class="result-score">P4 · P5</span>
   </div>
-      <h3>Proximos partidos</h3>
+      <h3>Proximas carreras</h3>
       <div class="upcoming-row">
-    <span class="result-date">23 oct 2026</span>
-    <span class="result-matchup">vs MSC Cruises United States GP </span>
-    <span class="upcoming-time">10:30 a.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+MSC+Cruises+United+States+GP&amp;dates=20261023T173000Z%2F20261023T193000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+    <span class="result-date">25 oct 2026</span>
+    <span class="result-matchup"> United States GP </span>
+    <span class="upcoming-time">1:00 p.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+United+States+GP&amp;dates=20261025T200000Z%2F20261025T220000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">30 oct 2026</span>
-    <span class="result-matchup">vs Mexico City GP </span>
-    <span class="upcoming-time">11:30 a.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Mexico+City+GP&amp;dates=20261030T183000Z%2F20261030T203000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+    <span class="result-date">01 nov 2026</span>
+    <span class="result-matchup"> Mexico City GP </span>
+    <span class="upcoming-time">1:00 p.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Mexico+City+GP&amp;dates=20261101T200000Z%2F20261101T220000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">06 nov 2026</span>
-    <span class="result-matchup">vs MSC Cruises São Paulo GP </span>
-    <span class="upcoming-time">8:30 a.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+MSC+Cruises+S%C3%A3o+Paulo+GP&amp;dates=20261106T153000Z%2F20261106T173000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+    <span class="result-date">08 nov 2026</span>
+    <span class="result-matchup"> São Paulo GP </span>
+    <span class="upcoming-time">10:00 a.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+S%C3%A3o+Paulo+GP&amp;dates=20261108T170000Z%2F20261108T190000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">19 nov 2026</span>
-    <span class="result-matchup">vs Heineken Las Vegas GP </span>
-    <span class="upcoming-time">5:30 p.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Heineken+Las+Vegas+GP&amp;dates=20261120T003000Z%2F20261120T023000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+    <span class="result-date">21 nov 2026</span>
+    <span class="result-matchup"> Las Vegas GP </span>
+    <span class="upcoming-time">9:00 p.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Las+Vegas+GP&amp;dates=20261122T040000Z%2F20261122T060000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">27 nov 2026</span>
-    <span class="result-matchup">vs Qatar Airways Qatar GP </span>
-    <span class="upcoming-time">6:30 a.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Qatar+Airways+Qatar+GP&amp;dates=20261127T133000Z%2F20261127T153000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
+    <span class="result-date">29 nov 2026</span>
+    <span class="result-matchup"> Qatar GP </span>
+    <span class="upcoming-time">9:00 a.m.</span>
+    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Qatar+GP&amp;dates=20261129T160000Z%2F20261129T180000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div>
     </div>
-    <span class="countdown" data-target="1792776600000">Calculando...</span>
+    <span class="countdown" data-target="1792958400000">Calculando...</span>
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" data-order="7" data-updated="1783868700000" style="--team-color: #1d4ed8; --team-badge-text: #ffffff">
+  <section class="card" id="sinner" data-order="7" data-updated="1783868700000" style="--team-color: #1d4ed8; --team-badge-text: #ffffff">
     <span class="status-dot started" title="Temporada en curso"></span>
     <div class="card-header">
       <img class="logo" src="assets/teams/sinner.png" alt="Jannik Sinner" />
       <h2>Jannik Sinner</h2>
       <span class="league">ATP</span>
       <div class="form" title="Ultimos 5 resultados, del mas antiguo al mas reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
+      <div class="standing-row">
+          <span class="rank-badge">1º</span>
+          <span class="standing-detail">ATP &middot; 11000 pts</span>
+        </div>
     </div>
     
-    <h3>Tabla de posiciones</h3>
-    <div class="standing-row">
-          <span class="rank-badge">1º</span>
-          <span class="standing-detail">Ranking ATP &middot; 11000 pts</span>
-        </div>
     
     <div class="card-details">
       <h3>Ultimos resultados</h3>
@@ -824,8 +891,8 @@
   </section>
   </div>
   <footer class="site-footer">
-    <p>&copy; 2026 STRICKEOUT &middot; @RicardoHdzm</p>
-    <p>Datos: <a href="https://www.espn.com" target="_blank" rel="noopener">ESPN</a> y <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a>. Uso personal.</p>
+    <p>&copy; 2026 STRICKEOUT &middot; @RicardoHdzm &middot; Uso Personal</p>
+    <p>Datos: <a href="https://www.espn.com" target="_blank" rel="noopener">ESPN</a> y <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a></p>
   </footer>
   <script>
     (function () {
