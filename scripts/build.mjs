@@ -82,6 +82,7 @@ const MCLAREN = {
   drivers: ["Lando Norris", "Oscar Piastri"],
   sport: "racing",
   calendarTitle: (ev) => `F1: ${ev.rivalName}`,
+  labels: { next: "Proxima carrera", upcoming: "Proximas carreras" },
 };
 
 const SINNER = {
@@ -309,12 +310,12 @@ function fmtMatchTime(ev) {
 }
 
 function renderResultRow(ev, showCompetition) {
-  const sede = ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
+  const sede = ev.isRace ? "" : ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
   const compTag = compTagHtml(ev, showCompetition);
   const score = ev.rivalScore !== "" ? `${ev.teamScore}&ndash;${ev.rivalScore}` : ev.teamScore;
   return `<div class="result-row ${ev.result}${ev.rivalryLabel ? " rivalry" : ""}">
-    <span class="result-badge">${RESULT_LABEL[ev.result]}</span>
+    <span class="result-badge">${ev.formLabel || RESULT_LABEL[ev.result]}</span>
     <span class="result-date">${fmtDate(ev.date)}</span>
     <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
     <span class="result-score">${score}</span>
@@ -347,7 +348,7 @@ function googleCalendarUrl(ev, team) {
 }
 
 function renderUpcomingRow(ev, showCompetition, team) {
-  const sede = ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
+  const sede = ev.isRace ? "" : ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
   const compTag = compTagHtml(ev, showCompetition);
   return `<div class="upcoming-row${ev.rivalryLabel ? " rivalry" : ""}">
@@ -361,7 +362,7 @@ function renderUpcomingRow(ev, showCompetition, team) {
 }
 
 function renderLiveRow(ev, showCompetition) {
-  const sede = ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
+  const sede = ev.isRace ? "" : ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
   const compTag = compTagHtml(ev, showCompetition);
   const score = ev.rivalScore !== "" ? `${ev.teamScore || 0}&ndash;${ev.rivalScore}` : ev.teamScore;
@@ -394,6 +395,7 @@ async function gatherTeamData(team, order) {
   let nextMatch = null;
   let envivo = "";
   let form = [];
+  let agenda = [];
   const showCompetition = team.competitions.length > 1;
 
   try {
@@ -418,7 +420,7 @@ async function gatherTeamData(team, order) {
       }
     }
     finished = finished.slice(0, 5);
-    form = finished.map((e) => e.result);
+    form = finished;
     lastUpdated = liveEvents.length ? now.getTime() : finished.length ? finished[0].date.getTime() : 0;
 
     let upcoming = upcomingBase;
@@ -431,6 +433,7 @@ async function gatherTeamData(team, order) {
     upcoming = upcoming.slice(0, 5);
 
     nextMatch = liveEvents[0] || upcoming[0] || null;
+    agenda = [...liveEvents, ...upcoming];
 
     const primaryCompetitionNames = new Set(team.competitions.map((c) => c.name));
     envivo = renderLiveSection(liveEvents, showCompetition || liveEvents.some((e) => !primaryCompetitionNames.has(e.competitionName)));
@@ -455,20 +458,64 @@ async function gatherTeamData(team, order) {
     standingsHtml = standing
       ? `<div class="standing-row">
           <span class="rank-badge">${standing.rank}º</span>
-          <span class="standing-detail">de ${standing.totalInGroup} en ${standingLabel(standing.groupName, standing.competitionName)}</span>
+          <span class="standing-detail" title="de ${standing.totalInGroup} en ${standingLabel(standing.groupName, standing.competitionName)}">de ${standing.totalInGroup} &middot; ${standing.competitionName}</span>
         </div>`
       : `<p class="muted">Posicion no disponible.</p>`;
   } catch (err) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form };
+  return { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form, agenda };
+}
+
+// "Esta semana": partidos de todos los equipos en los proximos 7 dias, agrupados por dia (hora de Mazatlan).
+function dayKey(d) {
+  return d.toLocaleDateString("en-CA", { timeZone: MAZATLAN_TZ });
+}
+
+function renderAgenda(teamData) {
+  const now = new Date();
+  const limit = now.getTime() + 7 * 24 * 60 * 60 * 1000;
+  const items = teamData
+    .flatMap((d) => (d.agenda || []).map((ev) => ({ team: d.team, ev })))
+    .filter(({ ev }) => ev.live || (ev.date >= now && ev.date.getTime() <= limit))
+    .sort((a, b) => a.ev.date - b.ev.date);
+  if (!items.length) return "";
+
+  const today = dayKey(now);
+  const tomorrow = dayKey(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+  const groups = new Map();
+  for (const item of items) {
+    const key = item.ev.live ? today : dayKey(item.ev.date);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  }
+
+  const days = [...groups].map(([key, list]) => {
+    const weekday = list[0].ev.date.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short", timeZone: MAZATLAN_TZ });
+    const label = key === today ? `Hoy &middot; ${weekday}` : key === tomorrow ? `Mañana &middot; ${weekday}` : weekday;
+    const rows = list.map(({ team, ev }) => {
+      const time = ev.live ? `<span class="live-badge">EN VIVO</span>` : fmtMatchTime(ev);
+      const matchup = ev.isRace
+        ? `<strong>${team.name}</strong> &middot; ${ev.rivalName}`
+        : `<strong>${team.name}</strong> ${ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>'} ${ev.rivalName}`;
+      return `<a class="agenda-row" href="#${team.key}" style="--team-color: ${team.color}">
+        <span class="agenda-time${ev.timeValid === false ? " tbd" : ""}">${time}</span>
+        <img class="agenda-logo" src="${team.logo}" alt="" />
+        <span class="agenda-match">${matchup}</span>
+        ${compTagHtml(ev, true)}
+      </a>`;
+    }).join("");
+    return `<div class="agenda-day"><h3>${label}</h3>${rows}</div>`;
+  }).join("");
+
+  return `<section class="agenda"><h2>Esta semana</h2>${days}</section>`;
 }
 
 // Racha: ultimos resultados del mas antiguo (izquierda) al mas reciente (derecha).
 function renderForm(form) {
   if (!form || !form.length) return "";
-  const squares = [...form].reverse().map((r) => `<span class="form-dot ${r}">${RESULT_LABEL[r]}</span>`).join("");
+  const squares = [...form].reverse().map((e) => `<span class="form-dot ${e.result}">${e.formLabel || RESULT_LABEL[e.result]}</span>`).join("");
   return `<div class="form" title="Ultimos ${form.length} resultados, del mas antiguo al mas reciente">${squares}</div>`;
 }
 
@@ -480,27 +527,33 @@ function renderTeamCard(data) {
       ? `<span class="countdown" data-target="${nextMatch.date.getTime()}">Calculando...</span>`
       : `<span class="countdown no-match">Sin Anunciar</span>`;
   return `
-  <section class="card" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
+  <section class="card" id="${team.key}" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
     <span class="status-dot ${seasonStatus}" title="${seasonStatus === "started" ? "Temporada en curso" : "Temporada aun no comienza"}"></span>
     <div class="card-header">
       <img class="logo" src="${team.logo}" alt="${team.name}" />
       <h2>${team.name}</h2>
       <span class="league">${team.badgeLabel || team.competitions.map((c) => c.name).join(" · ")}</span>
       ${renderForm(form)}
+      ${standingsHtml}
     </div>
     ${envivo}
-    <h3>Tabla de posiciones</h3>
-    ${standingsHtml}
-    ${nextMatch && !nextMatch.live ? `<div class="card-next"><h3>Proximo partido</h3>${renderUpcomingRow(nextMatch, true, team)}</div>` : ""}
+    ${nextMatch && !nextMatch.live ? `<div class="card-next"><h3>${team.labels?.next || "Proximo partido"}</h3>${renderUpcomingRow(nextMatch, true, team)}</div>` : ""}
     <div class="card-details">
       <h3>Ultimos resultados</h3>
       ${resultados}
-      <h3>Proximos partidos</h3>
+      <h3>${team.labels?.upcoming || "Proximos partidos"}</h3>
       ${proximos}
     </div>
     ${countdownHtml}
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>`;
+}
+
+// "Singapore Airlines Singapore GP" -> "Singapore GP"
+const F1_SPONSORS = /^(Singapore Airlines|MSC Cruises|Heineken|Qatar Airways|Etihad Airways|Gulf Air|Aramco|STC|Lenovo|Pirelli|Crypto\.com|AWS|Louis Vuitton|Tag Heuer|Moët & Chandon|Rolex|Formula 1)\s+/i;
+
+function raceName(event) {
+  return (event.shortName || event.name).replace(F1_SPONSORS, "");
 }
 
 async function gatherMcLarenData(order) {
@@ -512,6 +565,7 @@ async function gatherMcLarenData(order) {
   let seasonStatus = "not-started";
   let envivo = "";
   let form = [];
+  let agenda = [];
 
   try {
     const year = new Date().getUTCFullYear();
@@ -526,8 +580,9 @@ async function gatherMcLarenData(order) {
     }
 
     const now = new Date();
+    // Cada Gran Premio trae todas las sesiones (FP1, Qualy, Sprint...); solo interesa la carrera.
     const parsed = [...eventsById.values()].map((event) => {
-      const comp = event.competitions[0];
+      const comp = event.competitions.find((c) => c.type?.abbreviation === "Race") || event.competitions[event.competitions.length - 1];
       const completed = !!comp.status?.type?.completed;
       const live = comp.status?.type?.state === "in";
       const mclarenDrivers = (comp.competitors || [])
@@ -542,13 +597,15 @@ async function gatherMcLarenData(order) {
       }
 
       return {
-        date: new Date(event.date),
+        date: new Date(comp.date || event.date),
         completed,
         live,
+        isRace: true,
+        formLabel: bestOrder != null ? String(bestOrder) : null,
         timeValid: comp.timeValid !== false,
         statusDetail: live ? comp.status?.type?.shortDetail || "" : "",
         isTeamHome: true,
-        rivalName: event.shortName || event.name,
+        rivalName: raceName(event),
         teamScore: positions,
         rivalScore: "",
         result,
@@ -562,7 +619,7 @@ async function gatherMcLarenData(order) {
       .sort((a, b) => b.date - a.date)
       .slice(0, 5);
     const liveEvents = parsed.filter((e) => e.live);
-    form = finished.map((e) => e.result).filter(Boolean);
+    form = finished.filter((e) => e.result);
     lastUpdated = liveEvents.length ? now.getTime() : finished.length ? finished[0].date.getTime() : 0;
     seasonStatus = finished.length ? "started" : "not-started";
 
@@ -571,6 +628,7 @@ async function gatherMcLarenData(order) {
       .sort((a, b) => a.date - b.date)
       .slice(0, 5);
     nextMatch = liveEvents[0] || upcoming[0] || null;
+    agenda = [...liveEvents, ...upcoming];
     envivo = renderLiveSection(liveEvents, false);
 
     resultados = finished.length
@@ -593,14 +651,14 @@ async function gatherMcLarenData(order) {
       idx !== -1
         ? `<div class="standing-row">
             <span class="rank-badge">${idx + 1}º</span>
-            <span class="standing-detail">de ${entries.length} en Constructores (F1)</span>
+            <span class="standing-detail" title="de ${entries.length} en Constructores (F1)">de ${entries.length} &middot; Constructores</span>
           </div>`
         : `<p class="muted">Posicion no disponible.</p>`;
   } catch (err) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team: MCLAREN, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form };
+  return { team: MCLAREN, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form, agenda };
 }
 
 async function gatherSinnerData(order) {
@@ -610,6 +668,7 @@ async function gatherSinnerData(order) {
   let lastUpdated = 0;
   let nextMatch = null;
   let form = [];
+  let agenda = [];
 
   try {
     const year = new Date().getUTCFullYear();
@@ -662,13 +721,14 @@ async function gatherSinnerData(order) {
       .sort((a, b) => b.date - a.date)
       .slice(0, 5);
     lastUpdated = finished.length ? finished[0].date.getTime() : 0;
-    form = finished.map((e) => e.result);
+    form = finished;
 
     const upcoming = parsed
       .filter((e) => !e.completed && e.date >= now)
       .sort((a, b) => a.date - b.date)
       .slice(0, 5);
     nextMatch = upcoming.length ? upcoming[0] : null;
+    agenda = upcoming;
 
     resultados = finished.length
       ? finished.map((e) => renderResultRow(e, true)).join("")
@@ -687,14 +747,14 @@ async function gatherSinnerData(order) {
     standingsHtml = entry
       ? `<div class="standing-row">
           <span class="rank-badge">${entry.current}º</span>
-          <span class="standing-detail">Ranking ATP &middot; ${entry.points} pts</span>
+          <span class="standing-detail">ATP &middot; ${entry.points} pts</span>
         </div>`
       : `<p class="muted">Ranking no disponible.</p>`;
   } catch (err) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team: SINNER, order, lastUpdated, nextMatch, seasonStatus: "started", standingsHtml, resultados, proximos, form };
+  return { team: SINNER, order, lastUpdated, nextMatch, seasonStatus: "started", standingsHtml, resultados, proximos, form, agenda };
 }
 
 async function main() {
@@ -713,7 +773,7 @@ async function main() {
   }
   const tickerHtml = nextUp
     ? (() => {
-        const msg = `Proximo partido: <strong>${nextUp.team.name}</strong> vs <strong>${nextUp.match.rivalName}</strong> &mdash; ${fmtDate(nextUp.match.date)}, ${fmtMatchTime(nextUp.match)}`;
+        const msg = `${nextUp.match.isRace ? "Proxima carrera" : "Proximo partido"}: <strong>${nextUp.team.name}</strong> ${nextUp.match.isRace ? "&middot;" : "vs"} <strong>${nextUp.match.rivalName}</strong> &mdash; ${fmtDate(nextUp.match.date)}, ${fmtMatchTime(nextUp.match)}`;
         const repeated = Array.from({ length: 10 }, () => msg).join(" &nbsp;•&nbsp; ");
         return `<div class="ticker"><div class="ticker-track"><span class="ticker-copy">${repeated} &nbsp;•&nbsp; </span><span class="ticker-copy">${repeated} &nbsp;•&nbsp; </span></div></div>`;
       })()
@@ -757,7 +817,9 @@ async function main() {
     margin: 0; padding: 0 .25rem 2rem; color: var(--text);
     background-color: var(--bg);
     background-image:
-      repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 14px);
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -820,8 +882,13 @@ async function main() {
     70% { box-shadow: 0 0 0 9px rgba(239,68,68,0); }
     100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
   }
-  .card-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 1.25rem; }
-  .logo { width: 88px; height: 88px; object-fit: contain; margin-bottom: .6rem; }
+  .card-header {
+    display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto auto; column-gap: 1rem;
+    align-items: center; justify-items: start; text-align: left;
+    margin: -1.1rem -1.1rem .25rem; padding: 1.1rem 2rem 1.1rem 1.1rem; border-radius: 7px 7px 0 0;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--team-color) 22%, transparent), transparent);
+  }
+  .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 3; margin: 0; }
   .card-header h2 { margin: 0; font-size: 1.25rem; font-weight: 800; }
   .league { margin-top: .35rem; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border: 1px solid currentColor; border-radius: 999px; padding: .15rem .6rem; text-align: center; }
   .countdown {
@@ -832,6 +899,13 @@ async function main() {
   .muted { color: var(--muted); font-size: .9rem; margin: 0; }
 
   .standing-row { display: flex; align-items: center; gap: .75rem; }
+  .card-header .standing-row {
+    grid-column: 3; grid-row: 1 / span 3; justify-self: end;
+    flex-direction: column; gap: .3rem; text-align: center;
+  }
+  .card-header .rank-badge { width: 3rem; height: 3rem; font-size: 1.1rem; }
+  .card-header .standing-detail { max-width: 5.5rem; font-size: .68rem; line-height: 1.3; color: var(--muted); }
+  .card-header .muted { grid-column: 3; grid-row: 1 / span 3; max-width: 6.5rem; font-size: .7rem; }
   .rank-badge {
     flex: none; display: flex; align-items: center; justify-content: center;
     width: 2.5rem; height: 2.5rem; border-radius: 50%;
@@ -907,11 +981,31 @@ async function main() {
   }
   .site-footer p { margin: 0 0 .35rem; }
   .site-footer a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+  .agenda {
+    max-width: 1500px; margin: 0 auto 1.25rem; padding: 1rem 1.1rem;
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px;
+  }
+  .agenda h2 { margin: 0 0 .25rem; font-size: 1rem; font-weight: 800; }
+  .agenda h3 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: .9rem 0 .4rem; font-weight: 700; }
+  .agenda-day { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); column-gap: .75rem; }
+  .agenda-day h3 { grid-column: 1 / -1; }
+  .agenda-row {
+    display: flex; align-items: center; gap: .6rem; padding: .4rem .5rem; margin-bottom: .3rem;
+    border-radius: 6px; font-size: .85rem; color: var(--text); text-decoration: none;
+    background: rgba(255,255,255,0.04); border-left: 4px solid var(--team-color);
+  }
+  .agenda-row:hover { background: rgba(255,255,255,0.08); }
+  .agenda-time { flex: none; width: 4.6rem; color: var(--muted); font-size: .78rem; }
+  .agenda-time.tbd { font-style: italic; }
+  .agenda-logo { flex: none; width: 22px; height: 22px; object-fit: contain; }
+  .agenda-match { flex: 1; min-width: 0; }
+  .agenda-match strong { font-weight: 700; }
   .card-next, .card-toggle { display: none; }
   /* En movil cada tarjeta muestra un resumen; el resto aparece al tocarla. */
   @media (max-width: 600px) {
     .card { cursor: pointer; }
     .card .logo { width: 64px; height: 64px; }
+    .card-header h2 { font-size: 1.05rem; }
     .card:not(.expanded) .card-details { display: none; }
     .card:not(.expanded) .card-next { display: block; }
     .card-toggle {
@@ -939,12 +1033,13 @@ async function main() {
     <button class="sort-btn active" data-sort="deporte">Deporte</button>
     <button class="sort-btn" data-sort="reciente">Más reciente</button>
   </div>
+  ${renderAgenda(teamData)}
   <div class="grid" id="grid">
     ${cards.join("\n")}
   </div>
   <footer class="site-footer">
-    <p>&copy; ${now.getFullYear()} STRICKEOUT &middot; @RicardoHdzm</p>
-    <p>Datos: <a href="https://www.espn.com" target="_blank" rel="noopener">ESPN</a> y <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a>. Uso personal.</p>
+    <p>&copy; ${now.getFullYear()} STRICKEOUT &middot; @RicardoHdzm &middot; Uso Personal</p>
+    <p>Datos: <a href="https://www.espn.com" target="_blank" rel="noopener">ESPN</a> y <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a></p>
   </footer>
   <script>
     (function () {
