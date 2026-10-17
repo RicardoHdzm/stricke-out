@@ -727,7 +727,7 @@ async function main() {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>STRICKE OUT | SPORTS DASHBOARD</title>
+<title>STRICKEOUT | @RicardoHdzm</title>
 <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="assets/favicon/apple-touch-icon.png" type="image/png" />
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
