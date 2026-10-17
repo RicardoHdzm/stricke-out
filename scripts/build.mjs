@@ -1007,9 +1007,6 @@ async function main() {
   .agenda-match { flex: 1; min-width: 0; }
   .agenda-match strong { font-weight: 700; }
   .agenda-empty { margin: 0; font-size: .78rem; color: var(--muted); font-style: italic; }
-  @media (max-width: 600px) {
-    .agenda-day.empty { display: none; }
-  }
   /* En escritorio la semana se ve como calendario: una columna por dia. */
   @media (min-width: 601px) {
     .agenda-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .75rem; margin-top: .6rem; }
