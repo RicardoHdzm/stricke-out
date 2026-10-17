@@ -199,27 +199,46 @@
   }
   .agenda h2 { margin: 0 0 .25rem; font-size: 1rem; font-weight: 800; }
   .agenda h3 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: .9rem 0 .4rem; font-weight: 700; }
-  .agenda-day { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); column-gap: .75rem; }
-  .agenda-day h3 { grid-column: 1 / -1; }
   .agenda-row {
     display: flex; align-items: center; gap: .6rem; padding: .4rem .5rem; margin-bottom: .3rem;
     border-radius: 6px; font-size: .85rem; color: var(--text); text-decoration: none;
     background: rgba(255,255,255,0.04); border-left: 4px solid var(--team-color);
   }
   .agenda-row:hover { background: rgba(255,255,255,0.08); }
-  .agenda-time { flex: none; width: 4.6rem; color: var(--muted); font-size: .78rem; }
+  .agenda-meta { display: contents; }
+  .agenda-time { order: -1; flex: none; width: 4.6rem; color: var(--muted); font-size: .78rem; }
   .agenda-time.tbd { font-style: italic; }
   .agenda-logo { flex: none; width: 22px; height: 22px; object-fit: contain; }
   .agenda-match { flex: 1; min-width: 0; }
   .agenda-match strong { font-weight: 700; }
-  .card-next, .card-toggle { display: none; }
-  /* En movil cada tarjeta muestra un resumen; el resto aparece al tocarla. */
+  .agenda-empty { margin: 0; font-size: .78rem; color: var(--muted); font-style: italic; }
+  @media (max-width: 600px) {
+    .agenda-day.empty { display: none; }
+  }
+  /* En escritorio la semana se ve como calendario: una columna por dia. */
+  @media (min-width: 601px) {
+    .agenda-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .75rem; margin-top: .6rem; }
+    .agenda-day { padding: .6rem; border-radius: 8px; background: rgba(255,255,255,0.03); }
+    .agenda .agenda-day h3 { margin: 0 0 .5rem; }
+    .agenda-row { display: grid; grid-template-columns: 22px 1fr; column-gap: .5rem; row-gap: .2rem; align-items: center; }
+    .agenda-logo { grid-row: 1 / span 2; }
+    .agenda-meta { display: flex; align-items: center; gap: .4rem; grid-column: 2; }
+    .agenda-time { width: auto; }
+    .agenda-meta .comp-tag { margin-left: 0; }
+    .agenda-team, .agenda-rival { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .agenda-logo { align-self: start; margin-top: .1rem; }
+  }
+  @media (min-width: 1100px) {
+    .agenda-days { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .5rem; }
+  }
+  .card-toggle { display: none; }
+  /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
     .card { cursor: pointer; }
     .card .logo { width: 64px; height: 64px; }
     .card-header h2 { font-size: 1.05rem; }
-    .card:not(.expanded) .card-details { display: none; }
-    .card:not(.expanded) .card-next { display: block; }
+    .card:not(.expanded) > :not(.card-header):not(.status-dot) { display: none; }
+    .card:not(.expanded) .card-header { margin-bottom: -1.1rem; border-radius: 7px; }
     .card-toggle {
       display: block; margin: .9rem auto 0; font-family: inherit; font-size: .75rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
@@ -240,52 +259,68 @@
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: 17 oct 2026, 12:54 a.m.</p>
+  <p class="updated">Actualizado: 17 oct 2026, 01:07 a.m.</p>
   <div class="sort-bar">
     <button class="sort-btn active" data-sort="deporte">Deporte</button>
     <button class="sort-btn" data-sort="reciente">Más reciente</button>
   </div>
-  <section class="agenda"><h2>Esta semana</h2><div class="agenda-day"><h3>Hoy &middot; sábado 17 de oct</h3><a class="agenda-row" href="#santos-laguna" style="--team-color: #0f9d58">
-        <span class="agenda-time">4:00 p.m.</span>
+  <section class="agenda"><h2>Esta semana</h2><div class="agenda-days"><div class="agenda-day"><h3>sábado 17 de oct</h3><a class="agenda-row" href="#santos-laguna" style="--team-color: #0f9d58">
         <img class="agenda-logo" src="assets/teams/santos.png" alt="" />
-        <span class="agenda-match"><strong>Santos Laguna</strong> vs Querétaro</span>
-        <span class="comp-tag">Liga MX</span>
+        <span class="agenda-match"><strong class="agenda-team">Santos Laguna</strong> <span class="agenda-rival">vs Querétaro</span></span>
+        <span class="agenda-meta">
+          <span class="agenda-time">4:00 p.m.</span>
+          <span class="comp-tag">Liga MX</span>
+        </span>
       </a><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
-        <span class="agenda-time">6:00 p.m.</span>
         <img class="agenda-logo" src="assets/teams/la.png" alt="" />
-        <span class="agenda-match"><strong>Los Angeles Kings</strong> vs Boston Bruins</span>
-        <span class="comp-tag">NHL</span>
-      </a></div><div class="agenda-day"><h3>Mañana &middot; domingo 18 de oct</h3><a class="agenda-row" href="#real-madrid" style="--team-color: #ffffff">
-        <span class="agenda-time">12:00 p.m.</span>
+        <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival">vs Bruins</span></span>
+        <span class="agenda-meta">
+          <span class="agenda-time">6:00 p.m.</span>
+          <span class="comp-tag">NHL</span>
+        </span>
+      </a></div><div class="agenda-day"><h3>domingo 18 de oct</h3><a class="agenda-row" href="#real-madrid" style="--team-color: #ffffff">
         <img class="agenda-logo" src="assets/teams/real-madrid.webp" alt="" />
-        <span class="agenda-match"><strong>Real Madrid</strong> vs Sevilla</span>
-        <span class="comp-tag">LaLiga</span>
+        <span class="agenda-match"><strong class="agenda-team">Real Madrid</strong> <span class="agenda-rival">vs Sevilla</span></span>
+        <span class="agenda-meta">
+          <span class="agenda-time">12:00 p.m.</span>
+          <span class="comp-tag">LaLiga</span>
+        </span>
       </a><a class="agenda-row" href="#raiders" style="--team-color: #a5acaf">
-        <span class="agenda-time">1:25 p.m.</span>
         <img class="agenda-logo" src="assets/teams/raiders.webp" alt="" />
-        <span class="agenda-match"><strong>Las Vegas Raiders</strong> vs Buffalo Bills</span>
-        <span class="comp-tag">NFL</span>
-      </a></div><div class="agenda-day"><h3>martes 20 de oct</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
-        <span class="agenda-time">4:00 p.m.</span>
+        <span class="agenda-match"><strong class="agenda-team">Raiders</strong> <span class="agenda-rival">vs Bills</span></span>
+        <span class="agenda-meta">
+          <span class="agenda-time">1:25 p.m.</span>
+          <span class="comp-tag">NFL</span>
+        </span>
+      </a></div><div class="agenda-day empty"><h3>lunes 19 de oct</h3><p class="agenda-empty">Sin partidos</p></div><div class="agenda-day"><h3>martes 20 de oct</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
         <img class="agenda-logo" src="assets/teams/la.png" alt="" />
-        <span class="agenda-match"><strong>Los Angeles Kings</strong> <span class="away-marker">@</span> Washington Capitals</span>
-        <span class="comp-tag">NHL</span>
+        <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival"><span class="away-marker">@</span> Capitals</span></span>
+        <span class="agenda-meta">
+          <span class="agenda-time">4:00 p.m.</span>
+          <span class="comp-tag">NHL</span>
+        </span>
       </a></div><div class="agenda-day"><h3>miércoles 21 de oct</h3><a class="agenda-row" href="#real-madrid" style="--team-color: #ffffff">
-        <span class="agenda-time">12:00 p.m.</span>
         <img class="agenda-logo" src="assets/teams/real-madrid.webp" alt="" />
-        <span class="agenda-match"><strong>Real Madrid</strong> vs RB Leipzig</span>
-        <span class="comp-tag">UCL</span>
+        <span class="agenda-match"><strong class="agenda-team">Real Madrid</strong> <span class="agenda-rival">vs RB Leipzig</span></span>
+        <span class="agenda-meta">
+          <span class="agenda-time">12:00 p.m.</span>
+          <span class="comp-tag">UCL</span>
+        </span>
       </a><a class="agenda-row" href="#santos-laguna" style="--team-color: #0f9d58">
-        <span class="agenda-time">8:10 p.m.</span>
         <img class="agenda-logo" src="assets/teams/santos.png" alt="" />
-        <span class="agenda-match"><strong>Santos Laguna</strong> vs Pumas UNAM</span>
-        <span class="comp-tag">Liga MX</span>
+        <span class="agenda-match"><strong class="agenda-team">Santos Laguna</strong> <span class="agenda-rival">vs Pumas UNAM</span></span>
+        <span class="agenda-meta">
+          <span class="agenda-time">8:10 p.m.</span>
+          <span class="comp-tag">Liga MX</span>
+        </span>
       </a></div><div class="agenda-day"><h3>jueves 22 de oct</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
-        <span class="agenda-time">4:30 p.m.</span>
         <img class="agenda-logo" src="assets/teams/la.png" alt="" />
-        <span class="agenda-match"><strong>Los Angeles Kings</strong> <span class="away-marker">@</span> New York Islanders</span>
-        <span class="comp-tag">NHL</span>
-      </a></div></section>
+        <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival"><span class="away-marker">@</span> Islanders</span></span>
+        <span class="agenda-meta">
+          <span class="agenda-time">4:30 p.m.</span>
+          <span class="comp-tag">NHL</span>
+        </span>
+      </a></div><div class="agenda-day empty"><h3>viernes 23 de oct</h3><p class="agenda-empty">Sin partidos</p></div></div></section>
   <div class="grid" id="grid">
     
   <section class="card" id="real-madrid" data-order="0" data-updated="1792004400000" style="--team-color: #ffffff; --team-badge-text: #111111">
@@ -301,14 +336,6 @@
         </div>
     </div>
     
-    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
-    <span class="result-date">18 oct 2026</span>
-    <span class="result-matchup">vs Sevilla <span class="comp-tag">LaLiga</span></span>
-    <span class="upcoming-time">12:00 p.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Madrid+vs+Sevilla&amp;dates=20261018T190000Z%2F20261018T210000Z&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
-    </a>
-  </div></div>
     <div class="card-details">
       <h3>Ultimos resultados</h3>
       <div class="result-row win">
@@ -392,14 +419,6 @@
         </div>
     </div>
     
-    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
-    <span class="result-date">17 oct 2026</span>
-    <span class="result-matchup">vs Querétaro <span class="comp-tag">Liga MX</span></span>
-    <span class="upcoming-time">4:00 p.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Santos+Laguna+vs+Quer%C3%A9taro&amp;dates=20261017T230000Z%2F20261018T010000Z&amp;details=Liga+MX+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
-    </a>
-  </div></div>
     <div class="card-details">
       <h3>Ultimos resultados</h3>
       <div class="result-row win">
@@ -483,14 +502,6 @@
         </div>
     </div>
     
-    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
-    <span class="result-date">18 oct 2026</span>
-    <span class="result-matchup">vs Buffalo Bills <span class="comp-tag">NFL</span></span>
-    <span class="upcoming-time">1:25 p.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Las+Vegas+Raiders+vs+Buffalo+Bills&amp;dates=20261018T202500Z%2F20261018T235500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
-    </a>
-  </div></div>
     <div class="card-details">
       <h3>Ultimos resultados</h3>
       <div class="result-row loss">
@@ -574,7 +585,6 @@
         </div>
     </div>
     
-    
     <div class="card-details">
       <h3>Ultimos resultados</h3>
       <div class="result-row loss">
@@ -622,7 +632,6 @@
           <span class="standing-detail" title="de 15 en Eastern Conference (NBA)">de 15 &middot; NBA</span>
         </div>
     </div>
-    
     
     <div class="card-details">
       <h3>Ultimos resultados</h3>
@@ -672,14 +681,6 @@
         </div>
     </div>
     
-    <div class="card-next"><h3>Proximo partido</h3><div class="upcoming-row">
-    <span class="result-date">17 oct 2026</span>
-    <span class="result-matchup">vs Boston Bruins <span class="comp-tag">NHL</span></span>
-    <span class="upcoming-time">6:00 p.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Los+Angeles+Kings+vs+Boston+Bruins&amp;dates=20261018T010000Z%2F20261018T033000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
-    </a>
-  </div></div>
     <div class="card-details">
       <h3>Ultimos resultados</h3>
       <div class="result-row loss">
@@ -763,14 +764,6 @@
           </div>
     </div>
     
-    <div class="card-next"><h3>Proxima carrera</h3><div class="upcoming-row">
-    <span class="result-date">25 oct 2026</span>
-    <span class="result-matchup"> United States GP <span class="comp-tag">F1</span></span>
-    <span class="upcoming-time">1:00 p.m.</span>
-    <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+United+States+GP&amp;dates=20261025T200000Z%2F20261025T220000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
-    </a>
-  </div></div>
     <div class="card-details">
       <h3>Ultimos resultados</h3>
       <div class="result-row draw">
@@ -853,7 +846,6 @@
           <span class="standing-detail">ATP &middot; 11000 pts</span>
         </div>
     </div>
-    
     
     <div class="card-details">
       <h3>Ultimos resultados</h3>
