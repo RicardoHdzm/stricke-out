@@ -914,7 +914,7 @@ async function main() {
   <h1>
     <span class="brand">
       <span class="brand-main">STRICKEOUT</span>
-      <span class="brand-sub">SPORTS DASHBOARD</span>
+      <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
   <p class="updated">Actualizado: ${updatedAt}</p>
