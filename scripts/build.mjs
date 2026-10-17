@@ -82,7 +82,7 @@ const MCLAREN = {
   drivers: ["Lando Norris", "Oscar Piastri"],
   sport: "racing",
   calendarTitle: (ev) => `F1: ${ev.rivalName}`,
-  labels: { next: "Proxima carrera", upcoming: "Proximas carreras" },
+  labels: { upcoming: "Proximas carreras" },
 };
 
 const SINNER = {
@@ -168,6 +168,9 @@ function parseEvent({ event, competitionName }, team) {
     statusDetail: liveDetail(comp.status),
     isTeamHome: self?.homeAway === "home",
     rivalName,
+    // Nombres cortos ("Kings", "Capitals") para la agenda semanal.
+    teamShort: self?.team?.shortDisplayName,
+    rivalShort: rival?.team?.shortDisplayName,
     teamScore: scoreValue(self?.score),
     rivalScore: scoreValue(rival?.score),
     result,
@@ -468,48 +471,53 @@ async function gatherTeamData(team, order) {
   return { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form, agenda };
 }
 
-// "Esta semana": partidos de todos los equipos en los proximos 7 dias, agrupados por dia (hora de Mazatlan).
+// "Esta semana": hoy y los 6 dias siguientes (hora de Mazatlan), con los partidos de todos los equipos.
 function dayKey(d) {
   return d.toLocaleDateString("en-CA", { timeZone: MAZATLAN_TZ });
 }
 
 function renderAgenda(teamData) {
   const now = new Date();
-  const limit = now.getTime() + 7 * 24 * 60 * 60 * 1000;
+  const week = Array.from({ length: 7 }, (_, i) => new Date(now.getTime() + i * 24 * 60 * 60 * 1000));
+  const groups = new Map(week.map((d) => [dayKey(d), []]));
+  const today = dayKey(now);
   const items = teamData
     .flatMap((d) => (d.agenda || []).map((ev) => ({ team: d.team, ev })))
-    .filter(({ ev }) => ev.live || (ev.date >= now && ev.date.getTime() <= limit))
+    .filter(({ ev }) => ev.live || (ev.date >= now && groups.has(dayKey(ev.date))))
     .sort((a, b) => a.ev.date - b.ev.date);
   if (!items.length) return "";
 
-  const today = dayKey(now);
-  const tomorrow = dayKey(new Date(now.getTime() + 24 * 60 * 60 * 1000));
-  const groups = new Map();
   for (const item of items) {
-    const key = item.ev.live ? today : dayKey(item.ev.date);
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(item);
+    groups.get(item.ev.live ? today : dayKey(item.ev.date)).push(item);
   }
 
-  const days = [...groups].map(([key, list]) => {
-    const weekday = list[0].ev.date.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short", timeZone: MAZATLAN_TZ });
-    const label = key === today ? `Hoy &middot; ${weekday}` : key === tomorrow ? `Mañana &middot; ${weekday}` : weekday;
+  const days = week.map((date) => {
+    const list = groups.get(dayKey(date));
+    const weekday = date.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short", timeZone: MAZATLAN_TZ });
+    if (!list.length) {
+      return `<div class="agenda-day empty"><h3>${weekday}</h3><p class="agenda-empty">Sin partidos</p></div>`;
+    }
     const rows = list.map(({ team, ev }) => {
       const time = ev.live ? `<span class="live-badge">EN VIVO</span>` : fmtMatchTime(ev);
-      const matchup = ev.isRace
-        ? `<strong>${team.name}</strong> &middot; ${ev.rivalName}`
-        : `<strong>${team.name}</strong> ${ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>'} ${ev.rivalName}`;
+      const sede = ev.isRace ? "" : ev.isTeamHome ? "vs " : '<span class="away-marker">@</span> ';
+      // En futbol el nombre corto de ESPN pierde acentos ("Queretaro"), asi que solo se usa en las ligas de EE.UU.
+      const useShort = team.competitions && !team.competitions[0].path.startsWith("soccer/");
+      const teamLabel = useShort && ev.teamShort ? ev.teamShort : team.name;
+      const rivalLabel = useShort && ev.rivalShort ? ev.rivalShort : ev.rivalName;
+      const matchup = `<strong class="agenda-team">${teamLabel}</strong> <span class="agenda-rival">${sede}${rivalLabel}</span>`;
       return `<a class="agenda-row" href="#${team.key}" style="--team-color: ${team.color}">
-        <span class="agenda-time${ev.timeValid === false ? " tbd" : ""}">${time}</span>
         <img class="agenda-logo" src="${team.logo}" alt="" />
         <span class="agenda-match">${matchup}</span>
-        ${compTagHtml(ev, true)}
+        <span class="agenda-meta">
+          <span class="agenda-time${ev.timeValid === false ? " tbd" : ""}">${time}</span>
+          ${compTagHtml(ev, true)}
+        </span>
       </a>`;
     }).join("");
-    return `<div class="agenda-day"><h3>${label}</h3>${rows}</div>`;
+    return `<div class="agenda-day"><h3>${weekday}</h3>${rows}</div>`;
   }).join("");
 
-  return `<section class="agenda"><h2>Esta semana</h2>${days}</section>`;
+  return `<section class="agenda"><h2>Esta semana</h2><div class="agenda-days">${days}</div></section>`;
 }
 
 // Racha: ultimos resultados del mas antiguo (izquierda) al mas reciente (derecha).
@@ -537,7 +545,6 @@ function renderTeamCard(data) {
       ${standingsHtml}
     </div>
     ${envivo}
-    ${nextMatch && !nextMatch.live ? `<div class="card-next"><h3>${team.labels?.next || "Proximo partido"}</h3>${renderUpcomingRow(nextMatch, true, team)}</div>` : ""}
     <div class="card-details">
       <h3>Ultimos resultados</h3>
       ${resultados}
@@ -987,27 +994,46 @@ async function main() {
   }
   .agenda h2 { margin: 0 0 .25rem; font-size: 1rem; font-weight: 800; }
   .agenda h3 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: .9rem 0 .4rem; font-weight: 700; }
-  .agenda-day { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); column-gap: .75rem; }
-  .agenda-day h3 { grid-column: 1 / -1; }
   .agenda-row {
     display: flex; align-items: center; gap: .6rem; padding: .4rem .5rem; margin-bottom: .3rem;
     border-radius: 6px; font-size: .85rem; color: var(--text); text-decoration: none;
     background: rgba(255,255,255,0.04); border-left: 4px solid var(--team-color);
   }
   .agenda-row:hover { background: rgba(255,255,255,0.08); }
-  .agenda-time { flex: none; width: 4.6rem; color: var(--muted); font-size: .78rem; }
+  .agenda-meta { display: contents; }
+  .agenda-time { order: -1; flex: none; width: 4.6rem; color: var(--muted); font-size: .78rem; }
   .agenda-time.tbd { font-style: italic; }
   .agenda-logo { flex: none; width: 22px; height: 22px; object-fit: contain; }
   .agenda-match { flex: 1; min-width: 0; }
   .agenda-match strong { font-weight: 700; }
-  .card-next, .card-toggle { display: none; }
-  /* En movil cada tarjeta muestra un resumen; el resto aparece al tocarla. */
+  .agenda-empty { margin: 0; font-size: .78rem; color: var(--muted); font-style: italic; }
+  @media (max-width: 600px) {
+    .agenda-day.empty { display: none; }
+  }
+  /* En escritorio la semana se ve como calendario: una columna por dia. */
+  @media (min-width: 601px) {
+    .agenda-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .75rem; margin-top: .6rem; }
+    .agenda-day { padding: .6rem; border-radius: 8px; background: rgba(255,255,255,0.03); }
+    .agenda .agenda-day h3 { margin: 0 0 .5rem; }
+    .agenda-row { display: grid; grid-template-columns: 22px 1fr; column-gap: .5rem; row-gap: .2rem; align-items: center; }
+    .agenda-logo { grid-row: 1 / span 2; }
+    .agenda-meta { display: flex; align-items: center; gap: .4rem; grid-column: 2; }
+    .agenda-time { width: auto; }
+    .agenda-meta .comp-tag { margin-left: 0; }
+    .agenda-team, .agenda-rival { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .agenda-logo { align-self: start; margin-top: .1rem; }
+  }
+  @media (min-width: 1100px) {
+    .agenda-days { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .5rem; }
+  }
+  .card-toggle { display: none; }
+  /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
     .card { cursor: pointer; }
     .card .logo { width: 64px; height: 64px; }
     .card-header h2 { font-size: 1.05rem; }
-    .card:not(.expanded) .card-details { display: none; }
-    .card:not(.expanded) .card-next { display: block; }
+    .card:not(.expanded) > :not(.card-header):not(.status-dot) { display: none; }
+    .card:not(.expanded) .card-header { margin-bottom: -1.1rem; border-radius: 7px; }
     .card-toggle {
       display: block; margin: .9rem auto 0; font-family: inherit; font-size: .75rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
