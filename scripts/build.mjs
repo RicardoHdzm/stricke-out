@@ -897,6 +897,12 @@ async function main() {
   .live-clock { flex: none; color: var(--muted); font-size: .78rem; }
   .countdown.live { color: #fff; background: var(--loss); animation: live-blink 1.6s infinite; }
   @keyframes live-blink { 50% { opacity: .55; } }
+  .site-footer {
+    max-width: 1500px; margin: 3rem auto 0; padding: 1.5rem 1rem 0;
+    border-top: 1px solid var(--card-border); text-align: center; color: var(--muted); font-size: .78rem; line-height: 1.6;
+  }
+  .site-footer p { margin: 0 0 .35rem; }
+  .site-footer a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
   @media (max-width: 480px) {
     h1 { padding: 0 .75rem; }
     .ticker-track { animation-duration: 110s; }
@@ -919,6 +925,10 @@ async function main() {
   <div class="grid" id="grid">
     ${cards.join("\n")}
   </div>
+  <footer class="site-footer">
+    <p>&copy; ${now.getFullYear()} STRICKEOUT &middot; @RicardoHdzm</p>
+    <p>Datos: <a href="https://www.espn.com" target="_blank" rel="noopener">ESPN</a> y <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a>. Uso personal.</p>
+  </footer>
   <script>
     (function () {
       var els = document.querySelectorAll(".countdown");
