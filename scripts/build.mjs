@@ -491,11 +491,15 @@ function renderTeamCard(data) {
     ${envivo}
     <h3>Tabla de posiciones</h3>
     ${standingsHtml}
-    <h3>Ultimos resultados</h3>
-    ${resultados}
-    <h3>Proximos partidos</h3>
-    ${proximos}
+    ${nextMatch && !nextMatch.live ? `<div class="card-next"><h3>Proximo partido</h3>${renderUpcomingRow(nextMatch, true, team)}</div>` : ""}
+    <div class="card-details">
+      <h3>Ultimos resultados</h3>
+      ${resultados}
+      <h3>Proximos partidos</h3>
+      ${proximos}
+    </div>
     ${countdownHtml}
+    <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>`;
 }
 
@@ -903,6 +907,19 @@ async function main() {
   }
   .site-footer p { margin: 0 0 .35rem; }
   .site-footer a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+  .card-next, .card-toggle { display: none; }
+  /* En movil cada tarjeta muestra un resumen; el resto aparece al tocarla. */
+  @media (max-width: 600px) {
+    .card { cursor: pointer; }
+    .card .logo { width: 64px; height: 64px; }
+    .card:not(.expanded) .card-details { display: none; }
+    .card:not(.expanded) .card-next { display: block; }
+    .card-toggle {
+      display: block; margin: .9rem auto 0; font-family: inherit; font-size: .75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+      background: none; border: 1px solid var(--card-border); border-radius: 999px; padding: .35rem 1rem; cursor: pointer;
+    }
+  }
   @media (max-width: 480px) {
     h1 { padding: 0 .75rem; }
     .ticker-track { animation-duration: 110s; }
@@ -970,6 +987,20 @@ async function main() {
           btn.classList.add("active");
           sortBy(btn.dataset.sort);
         });
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      var mobile = window.matchMedia("(max-width: 600px)");
+      document.getElementById("grid").addEventListener("click", function (e) {
+        var card = e.target.closest(".card");
+        if (!card || !mobile.matches) return;
+        if (e.target.closest("a")) return;
+        var expanded = card.classList.toggle("expanded");
+        var btn = card.querySelector(".card-toggle");
+        btn.textContent = expanded ? "Ver menos" : "Ver más";
+        btn.setAttribute("aria-expanded", String(expanded));
       });
     })();
   </script>
