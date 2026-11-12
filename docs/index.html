@@ -224,6 +224,20 @@
   @media (min-width: 1100px) {
     .agenda-days { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .5rem; }
   }
+  a.result-row, a.live-row { color: inherit; text-decoration: none; }
+  a.result-row:hover, a.live-row:hover { background: rgba(255,255,255,0.08); }
+  a.result-row::after, a.live-row::after { content: "↗"; flex: none; color: var(--muted); font-size: .7rem; }
+  .mini-table { list-style: none; margin: 0; padding: 0; font-size: .82rem; }
+  .mini-table li {
+    display: flex; align-items: center; gap: .6rem; padding: .3rem .5rem; border-radius: 6px;
+  }
+  .mini-table li.self { background: color-mix(in srgb, var(--team-color) 22%, transparent); font-weight: 700; }
+  .mt-rank { flex: none; width: 1.4rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mt-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mt-value { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mini-table li.self .mt-rank, .mini-table li.self .mt-value { color: var(--text); }
+  .next-season p { display: flex; justify-content: space-between; margin: 0 0 .3rem; padding: .4rem .5rem; border-radius: 6px; background: rgba(255,255,255,0.04); font-size: .85rem; }
+  .next-season span { color: var(--muted); }
   .card-toggle { display: none; }
   /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
@@ -245,61 +259,61 @@
 </style>
 </head>
 <body>
-  <div class="ticker"><div class="ticker-track" style="animation-duration: 84s"><span class="ticker-copy"><strong>Los Angeles Kings</strong> vs New York Islanders &mdash; jue 12 de nov, 8:00 p.m. &nbsp;•&nbsp; <strong>Chicago Bulls</strong> vs Atlanta Hawks &mdash; vie 13 de nov, 6:00 p.m. &nbsp;•&nbsp; <strong>Las Vegas Raiders</strong> vs Seattle Seahawks &mdash; dom 15 de nov, 2:05 p.m. &nbsp;•&nbsp; <strong>Real Madrid</strong> vs Celta Vigo &mdash; sáb 21 de nov, 1:00 p.m. &nbsp;•&nbsp; <strong>Santos Laguna</strong> vs León &mdash; sáb 21 de nov, 4:00 p.m. &nbsp;•&nbsp; <strong>McLaren</strong> &middot; Las Vegas GP &mdash; sáb 21 de nov, 9:00 p.m. &nbsp;•&nbsp; <strong>Los Angeles Kings</strong> vs New York Islanders &mdash; jue 12 de nov, 8:00 p.m. &nbsp;•&nbsp; <strong>Chicago Bulls</strong> vs Atlanta Hawks &mdash; vie 13 de nov, 6:00 p.m. &nbsp;•&nbsp; <strong>Las Vegas Raiders</strong> vs Seattle Seahawks &mdash; dom 15 de nov, 2:05 p.m. &nbsp;•&nbsp; <strong>Real Madrid</strong> vs Celta Vigo &mdash; sáb 21 de nov, 1:00 p.m. &nbsp;•&nbsp; <strong>Santos Laguna</strong> vs León &mdash; sáb 21 de nov, 4:00 p.m. &nbsp;•&nbsp; <strong>McLaren</strong> &middot; Las Vegas GP &mdash; sáb 21 de nov, 9:00 p.m. &nbsp;•&nbsp; </span><span class="ticker-copy"><strong>Los Angeles Kings</strong> vs New York Islanders &mdash; jue 12 de nov, 8:00 p.m. &nbsp;•&nbsp; <strong>Chicago Bulls</strong> vs Atlanta Hawks &mdash; vie 13 de nov, 6:00 p.m. &nbsp;•&nbsp; <strong>Las Vegas Raiders</strong> vs Seattle Seahawks &mdash; dom 15 de nov, 2:05 p.m. &nbsp;•&nbsp; <strong>Real Madrid</strong> vs Celta Vigo &mdash; sáb 21 de nov, 1:00 p.m. &nbsp;•&nbsp; <strong>Santos Laguna</strong> vs León &mdash; sáb 21 de nov, 4:00 p.m. &nbsp;•&nbsp; <strong>McLaren</strong> &middot; Las Vegas GP &mdash; sáb 21 de nov, 9:00 p.m. &nbsp;•&nbsp; <strong>Los Angeles Kings</strong> vs New York Islanders &mdash; jue 12 de nov, 8:00 p.m. &nbsp;•&nbsp; <strong>Chicago Bulls</strong> vs Atlanta Hawks &mdash; vie 13 de nov, 6:00 p.m. &nbsp;•&nbsp; <strong>Las Vegas Raiders</strong> vs Seattle Seahawks &mdash; dom 15 de nov, 2:05 p.m. &nbsp;•&nbsp; <strong>Real Madrid</strong> vs Celta Vigo &mdash; sáb 21 de nov, 1:00 p.m. &nbsp;•&nbsp; <strong>Santos Laguna</strong> vs León &mdash; sáb 21 de nov, 4:00 p.m. &nbsp;•&nbsp; <strong>McLaren</strong> &middot; Las Vegas GP &mdash; sáb 21 de nov, 9:00 p.m. &nbsp;•&nbsp; </span></div></div>
+  <div class="ticker"><div class="ticker-track" style="animation-duration: 84s"><span class="ticker-copy"><strong>Los Angeles Kings</strong> vs New York Islanders &mdash; <span data-ts="1794538800000" data-fmt="daytime">jue 12 de nov, 8:00 p.m.</span> &nbsp;•&nbsp; <strong>Chicago Bulls</strong> vs Atlanta Hawks &mdash; <span data-ts="1794618000000" data-fmt="daytime">vie 13 de nov, 6:00 p.m.</span> &nbsp;•&nbsp; <strong>Las Vegas Raiders</strong> vs Seattle Seahawks &mdash; <span data-ts="1794776700000" data-fmt="daytime">dom 15 de nov, 2:05 p.m.</span> &nbsp;•&nbsp; <strong>Real Madrid</strong> vs Celta Vigo &mdash; <span data-ts="1795291200000" data-fmt="daytime">sáb 21 de nov, 1:00 p.m.</span> &nbsp;•&nbsp; <strong>Santos Laguna</strong> vs León &mdash; <span data-ts="1795302000000" data-fmt="daytime">sáb 21 de nov, 4:00 p.m.</span> &nbsp;•&nbsp; <strong>McLaren</strong> &middot; Las Vegas GP &mdash; <span data-ts="1795320000000" data-fmt="daytime">sáb 21 de nov, 9:00 p.m.</span> &nbsp;•&nbsp; <strong>Los Angeles Kings</strong> vs New York Islanders &mdash; <span data-ts="1794538800000" data-fmt="daytime">jue 12 de nov, 8:00 p.m.</span> &nbsp;•&nbsp; <strong>Chicago Bulls</strong> vs Atlanta Hawks &mdash; <span data-ts="1794618000000" data-fmt="daytime">vie 13 de nov, 6:00 p.m.</span> &nbsp;•&nbsp; <strong>Las Vegas Raiders</strong> vs Seattle Seahawks &mdash; <span data-ts="1794776700000" data-fmt="daytime">dom 15 de nov, 2:05 p.m.</span> &nbsp;•&nbsp; <strong>Real Madrid</strong> vs Celta Vigo &mdash; <span data-ts="1795291200000" data-fmt="daytime">sáb 21 de nov, 1:00 p.m.</span> &nbsp;•&nbsp; <strong>Santos Laguna</strong> vs León &mdash; <span data-ts="1795302000000" data-fmt="daytime">sáb 21 de nov, 4:00 p.m.</span> &nbsp;•&nbsp; <strong>McLaren</strong> &middot; Las Vegas GP &mdash; <span data-ts="1795320000000" data-fmt="daytime">sáb 21 de nov, 9:00 p.m.</span> &nbsp;•&nbsp; </span><span class="ticker-copy"><strong>Los Angeles Kings</strong> vs New York Islanders &mdash; <span data-ts="1794538800000" data-fmt="daytime">jue 12 de nov, 8:00 p.m.</span> &nbsp;•&nbsp; <strong>Chicago Bulls</strong> vs Atlanta Hawks &mdash; <span data-ts="1794618000000" data-fmt="daytime">vie 13 de nov, 6:00 p.m.</span> &nbsp;•&nbsp; <strong>Las Vegas Raiders</strong> vs Seattle Seahawks &mdash; <span data-ts="1794776700000" data-fmt="daytime">dom 15 de nov, 2:05 p.m.</span> &nbsp;•&nbsp; <strong>Real Madrid</strong> vs Celta Vigo &mdash; <span data-ts="1795291200000" data-fmt="daytime">sáb 21 de nov, 1:00 p.m.</span> &nbsp;•&nbsp; <strong>Santos Laguna</strong> vs León &mdash; <span data-ts="1795302000000" data-fmt="daytime">sáb 21 de nov, 4:00 p.m.</span> &nbsp;•&nbsp; <strong>McLaren</strong> &middot; Las Vegas GP &mdash; <span data-ts="1795320000000" data-fmt="daytime">sáb 21 de nov, 9:00 p.m.</span> &nbsp;•&nbsp; <strong>Los Angeles Kings</strong> vs New York Islanders &mdash; <span data-ts="1794538800000" data-fmt="daytime">jue 12 de nov, 8:00 p.m.</span> &nbsp;•&nbsp; <strong>Chicago Bulls</strong> vs Atlanta Hawks &mdash; <span data-ts="1794618000000" data-fmt="daytime">vie 13 de nov, 6:00 p.m.</span> &nbsp;•&nbsp; <strong>Las Vegas Raiders</strong> vs Seattle Seahawks &mdash; <span data-ts="1794776700000" data-fmt="daytime">dom 15 de nov, 2:05 p.m.</span> &nbsp;•&nbsp; <strong>Real Madrid</strong> vs Celta Vigo &mdash; <span data-ts="1795291200000" data-fmt="daytime">sáb 21 de nov, 1:00 p.m.</span> &nbsp;•&nbsp; <strong>Santos Laguna</strong> vs León &mdash; <span data-ts="1795302000000" data-fmt="daytime">sáb 21 de nov, 4:00 p.m.</span> &nbsp;•&nbsp; <strong>McLaren</strong> &middot; Las Vegas GP &mdash; <span data-ts="1795320000000" data-fmt="daytime">sáb 21 de nov, 9:00 p.m.</span> &nbsp;•&nbsp; </span></div></div>
   <h1>
     <span class="brand">
       <span class="brand-main">STRICKEOUT</span>
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: 11 nov 2026, 08:49 p.m.</p>
-  <section class="agenda"><h2>Esta semana</h2><div class="agenda-days"><div class="agenda-day empty"><h3>miércoles 11 de nov</h3><p class="agenda-empty">Sin partidos</p></div><div class="agenda-day"><h3>jueves 12 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
+  <p class="updated">Actualizado: <span data-ts="1794455968957" data-fmt="datetime">11 nov 2026, 08:59 p.m.</span> &middot; Horarios en tu hora local</p>
+  <section class="agenda"><h2>Esta semana</h2><div class="agenda-days"><div class="agenda-day empty"><h3>miércoles 11 de nov</h3><p class="agenda-empty">Sin partidos</p></div><div class="agenda-day"><h3>jueves 12 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794538800000">
         <img class="agenda-logo" src="assets/teams/la.png" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival">vs Islanders</span></span>
         <span class="agenda-meta">
-          <span class="agenda-time">8:00 p.m.</span>
+          <span class="agenda-time" data-ts="1794538800000" data-fmt="time">8:00 p.m.</span>
           <span class="comp-tag">NHL</span>
         </span>
-      </a></div><div class="agenda-day"><h3>viernes 13 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141">
+      </a></div><div class="agenda-day"><h3>viernes 13 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794618000000">
         <img class="agenda-logo" src="assets/teams/bulls.png" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Bulls</strong> <span class="agenda-rival">vs Hawks</span></span>
         <span class="agenda-meta">
-          <span class="agenda-time">6:00 p.m.</span>
+          <span class="agenda-time" data-ts="1794618000000" data-fmt="time">6:00 p.m.</span>
           <span class="comp-tag">NBA</span>
         </span>
-      </a></div><div class="agenda-day"><h3>sábado 14 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141">
+      </a></div><div class="agenda-day"><h3>sábado 14 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794704400000">
         <img class="agenda-logo" src="assets/teams/bulls.png" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Bulls</strong> <span class="agenda-rival"><span class="away-marker">@</span> Timberwolves</span></span>
         <span class="agenda-meta">
-          <span class="agenda-time">6:00 p.m.</span>
+          <span class="agenda-time" data-ts="1794704400000" data-fmt="time">6:00 p.m.</span>
           <span class="comp-tag">NBA</span>
         </span>
-      </a><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
+      </a><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794711600000">
         <img class="agenda-logo" src="assets/teams/la.png" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival">vs Flames</span></span>
         <span class="agenda-meta">
-          <span class="agenda-time">8:00 p.m.</span>
+          <span class="agenda-time" data-ts="1794711600000" data-fmt="time">8:00 p.m.</span>
           <span class="comp-tag">NHL</span>
         </span>
-      </a></div><div class="agenda-day"><h3>domingo 15 de nov</h3><a class="agenda-row" href="#raiders" style="--team-color: #a5acaf">
+      </a></div><div class="agenda-day"><h3>domingo 15 de nov</h3><a class="agenda-row" href="#raiders" style="--team-color: #a5acaf" data-ts="1794776700000">
         <img class="agenda-logo" src="assets/teams/raiders.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Raiders</strong> <span class="agenda-rival">vs Seahawks</span></span>
         <span class="agenda-meta">
-          <span class="agenda-time">2:05 p.m.</span>
+          <span class="agenda-time" data-ts="1794776700000" data-fmt="time">2:05 p.m.</span>
           <span class="comp-tag">NFL</span>
         </span>
-      </a></div><div class="agenda-day"><h3>lunes 16 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141">
+      </a></div><div class="agenda-day"><h3>lunes 16 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794873600000">
         <img class="agenda-logo" src="assets/teams/bulls.png" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Bulls</strong> <span class="agenda-rival"><span class="away-marker">@</span> Cavaliers</span></span>
         <span class="agenda-meta">
-          <span class="agenda-time">5:00 p.m.</span>
+          <span class="agenda-time" data-ts="1794873600000" data-fmt="time">5:00 p.m.</span>
           <span class="comp-tag">NBA</span>
         </span>
-      </a></div><div class="agenda-day"><h3>martes 17 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6">
+      </a></div><div class="agenda-day"><h3>martes 17 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794960000000">
         <img class="agenda-logo" src="assets/teams/la.png" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival"><span class="away-marker">@</span> Bruins</span></span>
         <span class="agenda-meta">
-          <span class="agenda-time">5:00 p.m.</span>
+          <span class="agenda-time" data-ts="1794960000000" data-fmt="time">5:00 p.m.</span>
           <span class="comp-tag">NHL</span>
         </span>
       </a></div></div></section>
@@ -324,66 +338,67 @@
     </div>
     
     <div class="card-details">
+      <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">1</span><span class="mt-name">Barcelona</span><span class="mt-value">33 pts</span></li><li class="self"><span class="mt-rank">2</span><span class="mt-name">Real Madrid</span><span class="mt-value">30 pts</span></li><li class=""><span class="mt-rank">3</span><span class="mt-name">Atlético Madrid</span><span class="mt-value">28 pts</span></li><li class=""><span class="mt-rank">4</span><span class="mt-name">Real Betis</span><span class="mt-value">26 pts</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Real Sociedad</span><span class="mt-value">22 pts</span></li></ol>
       <h3>Últimos resultados</h3>
-      <div class="result-row win">
+      <a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401882808/real-madrid-valencia" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">07 nov</span>
+    <span class="result-date" data-ts="1794081600000" data-fmt="date">07 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Valencia <span class="comp-tag">LaLiga</span></span>
     <span class="result-score">3&ndash;0</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401915383/real-madrid-aek-athens" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">04 nov</span>
+    <span class="result-date" data-ts="1793814300000" data-fmt="date">04 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> AEK Athens <span class="comp-tag">UCL</span></span>
     <span class="result-score">3&ndash;2</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401882819/real-madrid-racing-santander" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">01 nov</span>
+    <span class="result-date" data-ts="1793546100000" data-fmt="date">01 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Racing Santander <span class="comp-tag">LaLiga</span></span>
     <span class="result-score">3&ndash;0</span>
-  </div><div class="result-row win rivalry">
+  </a><a class="result-row win rivalry" href="https://www.espn.com/soccer/match/_/gameId/401882832/real-madrid-barcelona" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">25 oct</span>
+    <span class="result-date" data-ts="1792958400000" data-fmt="date">25 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> Barcelona <span class="rivalry-tag">★ Clásico</span><span class="comp-tag">LaLiga</span></span>
     <span class="result-score">2&ndash;1</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401915313/rb-leipzig-real-madrid" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">21 oct</span>
+    <span class="result-date" data-ts="1792609200000" data-fmt="date">21 oct</span>
     <span class="result-matchup">vs RB Leipzig <span class="comp-tag">UCL</span></span>
     <span class="result-score">4&ndash;1</span>
-  </div>
+  </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
-    <span class="result-date">21 nov</span>
+    <span class="result-date" data-ts="1795291200000" data-fmt="date">21 nov</span>
     <span class="result-matchup">vs Celta Vigo <span class="comp-tag">LaLiga</span></span>
-    <span class="upcoming-time">1:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1795291200000" data-fmt="time">1:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Madrid+vs+Celta+Vigo&amp;dates=20261121T200000Z%2F20261121T220000Z&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">24 nov</span>
+    <span class="result-date" data-ts="1795550400000" data-fmt="date">24 nov</span>
     <span class="result-matchup">vs PSV Eindhoven <span class="comp-tag">UCL</span></span>
-    <span class="upcoming-time">1:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1795550400000" data-fmt="time">1:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Madrid+vs+PSV+Eindhoven&amp;dates=20261124T200000Z%2F20261124T220000Z&amp;details=Champions+League+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">28 nov</span>
+    <span class="result-date" data-ts="1795896000000" data-fmt="date">28 nov</span>
     <span class="result-matchup">vs Alavés <span class="comp-tag">LaLiga</span></span>
-    <span class="upcoming-time">1:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1795896000000" data-fmt="time">1:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Madrid+vs+Alav%C3%A9s&amp;dates=20261128T200000Z%2F20261128T220000Z&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">02 dic</span>
+    <span class="result-date" data-ts="1796234400000" data-fmt="date">02 dic</span>
     <span class="result-matchup"><span class="away-marker">@</span> Real Sociedad <span class="comp-tag">LaLiga</span></span>
-    <span class="upcoming-time">11:00 a.m.</span>
+    <span class="upcoming-time" data-ts="1796234400000" data-fmt="time">11:00 a.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Sociedad+vs+Real+Madrid&amp;dates=20261202T180000Z%2F20261202T200000Z&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">06 dic</span>
+    <span class="result-date" data-ts="1796587200000" data-fmt="date">06 dic</span>
     <span class="result-matchup"><span class="away-marker">@</span> Athletic Club <span class="comp-tag">LaLiga</span></span>
-    <span class="upcoming-time tbd">Por confirmar</span>
+    <span class="upcoming-time tbd" >Por confirmar</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Athletic+Club+vs+Real+Madrid&amp;dates=20261206%2F20261207&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
@@ -407,38 +422,39 @@
     </div>
     
     <div class="card-details">
+      <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">4</span><span class="mt-name">Toluca</span><span class="mt-value">27 pts</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Atlas</span><span class="mt-value">27 pts</span></li><li class="self"><span class="mt-rank">6</span><span class="mt-name">Santos</span><span class="mt-value">25 pts</span></li><li class=""><span class="mt-rank">7</span><span class="mt-name">León</span><span class="mt-value">23 pts</span></li><li class=""><span class="mt-rank">8</span><span class="mt-name">Pachuca</span><span class="mt-value">22 pts</span></li></ol>
       <h3>Últimos resultados</h3>
-      <div class="result-row win">
+      <a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876908/santos-atlante" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">06 nov</span>
+    <span class="result-date" data-ts="1794020400000" data-fmt="date">06 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Atlante </span>
     <span class="result-score">2&ndash;0</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876912/necaxa-santos" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">01 nov</span>
+    <span class="result-date" data-ts="1793574000000" data-fmt="date">01 nov</span>
     <span class="result-matchup">vs Necaxa </span>
     <span class="result-score">1&ndash;0</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/401876920/santos-tijuana" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">25 oct</span>
+    <span class="result-date" data-ts="1792984200000" data-fmt="date">25 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> Tijuana </span>
     <span class="result-score">1&ndash;4</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876929/pumas-unam-santos" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">21 oct</span>
+    <span class="result-date" data-ts="1792638600000" data-fmt="date">21 oct</span>
     <span class="result-matchup">vs Pumas UNAM </span>
     <span class="result-score">2&ndash;0</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876942/queretaro-santos" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">17 oct</span>
+    <span class="result-date" data-ts="1792278000000" data-fmt="date">17 oct</span>
     <span class="result-matchup">vs Querétaro </span>
     <span class="result-score">5&ndash;0</span>
-  </div>
+  </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
-    <span class="result-date">21 nov</span>
+    <span class="result-date" data-ts="1795302000000" data-fmt="date">21 nov</span>
     <span class="result-matchup">vs León </span>
-    <span class="upcoming-time">4:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1795302000000" data-fmt="time">4:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Santos+Laguna+vs+Le%C3%B3n&amp;dates=20261121T230000Z%2F20261122T010000Z&amp;details=Liga+MX+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
@@ -462,66 +478,67 @@
     </div>
     
     <div class="card-details">
+      <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">7</span><span class="mt-name">Patriots</span><span class="mt-value">5-4</span></li><li class=""><span class="mt-rank">8</span><span class="mt-name">Browns</span><span class="mt-value">5-4</span></li><li class="self"><span class="mt-rank">9</span><span class="mt-name">Raiders</span><span class="mt-value">4-5</span></li><li class=""><span class="mt-rank">10</span><span class="mt-name">Ravens</span><span class="mt-value">4-5</span></li><li class=""><span class="mt-rank">11</span><span class="mt-name">Texans</span><span class="mt-value">3-5</span></li></ol>
       <h3>Últimos resultados</h3>
-      <div class="result-row loss">
+      <a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873047/raiders-49ers" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">08 nov</span>
+    <span class="result-date" data-ts="1794173100000" data-fmt="date">08 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> San Francisco 49ers </span>
     <span class="result-score">17&ndash;38</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/nfl/game/_/gameId/401873029/raiders-jets" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">01 nov</span>
+    <span class="result-date" data-ts="1793556000000" data-fmt="date">01 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> New York Jets </span>
     <span class="result-score">38&ndash;33</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873021/rams-raiders" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">25 oct</span>
+    <span class="result-date" data-ts="1792959900000" data-fmt="date">25 oct</span>
     <span class="result-matchup">vs Los Angeles Rams </span>
     <span class="result-score">21&ndash;35</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873005/bills-raiders" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">18 oct</span>
+    <span class="result-date" data-ts="1792355100000" data-fmt="date">18 oct</span>
     <span class="result-matchup">vs Buffalo Bills </span>
     <span class="result-score">30&ndash;33</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401872986/raiders-patriots" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">11 oct</span>
+    <span class="result-date" data-ts="1791738000000" data-fmt="date">11 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> New England Patriots </span>
     <span class="result-score">17&ndash;45</span>
-  </div>
+  </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
-    <span class="result-date">15 nov</span>
+    <span class="result-date" data-ts="1794776700000" data-fmt="date">15 nov</span>
     <span class="result-matchup">vs Seattle Seahawks </span>
-    <span class="upcoming-time">2:05 p.m.</span>
+    <span class="upcoming-time" data-ts="1794776700000" data-fmt="time">2:05 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Las+Vegas+Raiders+vs+Seattle+Seahawks&amp;dates=20261115T210500Z%2F20261116T003500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">22 nov</span>
+    <span class="result-date" data-ts="1795382700000" data-fmt="date">22 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Denver Broncos </span>
-    <span class="upcoming-time">2:25 p.m.</span>
+    <span class="upcoming-time" data-ts="1795382700000" data-fmt="time">2:25 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Denver+Broncos+vs+Las+Vegas+Raiders&amp;dates=20261122T212500Z%2F20261123T005500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">29 nov</span>
+    <span class="result-date" data-ts="1795975200000" data-fmt="date">29 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Cleveland Browns </span>
-    <span class="upcoming-time">11:00 a.m.</span>
+    <span class="upcoming-time" data-ts="1795975200000" data-fmt="time">11:00 a.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Cleveland+Browns+vs+Las+Vegas+Raiders&amp;dates=20261129T180000Z%2F20261129T213000Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">13 dic</span>
+    <span class="result-date" data-ts="1797195900000" data-fmt="date">13 dic</span>
     <span class="result-matchup">vs Los Angeles Chargers </span>
-    <span class="upcoming-time">2:05 p.m.</span>
+    <span class="upcoming-time" data-ts="1797195900000" data-fmt="time">2:05 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Las+Vegas+Raiders+vs+Los+Angeles+Chargers&amp;dates=20261213T210500Z%2F20261214T003500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">20 dic</span>
+    <span class="result-date" data-ts="1797801900000" data-fmt="date">20 dic</span>
     <span class="result-matchup">vs Denver Broncos </span>
-    <span class="upcoming-time">2:25 p.m.</span>
+    <span class="upcoming-time" data-ts="1797801900000" data-fmt="time">2:25 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Las+Vegas+Raiders+vs+Denver+Broncos&amp;dates=20261220T212500Z%2F20261221T005500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
@@ -532,7 +549,7 @@
   </section>
 
   <section class="card" id="cubs" data-order="3" data-updated="1790820000000" style="--team-color: #0e3386; --team-badge-text: #ffffff">
-    
+    <span class="offseason">Fuera de temporada</span>
     <div class="card-header">
       <img class="logo" src="assets/teams/cubs.webp" alt="Chicago Cubs" />
       <h2>Chicago Cubs</h2>
@@ -545,37 +562,38 @@
     </div>
     
     <div class="card-details">
+      <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">1</span><span class="mt-name">Padres</span><span class="mt-value">91-71</span></li><li class="self"><span class="mt-rank">2</span><span class="mt-name">Cubs</span><span class="mt-value">89-73</span></li><li class=""><span class="mt-rank">3</span><span class="mt-name">Phillies</span><span class="mt-value">88-74</span></li><li class=""><span class="mt-rank">4</span><span class="mt-name">Dodgers</span><span class="mt-value">100-62</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Braves</span><span class="mt-value">94-68</span></li></ol>
       <h3>Últimos resultados</h3>
-      <div class="result-row loss">
+      <a class="result-row loss" href="https://www.espn.com/mlb/game/_/gameId/401907975/cubs-padres" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">30 sep</span>
+    <span class="result-date" data-ts="1790820000000" data-fmt="date">30 sep</span>
     <span class="result-matchup"><span class="away-marker">@</span> San Diego Padres </span>
     <span class="result-score">1&ndash;4</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/mlb/game/_/gameId/401907974/cubs-padres" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">29 sep</span>
+    <span class="result-date" data-ts="1790733600000" data-fmt="date">29 sep</span>
     <span class="result-matchup"><span class="away-marker">@</span> San Diego Padres </span>
     <span class="result-score">0&ndash;8</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697332/cardinals-cubs" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">28 sep</span>
+    <span class="result-date" data-ts="1759087200000" data-fmt="date">28 sep</span>
     <span class="result-matchup">vs St. Louis Cardinals </span>
     <span class="result-score">2&ndash;0</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697317/cardinals-cubs" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">27 sep</span>
+    <span class="result-date" data-ts="1758997200000" data-fmt="date">27 sep</span>
     <span class="result-matchup">vs St. Louis Cardinals </span>
     <span class="result-score">7&ndash;3</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697302/cardinals-cubs" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">26 sep</span>
+    <span class="result-date" data-ts="1758910800000" data-fmt="date">26 sep</span>
     <span class="result-matchup">vs St. Louis Cardinals </span>
     <span class="result-score">12&ndash;1</span>
-  </div>
-      <h3>Próximos partidos</h3>
-      <p class="muted">Calendario aún no publicado.</p>
+  </a>
+      <h3>Próxima temporada</h3>
+      <div class="next-season"><p><span>Spring Training</span><strong data-ts="1802937600000" data-fmt="dateyear">18 feb 2027</strong></p><p><span>Temporada regular</span><strong data-ts="1805871600000" data-fmt="dateyear">24 mar 2027</strong></p></div>
     </div>
-    <span class="countdown no-match">Sin Anunciar</span>
+    <span class="countdown" data-target="1802937600000">Calculando...</span>
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
@@ -593,66 +611,67 @@
     </div>
     
     <div class="card-details">
+      <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">1</span><span class="mt-name">Bucks</span><span class="mt-value">1-11</span></li><li class="self"><span class="mt-rank">2</span><span class="mt-name">Bulls</span><span class="mt-value">1-9</span></li><li class=""><span class="mt-rank">3</span><span class="mt-name">Nets</span><span class="mt-value">3-8</span></li><li class=""><span class="mt-rank">4</span><span class="mt-name">Pacers</span><span class="mt-value">4-8</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Wizards</span><span class="mt-value">4-8</span></li></ol>
       <h3>Últimos resultados</h3>
-      <div class="result-row loss">
+      <a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909969/spurs-bulls" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">11 nov</span>
+    <span class="result-date" data-ts="1794445200000" data-fmt="date">11 nov</span>
     <span class="result-matchup">vs San Antonio Spurs </span>
     <span class="result-score">119&ndash;124</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909945/76ers-bulls" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">08 nov</span>
+    <span class="result-date" data-ts="1794169800000" data-fmt="date">08 nov</span>
     <span class="result-matchup">vs Philadelphia 76ers </span>
     <span class="result-score">121&ndash;127</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909926/bulls-knicks" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">04 nov</span>
+    <span class="result-date" data-ts="1793838600000" data-fmt="date">04 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> New York Knicks </span>
     <span class="result-score">105&ndash;135</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909912/bulls-76ers" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">02 nov</span>
+    <span class="result-date" data-ts="1793665800000" data-fmt="date">02 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Philadelphia 76ers </span>
     <span class="result-score">107&ndash;126</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909278/bulls-celtics" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">30 oct</span>
+    <span class="result-date" data-ts="1793403000000" data-fmt="date">30 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> Boston Celtics </span>
     <span class="result-score">111&ndash;125</span>
-  </div>
+  </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
-    <span class="result-date">13 nov</span>
+    <span class="result-date" data-ts="1794618000000" data-fmt="date">13 nov</span>
     <span class="result-matchup">vs Atlanta Hawks </span>
-    <span class="upcoming-time">6:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1794618000000" data-fmt="time">6:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Bulls+vs+Atlanta+Hawks&amp;dates=20261114T010000Z%2F20261114T033000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">14 nov</span>
+    <span class="result-date" data-ts="1794704400000" data-fmt="date">14 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Minnesota Timberwolves </span>
-    <span class="upcoming-time">6:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1794704400000" data-fmt="time">6:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Minnesota+Timberwolves+vs+Chicago+Bulls&amp;dates=20261115T010000Z%2F20261115T033000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">16 nov</span>
+    <span class="result-date" data-ts="1794873600000" data-fmt="date">16 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Cleveland Cavaliers </span>
-    <span class="upcoming-time">5:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1794873600000" data-fmt="time">5:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Cleveland+Cavaliers+vs+Chicago+Bulls&amp;dates=20261117T000000Z%2F20261117T023000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">18 nov</span>
+    <span class="result-date" data-ts="1795048200000" data-fmt="date">18 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Brooklyn Nets </span>
-    <span class="upcoming-time">5:30 p.m.</span>
+    <span class="upcoming-time" data-ts="1795048200000" data-fmt="time">5:30 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Brooklyn+Nets+vs+Chicago+Bulls&amp;dates=20261119T003000Z%2F20261119T030000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">20 nov</span>
+    <span class="result-date" data-ts="1795222800000" data-fmt="date">20 nov</span>
     <span class="result-matchup">vs Washington Wizards </span>
-    <span class="upcoming-time">6:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1795222800000" data-fmt="time">6:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Bulls+vs+Washington+Wizards&amp;dates=20261121T010000Z%2F20261121T033000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
@@ -676,66 +695,67 @@
     </div>
     
     <div class="card-details">
+      <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">12</span><span class="mt-name">Flames</span><span class="mt-value">17 pts</span></li><li class=""><span class="mt-rank">13</span><span class="mt-name">Sharks</span><span class="mt-value">17 pts</span></li><li class="self"><span class="mt-rank">14</span><span class="mt-name">Kings</span><span class="mt-value">12 pts</span></li><li class=""><span class="mt-rank">15</span><span class="mt-name">Blackhawks</span><span class="mt-value">9 pts</span></li><li class=""><span class="mt-rank">16</span><span class="mt-name">Canucks</span><span class="mt-value">7 pts</span></li></ol>
       <h3>Últimos resultados</h3>
-      <div class="result-row loss">
+      <a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892689/predators-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">10 nov</span>
+    <span class="result-date" data-ts="1794366000000" data-fmt="date">10 nov</span>
     <span class="result-matchup">vs Nashville Predators </span>
     <span class="result-score">0&ndash;3</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892672/penguins-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">07 nov</span>
+    <span class="result-date" data-ts="1794103200000" data-fmt="date">07 nov</span>
     <span class="result-matchup">vs Pittsburgh Penguins </span>
     <span class="result-score">2&ndash;5</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/nhl/game/_/gameId/401892646/sharks-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">04 nov</span>
+    <span class="result-date" data-ts="1793847600000" data-fmt="date">04 nov</span>
     <span class="result-matchup">vs San Jose Sharks </span>
     <span class="result-score">7&ndash;2</span>
-  </div><div class="result-row loss">
+  </a><a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892618/sabres-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
-    <span class="result-date">31 oct</span>
+    <span class="result-date" data-ts="1793476800000" data-fmt="date">31 oct</span>
     <span class="result-matchup">vs Buffalo Sabres </span>
     <span class="result-score">2&ndash;3</span>
-  </div><div class="result-row win">
+  </a><a class="result-row win" href="https://www.espn.com/nhl/game/_/gameId/401892609/senators-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">V</span>
-    <span class="result-date">29 oct</span>
+    <span class="result-date" data-ts="1793325600000" data-fmt="date">29 oct</span>
     <span class="result-matchup">vs Ottawa Senators </span>
     <span class="result-score">6&ndash;5</span>
-  </div>
+  </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
-    <span class="result-date">12 nov</span>
+    <span class="result-date" data-ts="1794538800000" data-fmt="date">12 nov</span>
     <span class="result-matchup">vs New York Islanders </span>
-    <span class="upcoming-time">8:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1794538800000" data-fmt="time">8:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Los+Angeles+Kings+vs+New+York+Islanders&amp;dates=20261113T030000Z%2F20261113T053000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">14 nov</span>
+    <span class="result-date" data-ts="1794711600000" data-fmt="date">14 nov</span>
     <span class="result-matchup">vs Calgary Flames </span>
-    <span class="upcoming-time">8:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1794711600000" data-fmt="time">8:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Los+Angeles+Kings+vs+Calgary+Flames&amp;dates=20261115T030000Z%2F20261115T053000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">17 nov</span>
+    <span class="result-date" data-ts="1794960000000" data-fmt="date">17 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Boston Bruins </span>
-    <span class="upcoming-time">5:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1794960000000" data-fmt="time">5:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Boston+Bruins+vs+Los+Angeles+Kings&amp;dates=20261118T000000Z%2F20261118T023000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">19 nov</span>
+    <span class="result-date" data-ts="1795132800000" data-fmt="date">19 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Toronto Maple Leafs </span>
-    <span class="upcoming-time">5:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1795132800000" data-fmt="time">5:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Toronto+Maple+Leafs+vs+Los+Angeles+Kings&amp;dates=20261120T000000Z%2F20261120T023000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">21 nov</span>
+    <span class="result-date" data-ts="1795305600000" data-fmt="date">21 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Ottawa Senators </span>
-    <span class="upcoming-time">5:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1795305600000" data-fmt="time">5:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Ottawa+Senators+vs+Los+Angeles+Kings&amp;dates=20261122T000000Z%2F20261122T023000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
@@ -759,52 +779,53 @@
     </div>
     
     <div class="card-details">
+      <h3>Constructores</h3><ol class="mini-table"><li class=""><span class="mt-rank">2</span><span class="mt-name">Ferrari</span><span class="mt-value">510 pts</span></li><li class=""><span class="mt-rank">3</span><span class="mt-name">Red Bull</span><span class="mt-value">415 pts</span></li><li class="self"><span class="mt-rank">4</span><span class="mt-name">McLaren</span><span class="mt-value">398 pts</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Racing Bulls</span><span class="mt-value">114 pts</span></li><li class=""><span class="mt-rank">6</span><span class="mt-name">Alpine</span><span class="mt-value">69 pts</span></li></ol>
       <h3>Últimos resultados</h3>
-      <div class="result-row win">
+      <a class="result-row win" href="https://www.espn.com/f1/race/_/id/600057448" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">1</span>
-    <span class="result-date">08 nov</span>
+    <span class="result-date" data-ts="1794157200000" data-fmt="date">08 nov</span>
     <span class="result-matchup"> São Paulo GP </span>
     <span class="result-score">P1 · P6</span>
-  </div><div class="result-row draw">
+  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057447" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">5</span>
-    <span class="result-date">01 nov</span>
+    <span class="result-date" data-ts="1793563200000" data-fmt="date">01 nov</span>
     <span class="result-matchup"> Mexico City GP </span>
     <span class="result-score">P5 · P13</span>
-  </div><div class="result-row draw">
+  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057446" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">5</span>
-    <span class="result-date">25 oct</span>
+    <span class="result-date" data-ts="1792958400000" data-fmt="date">25 oct</span>
     <span class="result-matchup"> United States GP </span>
     <span class="result-score">P5 · P7</span>
-  </div><div class="result-row draw">
+  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057445" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">4</span>
-    <span class="result-date">11 oct</span>
+    <span class="result-date" data-ts="1791720000000" data-fmt="date">11 oct</span>
     <span class="result-matchup"> Singapore GP </span>
     <span class="result-score">P4 · P5</span>
-  </div><div class="result-row draw">
+  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600060990" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">6</span>
-    <span class="result-date">04 oct</span>
+    <span class="result-date" data-ts="1791097200000" data-fmt="date">04 oct</span>
     <span class="result-matchup"> Bahrain GP in Malaysia </span>
     <span class="result-score">P6 · P9</span>
-  </div>
+  </a>
       <h3>Próximas carreras</h3>
       <div class="upcoming-row">
-    <span class="result-date">21 nov</span>
+    <span class="result-date" data-ts="1795320000000" data-fmt="date">21 nov</span>
     <span class="result-matchup"> Las Vegas GP </span>
-    <span class="upcoming-time">9:00 p.m.</span>
+    <span class="upcoming-time" data-ts="1795320000000" data-fmt="time">9:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Las+Vegas+GP&amp;dates=20261122T040000Z%2F20261122T060000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">29 nov</span>
+    <span class="result-date" data-ts="1795968000000" data-fmt="date">29 nov</span>
     <span class="result-matchup"> Qatar GP </span>
-    <span class="upcoming-time">9:00 a.m.</span>
+    <span class="upcoming-time" data-ts="1795968000000" data-fmt="time">9:00 a.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Qatar+GP&amp;dates=20261129T160000Z%2F20261129T180000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
-    <span class="result-date">06 dic</span>
+    <span class="result-date" data-ts="1796562000000" data-fmt="date">06 dic</span>
     <span class="result-matchup"> Abu Dhabi GP </span>
-    <span class="upcoming-time">6:00 a.m.</span>
+    <span class="upcoming-time" data-ts="1796562000000" data-fmt="time">6:00 a.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=F1%3A+Abu+Dhabi+GP&amp;dates=20261206T130000Z%2F20261206T150000Z&amp;details=F1+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
@@ -815,7 +836,7 @@
   </section>
 
   <section class="card" id="sinner" data-order="7" data-updated="1783868700000" style="--team-color: #1d4ed8; --team-badge-text: #ffffff">
-    
+    <span class="offseason">Fuera de temporada</span>
     <div class="card-header">
       <img class="logo" src="assets/teams/sinner.png" alt="Jannik Sinner" />
       <h2>Jannik Sinner</h2>
@@ -828,37 +849,38 @@
     </div>
     
     <div class="card-details">
+      <h3>Ranking ATP</h3><ol class="mini-table"><li class=""><span class="mt-rank">1</span><span class="mt-name">Alexander Zverev</span><span class="mt-value">9550 pts</span></li><li class="self"><span class="mt-rank">2</span><span class="mt-name">Jannik Sinner</span><span class="mt-value">9450 pts</span></li><li class=""><span class="mt-rank">3</span><span class="mt-name">Carlos Alcaraz</span><span class="mt-value">7100 pts</span></li><li class=""><span class="mt-rank">4</span><span class="mt-name">Ben Shelton</span><span class="mt-value">5170 pts</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Daniil Medvedev</span><span class="mt-value">3820 pts</span></li></ol>
       <h3>Últimos resultados</h3>
       <div class="result-row win">
     <span class="result-badge">V</span>
-    <span class="result-date">12 jul</span>
+    <span class="result-date" data-ts="1783868700000" data-fmt="date">12 jul</span>
     <span class="result-matchup">vs Alexander Zverev <span class="comp-tag">Wimbledon</span></span>
     <span class="result-score"></span>
   </div><div class="result-row win">
     <span class="result-badge">V</span>
-    <span class="result-date">10 jul</span>
+    <span class="result-date" data-ts="1783696800000" data-fmt="date">10 jul</span>
     <span class="result-matchup">vs Novak Djokovic <span class="comp-tag">Wimbledon</span></span>
     <span class="result-score"></span>
   </div><div class="result-row win">
     <span class="result-badge">V</span>
-    <span class="result-date">07 jul</span>
+    <span class="result-date" data-ts="1783425900000" data-fmt="date">07 jul</span>
     <span class="result-matchup">vs Jan-Lennard Struff <span class="comp-tag">Wimbledon</span></span>
     <span class="result-score"></span>
   </div><div class="result-row win">
     <span class="result-badge">V</span>
-    <span class="result-date">05 jul</span>
+    <span class="result-date" data-ts="1783275600000" data-fmt="date">05 jul</span>
     <span class="result-matchup">vs Shintaro Mochizuki <span class="comp-tag">Wimbledon</span></span>
     <span class="result-score"></span>
   </div><div class="result-row win">
     <span class="result-badge">V</span>
-    <span class="result-date">03 jul</span>
+    <span class="result-date" data-ts="1783086000000" data-fmt="date">03 jul</span>
     <span class="result-matchup">vs Jenson Brooksby <span class="comp-tag">Wimbledon</span></span>
     <span class="result-score"></span>
   </div>
-      <h3>Próximos partidos</h3>
-      <p class="muted">Calendario aún no publicado.</p>
+      <h3>Próxima temporada</h3>
+      <div class="next-season"><p><span>Temporada 2027</span><strong data-ts="1798790400000" data-fmt="dateyear">01 ene 2027</strong></p></div>
     </div>
-    <span class="countdown no-match">Sin Anunciar</span>
+    <span class="countdown" data-target="1798790400000">Calculando...</span>
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
   </div>
@@ -866,6 +888,55 @@
     <p>&copy; 2026 STRICKEOUT &middot; @RicardoHdzm &middot; Uso Personal</p>
     <p>Datos: <a href="https://www.espn.com" target="_blank" rel="noopener">ESPN</a> y <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a></p>
   </footer>
+  <script>
+    (function () {
+      var opts = {
+        date: { day: "2-digit", month: "short" },
+        dateyear: { day: "2-digit", month: "short", year: "numeric" },
+        time: { hour: "numeric", minute: "2-digit" },
+        day: { weekday: "short", day: "numeric", month: "short" },
+        weekday: { weekday: "long", day: "numeric", month: "short" },
+        datetime: { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" },
+      };
+      function fmt(ts, kind) {
+        var d = new Date(Number(ts));
+        if (kind === "time") return d.toLocaleTimeString("es-MX", opts.time);
+        if (kind === "daytime") return d.toLocaleDateString("es-MX", opts.day) + ", " + d.toLocaleTimeString("es-MX", opts.time);
+        if (kind === "datetime") return d.toLocaleString("es-MX", opts.datetime);
+        var text = d.toLocaleDateString("es-MX", opts[kind]);
+        return kind === "date" || kind === "dateyear" ? text.replace(/-/g, " ") : text;
+      }
+      document.querySelectorAll("[data-fmt]").forEach(function (el) { el.textContent = fmt(el.dataset.ts, el.dataset.fmt); });
+
+      // Reagrupa "Esta semana" por los dias locales del visitante.
+      var days = document.querySelector(".agenda-days");
+      if (!days) return;
+      var rows = Array.prototype.slice.call(days.querySelectorAll(".agenda-row"));
+      var key = function (d) { return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); };
+      var now = new Date();
+      days.innerHTML = "";
+      for (var i = 0; i < 7; i++) {
+        var date = new Date(now.getTime() + i * 86400000);
+        var dayRows = rows.filter(function (r) {
+          return r.hasAttribute("data-live") ? i === 0 : key(new Date(Number(r.dataset.ts))) === key(date);
+        });
+        var box = document.createElement("div");
+        box.className = "agenda-day" + (dayRows.length ? "" : " empty");
+        var title = document.createElement("h3");
+        title.textContent = date.toLocaleDateString("es-MX", opts.weekday);
+        box.appendChild(title);
+        if (dayRows.length) {
+          dayRows.forEach(function (r) { box.appendChild(r); });
+        } else {
+          var empty = document.createElement("p");
+          empty.className = "agenda-empty";
+          empty.textContent = "Sin partidos";
+          box.appendChild(empty);
+        }
+        days.appendChild(box);
+      }
+    })();
+  </script>
   <script>
     (function () {
       var els = document.querySelectorAll(".countdown");
