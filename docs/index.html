@@ -159,7 +159,8 @@
   }
   .cal-link:hover, .cal-link:focus-visible { color: #fff; background: rgba(255,255,255,0.1); }
   .form { display: flex; gap: .3rem; margin-top: .6rem; }
-  .form-dot:last-child { box-shadow: 0 0 0 1.5px #050505, 0 0 0 3px #fff; }
+  .form-dot:last-child { box-shadow: 0 0 0 1.5px #050505, 0 0 0 3px var(--ring, #fff); }
+  .form-dot.win { --ring: var(--win); } .form-dot.loss { --ring: var(--loss); } .form-dot.draw { --ring: var(--draw); }
   .form-dot {
     width: 1.15rem; height: 1.15rem; border-radius: 3px;
     display: flex; align-items: center; justify-content: center;
@@ -342,7 +343,7 @@
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: <span data-ts="1794458734872" data-fmt="datetime">11 nov 2026, 09:45 p.m.</span> &middot; Horarios en tu hora local</p>
+  <p class="updated">Actualizado: <span data-ts="1794458800232" data-fmt="datetime">11 nov 2026, 09:46 p.m.</span> &middot; Horarios en tu hora local</p>
   <section class="agenda"><div class="agenda-head"><h2>Esta semana</h2><div class="agenda-filter" role="group" aria-label="Filtrar por deporte">
         <button class="filter-btn active" type="button" data-sport="all">Todos</button>
         <button class="filter-btn" type="button" data-sport="hockey">NHL</button><button class="filter-btn" type="button" data-sport="basketball">NBA</button><button class="filter-btn" type="button" data-sport="soccer">Fútbol</button><button class="filter-btn" type="button" data-sport="football">NFL</button>
