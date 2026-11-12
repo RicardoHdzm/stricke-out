@@ -4,6 +4,16 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>STRICKEOUT | @RicardoHdzm</title>
+<meta name="description" content="Resultados, calendario y posiciones de Real Madrid, Santos, México, Raiders, Cubs, Bulls, Kings, McLaren y Sinner." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="STRICKEOUT · Sports Dashboard" />
+<meta property="og:description" content="Resultados, calendario y posiciones de mis equipos, actualizados cada 30 minutos." />
+<meta property="og:url" content="https://ricardohdzm.github.io/stricke-out/" />
+<meta property="og:image" content="https://ricardohdzm.github.io/stricke-out/assets/social/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="theme-color" content="#050505" />
 <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="assets/favicon/apple-touch-icon.png" type="image/png" />
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
@@ -326,6 +336,41 @@
   .share-btn:disabled { opacity: .6; cursor: progress; }
   .card-share { display: flex; margin: .8rem auto 0; }
   .mm-share { display: flex; margin: 1.3rem auto 0; }
+  .rival-logo { width: 18px; height: 18px; object-fit: contain; vertical-align: -4px; margin-right: .35rem; }
+  .result-score .won { color: #fff; font-weight: 800; }
+  .result-score .lost { color: var(--muted); font-weight: 600; }
+  .agenda-day.today { background: rgba(255,255,255,0.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25); }
+  .agenda .agenda-day.today h3 { color: #fff; }
+  @media (max-width: 600px) {
+    .agenda-day.today { margin: 0 -.5rem; padding: .1rem .5rem .3rem; border-radius: 8px; }
+  }
+  .card.off { opacity: .55; filter: grayscale(.7); transition: opacity .2s, filter .2s; }
+  .card.off:hover, .card.off.expanded { opacity: 1; filter: none; }
+  .mm-ball { display: flex; align-items: flex-start; padding-top: .15rem; color: var(--muted); }
+  .hero {
+    display: flex; flex-direction: column; align-items: center; gap: .45rem; text-align: center;
+    max-width: 1500px; margin: 0 auto 1.25rem; padding: 1.2rem 1rem 1.3rem; color: var(--text); text-decoration: none;
+    border: 1px solid var(--card-border); border-top: 5px solid var(--team-color); border-radius: 12px;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--team-color) 26%, transparent), rgba(0,0,0,0.5) 70%);
+  }
+  .hero:hover { border-color: rgba(255,255,255,0.25); border-top-color: var(--team-color); }
+  .hero-label { font-family: "Barlow Condensed", "Barlow", sans-serif; font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .hero-match { display: flex; align-items: center; gap: 1.2rem; }
+  .hero-logo { width: 72px; height: 72px; object-fit: contain; }
+  .hero-vs { font-family: "Teko", sans-serif; font-size: 1.6rem; font-weight: 600; color: var(--muted); }
+  .hero-title { font-family: "Teko", sans-serif; font-size: 2rem; font-weight: 600; line-height: 1; }
+  .hero-when { font-size: .85rem; color: var(--muted); }
+  .hero-count {
+    margin-top: .3rem; font-family: "Barlow Condensed", "Barlow", sans-serif; font-size: 1rem; font-weight: 800; letter-spacing: .04em;
+    color: var(--team-badge-text); background: var(--team-color); border-radius: 999px; padding: .35rem 1.1rem;
+  }
+  .hero-count.live { color: #fff; background: var(--loss); animation: live-blink 1.6s infinite; }
+  @keyframes card-reveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 600px) {
+    .card.expanded > :not(.card-header) { animation: card-reveal .25s ease; }
+    .hero-logo { width: 60px; height: 60px; }
+    .hero-title { font-size: 1.7rem; }
+  }
   .card-toggle { display: none; }
   /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
@@ -360,11 +405,21 @@
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: <span data-ts="1794508662901" data-fmt="datetime">12 nov 2026, 11:37 a.m.</span> &middot; Horarios en tu hora local</p>
+  <p class="updated">Actualizado: <span data-ts="1794509036157" data-fmt="datetime">12 nov 2026, 11:43 a.m.</span> &middot; Horarios en tu hora local</p>
+  <a class="hero" href="#kings" style="--team-color: #8b5cf6; --team-badge-text: #ffffff">
+    <span class="hero-label">Próximo partido</span>
+    <span class="hero-match">
+      <img class="hero-logo" src="assets/teams/la.webp" alt="" />
+      <span class="hero-vs">vs</span><img class="hero-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/nyi.png&amp;w=160&amp;h=160" alt="" />
+    </span>
+    <span class="hero-title">Los Angeles Kings vs New York Islanders</span>
+    <span class="hero-when">NHL &middot; <span data-ts="1794538800000" data-fmt="weekday">12 nov</span> &middot; <span data-ts="1794538800000" data-fmt="time">8:00 p.m.</span></span>
+    <span class="hero-count countdown" data-target="1794538800000" data-long>Calculando...</span>
+  </a>
   <section class="agenda"><div class="agenda-head"><h2>Esta semana</h2><div class="agenda-filter" role="group" aria-label="Filtrar por deporte">
         <button class="filter-btn active" type="button" data-sport="all">Todos</button>
         <button class="filter-btn" type="button" data-sport="hockey">NHL</button><button class="filter-btn" type="button" data-sport="basketball">NBA</button><button class="filter-btn" type="button" data-sport="soccer">Fútbol</button><button class="filter-btn" type="button" data-sport="football">NFL</button>
-      </div><button class="share-btn" type="button" data-share="agenda"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg><span>Compartir</span></button></div><div class="agenda-days"><div class="agenda-day"><h3>jueves 12 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794538800000" data-sport="hockey" data-event="401892705" data-league="hockey/nhl" data-team="8">
+      </div><button class="share-btn" type="button" data-share="agenda"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg><span>Compartir</span></button></div><div class="agenda-days"><div class="agenda-day today"><h3>jueves 12 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794538800000" data-sport="hockey" data-event="401892705" data-league="hockey/nhl" data-team="8">
         <img class="agenda-logo" src="assets/teams/la.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival">vs Islanders</span></span>
         <span class="agenda-meta">
@@ -462,61 +517,61 @@
       <a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401882808/real-madrid-valencia" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401882808" data-league="soccer/esp.1" data-team="86" data-comp="LaLiga">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1794081600000" data-fmt="date">07 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Valencia <span class="comp-tag">LaLiga</span></span>
-    <span class="result-score">3&ndash;0</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/94.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Valencia <span class="comp-tag">LaLiga</span></span>
+    <span class="result-score"><span class="won">3</span>&ndash;<span class="lost">0</span></span>
   </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401915383/real-madrid-aek-athens" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401915383" data-league="soccer/uefa.champions" data-team="86" data-comp="Champions League">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793814300000" data-fmt="date">04 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> AEK Athens <span class="comp-tag">UCL</span></span>
-    <span class="result-score">3&ndash;2</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/887.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> AEK Athens <span class="comp-tag">UCL</span></span>
+    <span class="result-score"><span class="won">3</span>&ndash;<span class="lost">2</span></span>
   </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401882819/real-madrid-racing-santander" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401882819" data-league="soccer/esp.1" data-team="86" data-comp="LaLiga">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793546100000" data-fmt="date">01 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Racing Santander <span class="comp-tag">LaLiga</span></span>
-    <span class="result-score">3&ndash;0</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/87.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Racing Santander <span class="comp-tag">LaLiga</span></span>
+    <span class="result-score"><span class="won">3</span>&ndash;<span class="lost">0</span></span>
   </a><a class="result-row win rivalry" href="https://www.espn.com/soccer/match/_/gameId/401882832/real-madrid-barcelona" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401882832" data-league="soccer/esp.1" data-team="86" data-comp="LaLiga">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1792958400000" data-fmt="date">25 oct</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Barcelona <span class="rivalry-tag">★ Clásico</span><span class="comp-tag">LaLiga</span></span>
-    <span class="result-score">2&ndash;1</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/83.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Barcelona <span class="rivalry-tag">★ Clásico</span><span class="comp-tag">LaLiga</span></span>
+    <span class="result-score"><span class="won">2</span>&ndash;<span class="lost">1</span></span>
   </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401915313/rb-leipzig-real-madrid" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401915313" data-league="soccer/uefa.champions" data-team="86" data-comp="Champions League">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1792609200000" data-fmt="date">21 oct</span>
-    <span class="result-matchup">vs RB Leipzig <span class="comp-tag">UCL</span></span>
-    <span class="result-score">4&ndash;1</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/11420.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs RB Leipzig <span class="comp-tag">UCL</span></span>
+    <span class="result-score"><span class="won">4</span>&ndash;<span class="lost">1</span></span>
   </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
     <span class="result-date" data-ts="1795291200000" data-fmt="date">21 nov</span>
-    <span class="result-matchup">vs Celta Vigo <span class="comp-tag">LaLiga</span></span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/85.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Celta Vigo <span class="comp-tag">LaLiga</span></span>
     <span class="upcoming-time" data-ts="1795291200000" data-fmt="time">1:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Madrid+vs+Celta+Vigo&amp;dates=20261121T200000Z%2F20261121T220000Z&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1795550400000" data-fmt="date">24 nov</span>
-    <span class="result-matchup">vs PSV Eindhoven <span class="comp-tag">UCL</span></span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/148.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs PSV Eindhoven <span class="comp-tag">UCL</span></span>
     <span class="upcoming-time" data-ts="1795550400000" data-fmt="time">1:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Madrid+vs+PSV+Eindhoven&amp;dates=20261124T200000Z%2F20261124T220000Z&amp;details=Champions+League+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1795896000000" data-fmt="date">28 nov</span>
-    <span class="result-matchup">vs Alavés <span class="comp-tag">LaLiga</span></span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/96.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Alavés <span class="comp-tag">LaLiga</span></span>
     <span class="upcoming-time" data-ts="1795896000000" data-fmt="time">1:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Madrid+vs+Alav%C3%A9s&amp;dates=20261128T200000Z%2F20261128T220000Z&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1796234400000" data-fmt="date">02 dic</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Real Sociedad <span class="comp-tag">LaLiga</span></span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/89.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Real Sociedad <span class="comp-tag">LaLiga</span></span>
     <span class="upcoming-time" data-ts="1796234400000" data-fmt="time">11:00 a.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Real+Sociedad+vs+Real+Madrid&amp;dates=20261202T180000Z%2F20261202T200000Z&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1796587200000" data-fmt="date">06 dic</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Athletic Club <span class="comp-tag">LaLiga</span></span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/93.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Athletic Club <span class="comp-tag">LaLiga</span></span>
     <span class="upcoming-time tbd" >Por confirmar</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Athletic+Club+vs+Real+Madrid&amp;dates=20261206%2F20261207&amp;details=LaLiga+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
@@ -548,33 +603,33 @@
       <a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876908/santos-atlante" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876908" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1794020400000" data-fmt="date">06 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Atlante </span>
-    <span class="result-score">2&ndash;0</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/226.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Atlante </span>
+    <span class="result-score"><span class="won">2</span>&ndash;<span class="lost">0</span></span>
   </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876912/necaxa-santos" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876912" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793574000000" data-fmt="date">01 nov</span>
-    <span class="result-matchup">vs Necaxa </span>
-    <span class="result-score">1&ndash;0</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/229.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Necaxa </span>
+    <span class="result-score"><span class="won">1</span>&ndash;<span class="lost">0</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/401876920/santos-tijuana" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876920" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1792984200000" data-fmt="date">25 oct</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Tijuana </span>
-    <span class="result-score">1&ndash;4</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/10125.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Tijuana </span>
+    <span class="result-score"><span class="lost">1</span>&ndash;<span class="won">4</span></span>
   </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876929/pumas-unam-santos" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876929" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1792638600000" data-fmt="date">21 oct</span>
-    <span class="result-matchup">vs Pumas UNAM </span>
-    <span class="result-score">2&ndash;0</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/233.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Pumas UNAM </span>
+    <span class="result-score"><span class="won">2</span>&ndash;<span class="lost">0</span></span>
   </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876942/queretaro-santos" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876942" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1792278000000" data-fmt="date">17 oct</span>
-    <span class="result-matchup">vs Querétaro </span>
-    <span class="result-score">5&ndash;0</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/222.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Querétaro </span>
+    <span class="result-score"><span class="won">5</span>&ndash;<span class="lost">0</span></span>
   </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
     <span class="result-date" data-ts="1795302000000" data-fmt="date">21 nov</span>
-    <span class="result-matchup">vs León </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/228.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs León </span>
     <span class="upcoming-time" data-ts="1795302000000" data-fmt="time">4:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Santos+Laguna+vs+Le%C3%B3n&amp;dates=20261121T230000Z%2F20261122T010000Z&amp;details=Liga+MX+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
@@ -603,40 +658,40 @@
       <a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/401903298/chile-mexico" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401903298" data-league="soccer/fifa.friendly" data-team="203" data-comp="Amistoso">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1791340200000" data-fmt="date">06 oct</span>
-    <span class="result-matchup">vs Chile <span class="comp-tag">Amistoso</span></span>
-    <span class="result-score">0&ndash;2</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/countries/500/chi.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Chile <span class="comp-tag">Amistoso</span></span>
+    <span class="result-score"><span class="lost">0</span>&ndash;<span class="won">2</span></span>
   </a><a class="result-row loss rivalry" href="https://www.espn.com/soccer/match/_/gameId/401905202/mexico-united-states" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401905202" data-league="soccer/fifa.friendly" data-team="203" data-comp="Amistoso">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1791079200000" data-fmt="date">03 oct</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Estados Unidos <span class="rivalry-tag">★ Clásico de Concacaf</span><span class="comp-tag">Amistoso</span></span>
-    <span class="result-score">0&ndash;3</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/countries/500/usa.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Estados Unidos <span class="rivalry-tag">★ Clásico de Concacaf</span><span class="comp-tag">Amistoso</span></span>
+    <span class="result-score"><span class="lost">0</span>&ndash;<span class="won">3</span></span>
   </a><a class="result-row draw" href="https://www.espn.com/soccer/match/_/gameId/401903234/peru-mexico" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401903234" data-league="soccer/fifa.friendly" data-team="203" data-comp="Amistoso">
     <span class="result-badge">E</span>
     <span class="result-date" data-ts="1790730000000" data-fmt="date">29 sep</span>
-    <span class="result-matchup">vs Perú <span class="comp-tag">Amistoso</span></span>
-    <span class="result-score">1&ndash;1</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/countries/500/per.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Perú <span class="comp-tag">Amistoso</span></span>
+    <span class="result-score"><span class="">1</span>&ndash;<span class="">1</span></span>
   </a><a class="result-row draw" href="https://www.espn.com/soccer/match/_/gameId/401903308/colombia-mexico" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401903308" data-league="soccer/fifa.friendly" data-team="203" data-comp="Amistoso">
     <span class="result-badge">E</span>
     <span class="result-date" data-ts="1790470800000" data-fmt="date">26 sep</span>
-    <span class="result-matchup">vs Colombia <span class="comp-tag">Amistoso</span></span>
-    <span class="result-score">1&ndash;1</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/countries/500/col.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Colombia <span class="comp-tag">Amistoso</span></span>
+    <span class="result-score"><span class="">1</span>&ndash;<span class="">1</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/760505/england-mexico" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="760505" data-league="soccer/fifa.world" data-team="203" data-comp="Mundial">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1783299600000" data-fmt="date">05 jul</span>
-    <span class="result-matchup">vs Inglaterra <span class="comp-tag">Mundial</span></span>
-    <span class="result-score">2&ndash;3</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/countries/500/eng.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Inglaterra <span class="comp-tag">Mundial</span></span>
+    <span class="result-score"><span class="lost">2</span>&ndash;<span class="won">3</span></span>
   </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
     <span class="result-date" data-ts="1794704400000" data-fmt="date">14 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Jamaica <span class="comp-tag">CNL</span></span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/countries/500/jam.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Jamaica <span class="comp-tag">CNL</span></span>
     <span class="upcoming-time" data-ts="1794704400000" data-fmt="time">6:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Jamaica+vs+M%C3%A9xico&amp;dates=20261115T010000Z%2F20261115T030000Z&amp;details=Nations+League+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1794969000000" data-fmt="date">17 nov</span>
-    <span class="result-matchup">vs Jamaica <span class="comp-tag">CNL</span></span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/countries/500/jam.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Jamaica <span class="comp-tag">CNL</span></span>
     <span class="upcoming-time" data-ts="1794969000000" data-fmt="time">7:30 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=M%C3%A9xico+vs+Jamaica&amp;dates=20261118T023000Z%2F20261118T043000Z&amp;details=Nations+League+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
@@ -668,61 +723,61 @@
       <a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873047/raiders-49ers" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401873047" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794173100000" data-fmt="date">08 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> San Francisco 49ers </span>
-    <span class="result-score">17&ndash;38</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/sf.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> San Francisco 49ers </span>
+    <span class="result-score"><span class="lost">17</span>&ndash;<span class="won">38</span></span>
   </a><a class="result-row win" href="https://www.espn.com/nfl/game/_/gameId/401873029/raiders-jets" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401873029" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793556000000" data-fmt="date">01 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> New York Jets </span>
-    <span class="result-score">38&ndash;33</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/nyj.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> New York Jets </span>
+    <span class="result-score"><span class="won">38</span>&ndash;<span class="lost">33</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873021/rams-raiders" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401873021" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1792959900000" data-fmt="date">25 oct</span>
-    <span class="result-matchup">vs Los Angeles Rams </span>
-    <span class="result-score">21&ndash;35</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/lar.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Los Angeles Rams </span>
+    <span class="result-score"><span class="lost">21</span>&ndash;<span class="won">35</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873005/bills-raiders" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401873005" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1792355100000" data-fmt="date">18 oct</span>
-    <span class="result-matchup">vs Buffalo Bills </span>
-    <span class="result-score">30&ndash;33</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/buf.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Buffalo Bills </span>
+    <span class="result-score"><span class="lost">30</span>&ndash;<span class="won">33</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401872986/raiders-patriots" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401872986" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1791738000000" data-fmt="date">11 oct</span>
-    <span class="result-matchup"><span class="away-marker">@</span> New England Patriots </span>
-    <span class="result-score">17&ndash;45</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/ne.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> New England Patriots </span>
+    <span class="result-score"><span class="lost">17</span>&ndash;<span class="won">45</span></span>
   </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
     <span class="result-date" data-ts="1794776700000" data-fmt="date">15 nov</span>
-    <span class="result-matchup">vs Seattle Seahawks </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/sea.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Seattle Seahawks </span>
     <span class="upcoming-time" data-ts="1794776700000" data-fmt="time">2:05 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Las+Vegas+Raiders+vs+Seattle+Seahawks&amp;dates=20261115T210500Z%2F20261116T003500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1795382700000" data-fmt="date">22 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Denver Broncos </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/den.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Denver Broncos </span>
     <span class="upcoming-time" data-ts="1795382700000" data-fmt="time">2:25 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Denver+Broncos+vs+Las+Vegas+Raiders&amp;dates=20261122T212500Z%2F20261123T005500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1795975200000" data-fmt="date">29 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Cleveland Browns </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/cle.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Cleveland Browns </span>
     <span class="upcoming-time" data-ts="1795975200000" data-fmt="time">11:00 a.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Cleveland+Browns+vs+Las+Vegas+Raiders&amp;dates=20261129T180000Z%2F20261129T213000Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1797195900000" data-fmt="date">13 dic</span>
-    <span class="result-matchup">vs Los Angeles Chargers </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/lac.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Los Angeles Chargers </span>
     <span class="upcoming-time" data-ts="1797195900000" data-fmt="time">2:05 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Las+Vegas+Raiders+vs+Los+Angeles+Chargers&amp;dates=20261213T210500Z%2F20261214T003500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1797801900000" data-fmt="date">20 dic</span>
-    <span class="result-matchup">vs Denver Broncos </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/den.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Denver Broncos </span>
     <span class="upcoming-time" data-ts="1797801900000" data-fmt="time">2:25 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Las+Vegas+Raiders+vs+Denver+Broncos&amp;dates=20261220T212500Z%2F20261221T005500Z&amp;details=NFL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
@@ -734,7 +789,7 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" id="cubs" data-order="4" data-updated="1759087200000" style="--team-color: #0e3386; --team-badge-text: #ffffff">
+  <section class="card off" id="cubs" data-order="4" data-updated="1759087200000" style="--team-color: #0e3386; --team-badge-text: #ffffff">
     <span class="offseason">Fuera de temporada</span>
     <div class="card-header">
       <img class="logo" src="assets/teams/cubs.webp" alt="Chicago Cubs" />
@@ -754,61 +809,61 @@
       <a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697332/cardinals-cubs" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401697332" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1759087200000" data-fmt="date">28 sep</span>
-    <span class="result-matchup">vs St. Louis Cardinals </span>
-    <span class="result-score">2&ndash;0</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/stl.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs St. Louis Cardinals </span>
+    <span class="result-score"><span class="won">2</span>&ndash;<span class="lost">0</span></span>
   </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697317/cardinals-cubs" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401697317" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1758997200000" data-fmt="date">27 sep</span>
-    <span class="result-matchup">vs St. Louis Cardinals </span>
-    <span class="result-score">7&ndash;3</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/stl.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs St. Louis Cardinals </span>
+    <span class="result-score"><span class="won">7</span>&ndash;<span class="lost">3</span></span>
   </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697302/cardinals-cubs" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401697302" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1758910800000" data-fmt="date">26 sep</span>
-    <span class="result-matchup">vs St. Louis Cardinals </span>
-    <span class="result-score">12&ndash;1</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/stl.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs St. Louis Cardinals </span>
+    <span class="result-score"><span class="won">12</span>&ndash;<span class="lost">1</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/mlb/game/_/gameId/401697288/mets-cubs" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401697288" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1758843600000" data-fmt="date">25 sep</span>
-    <span class="result-matchup">vs New York Mets </span>
-    <span class="result-score">5&ndash;8</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/nym.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs New York Mets </span>
+    <span class="result-score"><span class="lost">5</span>&ndash;<span class="won">8</span></span>
   </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697274/mets-cubs" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401697274" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1758758700000" data-fmt="date">24 sep</span>
-    <span class="result-matchup">vs New York Mets </span>
-    <span class="result-score">10&ndash;3</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/nym.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs New York Mets </span>
+    <span class="result-score"><span class="won">10</span>&ndash;<span class="lost">3</span></span>
   </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
     <span class="result-date" data-ts="1805947200000" data-fmt="date">24 mar</span>
-    <span class="result-matchup">vs Cleveland Guardians </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/cle.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Cleveland Guardians </span>
     <span class="upcoming-time tbd" >Por confirmar</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Cubs+vs+Cleveland+Guardians&amp;dates=20270324%2F20270325&amp;details=MLB+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1806189300000" data-fmt="date">27 mar</span>
-    <span class="result-matchup">vs Cleveland Guardians </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/cle.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Cleveland Guardians </span>
     <span class="upcoming-time" data-ts="1806189300000" data-fmt="time">4:15 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Cubs+vs+Cleveland+Guardians&amp;dates=20270327T231500Z%2F20270328T021500Z&amp;details=MLB+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1806206400000" data-fmt="date">27 mar</span>
-    <span class="result-matchup">vs Cleveland Guardians </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/cle.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Cleveland Guardians </span>
     <span class="upcoming-time tbd" >Por confirmar</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Cubs+vs+Cleveland+Guardians&amp;dates=20270327%2F20270328&amp;details=MLB+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1806292800000" data-fmt="date">28 mar</span>
-    <span class="result-matchup">vs St. Louis Cardinals </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/stl.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs St. Louis Cardinals </span>
     <span class="upcoming-time tbd" >Por confirmar</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Cubs+vs+St.+Louis+Cardinals&amp;dates=20270328%2F20270329&amp;details=MLB+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1806379200000" data-fmt="date">29 mar</span>
-    <span class="result-matchup">vs St. Louis Cardinals </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/stl.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs St. Louis Cardinals </span>
     <span class="upcoming-time tbd" >Por confirmar</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Cubs+vs+St.+Louis+Cardinals&amp;dates=20270329%2F20270330&amp;details=MLB+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
@@ -840,61 +895,61 @@
       <a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909969/spurs-bulls" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909969" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794445200000" data-fmt="date">11 nov</span>
-    <span class="result-matchup">vs San Antonio Spurs </span>
-    <span class="result-score">119&ndash;124</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/sa.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs San Antonio Spurs </span>
+    <span class="result-score"><span class="lost">119</span>&ndash;<span class="won">124</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909945/76ers-bulls" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909945" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794169800000" data-fmt="date">08 nov</span>
-    <span class="result-matchup">vs Philadelphia 76ers </span>
-    <span class="result-score">121&ndash;127</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/phi.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Philadelphia 76ers </span>
+    <span class="result-score"><span class="lost">121</span>&ndash;<span class="won">127</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909926/bulls-knicks" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909926" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1793838600000" data-fmt="date">04 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> New York Knicks </span>
-    <span class="result-score">105&ndash;135</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/ny.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> New York Knicks </span>
+    <span class="result-score"><span class="lost">105</span>&ndash;<span class="won">135</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909912/bulls-76ers" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909912" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1793665800000" data-fmt="date">02 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Philadelphia 76ers </span>
-    <span class="result-score">107&ndash;126</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/phi.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Philadelphia 76ers </span>
+    <span class="result-score"><span class="lost">107</span>&ndash;<span class="won">126</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909278/bulls-celtics" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909278" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1793403000000" data-fmt="date">30 oct</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Boston Celtics </span>
-    <span class="result-score">111&ndash;125</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/bos.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Boston Celtics </span>
+    <span class="result-score"><span class="lost">111</span>&ndash;<span class="won">125</span></span>
   </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
     <span class="result-date" data-ts="1794618000000" data-fmt="date">13 nov</span>
-    <span class="result-matchup">vs Atlanta Hawks </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/atl.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Atlanta Hawks </span>
     <span class="upcoming-time" data-ts="1794618000000" data-fmt="time">6:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Bulls+vs+Atlanta+Hawks&amp;dates=20261114T010000Z%2F20261114T033000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1794704400000" data-fmt="date">14 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Minnesota Timberwolves </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/min.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Minnesota Timberwolves </span>
     <span class="upcoming-time" data-ts="1794704400000" data-fmt="time">6:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Minnesota+Timberwolves+vs+Chicago+Bulls&amp;dates=20261115T010000Z%2F20261115T033000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1794873600000" data-fmt="date">16 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Cleveland Cavaliers </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/cle.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Cleveland Cavaliers </span>
     <span class="upcoming-time" data-ts="1794873600000" data-fmt="time">5:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Cleveland+Cavaliers+vs+Chicago+Bulls&amp;dates=20261117T000000Z%2F20261117T023000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1795048200000" data-fmt="date">18 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Brooklyn Nets </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/bkn.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Brooklyn Nets </span>
     <span class="upcoming-time" data-ts="1795048200000" data-fmt="time">5:30 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Brooklyn+Nets+vs+Chicago+Bulls&amp;dates=20261119T003000Z%2F20261119T030000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1795222800000" data-fmt="date">20 nov</span>
-    <span class="result-matchup">vs Washington Wizards </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/wsh.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Washington Wizards </span>
     <span class="upcoming-time" data-ts="1795222800000" data-fmt="time">6:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Chicago+Bulls+vs+Washington+Wizards&amp;dates=20261121T010000Z%2F20261121T033000Z&amp;details=NBA+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
@@ -926,61 +981,61 @@
       <a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892689/predators-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892689" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794366000000" data-fmt="date">10 nov</span>
-    <span class="result-matchup">vs Nashville Predators </span>
-    <span class="result-score">0&ndash;3</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/nsh.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Nashville Predators </span>
+    <span class="result-score"><span class="lost">0</span>&ndash;<span class="won">3</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892672/penguins-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892672" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794103200000" data-fmt="date">07 nov</span>
-    <span class="result-matchup">vs Pittsburgh Penguins </span>
-    <span class="result-score">2&ndash;5</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/pit.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Pittsburgh Penguins </span>
+    <span class="result-score"><span class="lost">2</span>&ndash;<span class="won">5</span></span>
   </a><a class="result-row win" href="https://www.espn.com/nhl/game/_/gameId/401892646/sharks-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892646" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793847600000" data-fmt="date">04 nov</span>
-    <span class="result-matchup">vs San Jose Sharks </span>
-    <span class="result-score">7&ndash;2</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/sj.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs San Jose Sharks </span>
+    <span class="result-score"><span class="won">7</span>&ndash;<span class="lost">2</span></span>
   </a><a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892618/sabres-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892618" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1793476800000" data-fmt="date">31 oct</span>
-    <span class="result-matchup">vs Buffalo Sabres </span>
-    <span class="result-score">2&ndash;3</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/buf.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Buffalo Sabres </span>
+    <span class="result-score"><span class="lost">2</span>&ndash;<span class="won">3</span></span>
   </a><a class="result-row win" href="https://www.espn.com/nhl/game/_/gameId/401892609/senators-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892609" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793325600000" data-fmt="date">29 oct</span>
-    <span class="result-matchup">vs Ottawa Senators </span>
-    <span class="result-score">6&ndash;5</span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/ott.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Ottawa Senators </span>
+    <span class="result-score"><span class="won">6</span>&ndash;<span class="lost">5</span></span>
   </a>
       <h3>Próximos partidos</h3>
       <div class="upcoming-row">
     <span class="result-date" data-ts="1794538800000" data-fmt="date">12 nov</span>
-    <span class="result-matchup">vs New York Islanders </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/nyi.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs New York Islanders </span>
     <span class="upcoming-time" data-ts="1794538800000" data-fmt="time">8:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Los+Angeles+Kings+vs+New+York+Islanders&amp;dates=20261113T030000Z%2F20261113T053000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1794711600000" data-fmt="date">14 nov</span>
-    <span class="result-matchup">vs Calgary Flames </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/cgy.png&amp;w=40&amp;h=40" alt="" loading="lazy" />vs Calgary Flames </span>
     <span class="upcoming-time" data-ts="1794711600000" data-fmt="time">8:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Los+Angeles+Kings+vs+Calgary+Flames&amp;dates=20261115T030000Z%2F20261115T053000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1794960000000" data-fmt="date">17 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Boston Bruins </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/bos.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Boston Bruins </span>
     <span class="upcoming-time" data-ts="1794960000000" data-fmt="time">5:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Boston+Bruins+vs+Los+Angeles+Kings&amp;dates=20261118T000000Z%2F20261118T023000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1795132800000" data-fmt="date">19 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Toronto Maple Leafs </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/tor.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Toronto Maple Leafs </span>
     <span class="upcoming-time" data-ts="1795132800000" data-fmt="time">5:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Toronto+Maple+Leafs+vs+Los+Angeles+Kings&amp;dates=20261120T000000Z%2F20261120T023000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
   </div><div class="upcoming-row">
     <span class="result-date" data-ts="1795305600000" data-fmt="date">21 nov</span>
-    <span class="result-matchup"><span class="away-marker">@</span> Ottawa Senators </span>
+    <span class="result-matchup"><img class="rival-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/ott.png&amp;w=40&amp;h=40" alt="" loading="lazy" /><span class="away-marker">@</span> Ottawa Senators </span>
     <span class="upcoming-time" data-ts="1795305600000" data-fmt="time">5:00 p.m.</span>
     <a class="cal-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Ottawa+Senators+vs+Los+Angeles+Kings&amp;dates=20261122T000000Z%2F20261122T023000Z&amp;details=NHL+%C2%B7+Agregado+desde+STRICKEOUT" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
@@ -1064,7 +1119,7 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
 
-  <section class="card" id="sinner" data-order="8" data-updated="1783868700000" style="--team-color: #1d4ed8; --team-badge-text: #ffffff">
+  <section class="card off" id="sinner" data-order="8" data-updated="1783868700000" style="--team-color: #1d4ed8; --team-badge-text: #ffffff">
     <span class="offseason">Fuera de temporada</span>
     <div class="card-header">
       <img class="logo" src="assets/teams/sinner.webp" alt="Jannik Sinner" />
@@ -1159,7 +1214,7 @@
           return r.hasAttribute("data-live") ? i === 0 : key(new Date(Number(r.dataset.ts))) === key(date);
         });
         var box = document.createElement("div");
-        box.className = "agenda-day" + (dayRows.length ? "" : " empty");
+        box.className = "agenda-day" + (dayRows.length ? "" : " empty") + (i === 0 ? " today" : "");
         var title = document.createElement("h3");
         title.textContent = date.toLocaleDateString("es-MX", opts.weekday);
         box.appendChild(title);
@@ -1459,7 +1514,13 @@
             if (a) text(g, a.who + "  " + a.clock, W / 2 - 50, 510 + k * 42, "500 30px Barlow", C.text, "right", 420);
             if (b) text(g, b.who + "  " + b.clock, W / 2 + 50, 510 + k * 42, "500 30px Barlow", C.text, "left", 420);
           }
-          if (scRows) text(g, "⚽", W / 2, 510, "28px sans-serif", C.muted, "center");
+          if (scRows) {
+            g.strokeStyle = C.muted;
+            g.lineWidth = 3;
+            g.beginPath();
+            g.arc(W / 2, 500, 13, 0, Math.PI * 2);
+            g.stroke();
+          }
           if (d.venue) text(g, d.venue, W / 2, 530 + off, "500 30px Barlow", C.muted, "center", 940);
           if (d.when) text(g, d.when, W / 2, 575 + off, "500 30px Barlow", C.muted, "center", 940);
           var y = 680 + off;
@@ -1598,7 +1659,7 @@
               return "<p>" + esc(g.who) + " <b>" + esc(g.clock) + "</b>" + (g.assist ? "<small>Asist. " + esc(g.assist) + "</small>" : "") + "</p>";
             }).join("") + "</div>";
           };
-          html += '<div class="mm-scorers">' + scorerCol(scorers.me, "mm-sc-me") + '<span class="mm-ball" aria-hidden="true">⚽</span>' + scorerCol(scorers.rival, "mm-sc-rival") + "</div>";
+          html += '<div class="mm-scorers">' + scorerCol(scorers.me, "mm-sc-me") + '<span class="mm-ball"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5l3.6 2.6-1.4 4.2H9.8l-1.4-4.2z" fill="currentColor"/><path d="M12 7.5V2.6M15.6 10.1l4.6-1.5M14.2 14.3l2.9 3.9M9.8 14.3l-2.9 3.9M8.4 10.1L3.8 8.6"/></svg></span>' + scorerCol(scorers.rival, "mm-sc-rival") + "</div>";
         }
         var venue = j.gameInfo && j.gameInfo.venue && j.gameInfo.venue.fullName;
         if (venue) html += '<p class="mm-venue">' + esc(venue) + "</p>";
@@ -1817,6 +1878,11 @@
           }
           var days = Math.floor(diff / 86400000);
           var hours = Math.floor((diff % 86400000) / 3600000);
+          if (el.hasAttribute("data-long")) {
+            var mins = Math.floor((diff % 3600000) / 60000);
+            el.textContent = days > 0 ? "Faltan " + days + "d " + hours + "h " + mins + "m" : "Faltan " + hours + "h " + mins + "m";
+            return;
+          }
           el.textContent = "Faltan " + days + "d " + hours + "h";
         });
       }
