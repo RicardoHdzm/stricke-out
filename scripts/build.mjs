@@ -213,6 +213,7 @@ function parseEvent({ event, competitionName, competitionPath }, team) {
     link: espnLink(event),
     eventId: event.id,
     leaguePath: competitionPath,
+    selfId: team.teamId,
     // Nombres cortos ("Kings", "Capitals") para la agenda semanal.
     teamShort: self?.team?.shortDisplayName,
     rivalShort: rival?.team?.shortDisplayName,
@@ -222,6 +223,12 @@ function parseEvent({ event, competitionName, competitionPath }, team) {
     competitionName,
     rivalryLabel: findRivalry(team, rivalName),
   };
+}
+
+// Atributos para abrir el detalle del partido dentro del sitio (ventana con datos de ESPN).
+function matchAttrs(ev) {
+  if (!ev.eventId || !ev.leaguePath || !ev.selfId) return "";
+  return ` data-event="${ev.eventId}" data-league="${ev.leaguePath}" data-team="${ev.selfId}" data-comp="${ev.competitionName || ""}"`;
 }
 
 function espnLink(event) {
@@ -440,8 +447,8 @@ function renderResultRow(ev, showCompetition) {
   const compTag = compTagHtml(ev, showCompetition);
   const score = ev.rivalScore !== "" ? `${ev.teamScore}&ndash;${ev.rivalScore}` : ev.teamScore;
   const tag = ev.link ? "a" : "div";
-  const href = ev.link ? ` href="${ev.link}" target="_blank" rel="noopener" title="Ver el partido en ESPN"` : "";
-  return `<${tag} class="result-row ${ev.result}${ev.rivalryLabel ? " rivalry" : ""}"${href}>
+  const href = ev.link ? ` href="${ev.link}" target="_blank" rel="noopener" title="Ver detalle del partido"` : "";
+  return `<${tag} class="result-row ${ev.result}${ev.rivalryLabel ? " rivalry" : ""}"${href}${matchAttrs(ev)}>
     <span class="result-badge">${ev.formLabel || RESULT_LABEL[ev.result]}</span>
     <span class="result-date" ${tsAttrs(ev.date, "date")}>${fmtDate(ev.date)}</span>
     <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
@@ -495,7 +502,7 @@ function renderLiveRow(ev, showCompetition) {
   const score = ev.rivalScore !== "" ? `${ev.teamScore || 0}&ndash;${ev.rivalScore}` : ev.teamScore;
   const tag = ev.link ? "a" : "div";
   const href = ev.link ? ` href="${ev.link}" target="_blank" rel="noopener" title="Ver el partido en ESPN"` : "";
-  return `<${tag} class="live-row${ev.rivalryLabel ? " rivalry" : ""}"${href}>
+  return `<${tag} class="live-row${ev.rivalryLabel ? " rivalry" : ""}"${href}${matchAttrs(ev)}>
     <span class="live-badge">EN VIVO</span>
     <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
     <span class="live-clock">${ev.statusDetail}</span>
@@ -1263,6 +1270,57 @@ async function main() {
   .mini-table li.self .mt-rank, .mini-table li.self .mt-value { color: var(--text); }
   .next-season p { display: flex; justify-content: space-between; margin: 0 0 .3rem; padding: .4rem .5rem; border-radius: 6px; background: rgba(255,255,255,0.04); font-size: .85rem; }
   .next-season span { color: var(--muted); }
+  .match-modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .match-modal[hidden] { display: none; }
+  .mm-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.72); }
+  .mm-panel {
+    position: relative; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+    background: #0d0d0f; border: 1px solid var(--card-border); border-top: 5px solid var(--team-color, #fff);
+    border-radius: 12px; padding: 1.25rem 1.1rem 1.1rem;
+  }
+  .mm-close {
+    position: absolute; top: .5rem; right: .6rem; width: 2rem; height: 2rem; border-radius: 50%;
+    font-size: 1.4rem; line-height: 1; color: var(--muted); background: rgba(255,255,255,0.06); border: 0; cursor: pointer;
+  }
+  .mm-close:hover { color: #fff; }
+  .mm-status { text-align: center; color: var(--muted); font-size: .78rem; margin: 0 2rem .9rem; }
+  .mm-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; text-align: center; }
+  .mm-team img { width: 60px; height: 60px; object-fit: contain; }
+  .mm-team span { display: block; font-weight: 700; font-size: .88rem; margin-top: .35rem; }
+  .mm-nums { font-family: "Anton", "Arial Black", sans-serif; font-size: 2.6rem; letter-spacing: .04em; white-space: nowrap; }
+  .mm-venue { text-align: center; color: var(--muted); font-size: .75rem; margin: .6rem 0 0; }
+  .mm-body h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 1.3rem 0 .5rem; }
+  .mm-lines { width: 100%; border-collapse: collapse; font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .mm-lines th, .mm-lines td { padding: .3rem .25rem; text-align: center; border-bottom: 1px solid var(--card-border); }
+  .mm-lines th { color: var(--muted); font-weight: 600; }
+  .mm-lines td:first-child, .mm-lines th:first-child { text-align: left; }
+  .mm-lines td:last-child { font-weight: 800; }
+  .mm-events { list-style: none; margin: 0; padding: 0; }
+  .mm-events li { display: flex; align-items: center; gap: .55rem; padding: .35rem .4rem; font-size: .82rem; border-radius: 6px; }
+  .mm-events li:nth-child(odd) { background: rgba(255,255,255,0.03); }
+  .ev-clock { flex: none; width: 3.6rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ev-logo { flex: none; width: 18px; height: 18px; object-fit: contain; }
+  .ev-tag { flex: none; font-size: .62rem; font-weight: 800; text-transform: uppercase; border-radius: 4px; padding: .1rem .35rem; background: rgba(255,255,255,0.1); }
+  .ev-tag.goal { background: var(--win); color: #fff; }
+  .ev-tag.yellow { background: var(--draw); color: #111; }
+  .ev-tag.red { background: var(--loss); color: #fff; }
+  .ev-who { flex: 1; min-width: 0; }
+  .mm-stat { margin-bottom: .55rem; }
+  .mm-stat-row { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: .2rem; font-variant-numeric: tabular-nums; }
+  .mm-stat-row span:nth-child(2) { color: var(--muted); }
+  .mm-stat-row span:first-child, .mm-stat-row span:last-child { font-weight: 700; min-width: 2.5rem; }
+  .mm-stat-row span:last-child { text-align: right; }
+  .mm-bar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,0.15); }
+  .mm-bar span { background: var(--team-color, #fff); }
+  .mm-leaders { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; font-size: .8rem; }
+  .mm-leaders p { margin: 0 0 .35rem; }
+  .mm-leaders small { display: block; color: var(--muted); font-size: .68rem; text-transform: uppercase; }
+  .mm-espn { display: block; text-align: center; margin-top: 1.3rem; font-size: .75rem; color: var(--muted); }
+  .mm-loading { text-align: center; color: var(--muted); padding: 2rem 0; }
+  @media (max-width: 600px) {
+    .match-modal { padding: 0; }
+    .mm-panel { max-width: none; max-height: none; height: 100%; border-radius: 0; }
+  }
   .card-toggle { display: none; }
   /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
@@ -1300,6 +1358,13 @@ async function main() {
   </div>
   <div class="grid" id="grid">
     ${cards.join("\n")}
+  </div>
+  <div class="match-modal" id="match-modal" hidden>
+    <div class="mm-backdrop"></div>
+    <div class="mm-panel" role="dialog" aria-modal="true" aria-label="Detalle del partido">
+      <button class="mm-close" type="button" aria-label="Cerrar">&times;</button>
+      <div class="mm-body"></div>
+    </div>
   </div>
   <footer class="site-footer">
     <p>&copy; ${now.getFullYear()} STRICKEOUT &middot; @RicardoHdzm &middot; Uso Personal</p>
@@ -1352,6 +1417,156 @@ async function main() {
         }
         days.appendChild(box);
       }
+    })();
+  </script>
+  <script>
+    (function () {
+      // Detalle del partido dentro del sitio, con datos de ESPN pedidos al abrir la ventana.
+      var BASE = "https://site.api.espn.com/apis/site/v2/sports/";
+      var modal = document.getElementById("match-modal");
+      var panel = modal.querySelector(".mm-panel");
+      var body = modal.querySelector(".mm-body");
+      var timer = null;
+      var opener = null;
+      var STATS = {
+        soccer: [["possessionPct", "Posesión", "%"], ["totalShots", "Tiros"], ["shotsOnTarget", "Tiros a gol"], ["wonCorners", "Tiros de esquina"], ["foulsCommitted", "Faltas"], ["yellowCards", "Tarjetas amarillas"], ["redCards", "Tarjetas rojas"], ["offsides", "Fueras de lugar"], ["saves", "Atajadas"]],
+        hockey: [["shotsTotal", "Tiros"], ["hits", "Golpes"], ["blockedShots", "Tiros bloqueados"], ["faceoffPercent", "Faceoffs ganados", "%"], ["powerPlayGoals", "Goles en power play"], ["penaltyMinutes", "Minutos de castigo"], ["giveaways", "Pérdidas"], ["takeaways", "Recuperaciones"]],
+        basketball: [["fieldGoalPct", "Tiros de campo", "%"], ["threePointFieldGoalPct", "Triples", "%"], ["freeThrowPct", "Tiros libres", "%"], ["totalRebounds", "Rebotes"], ["assists", "Asistencias"], ["steals", "Robos"], ["blocks", "Tapones"], ["turnovers", "Pérdidas"]]
+      };
+      var LEADERS = { "Points": "Puntos", "Rebounds": "Rebotes", "Assists": "Asistencias", "Goals": "Goles", "Passing Yards": "Yardas por pase", "Rushing Yards": "Yardas por tierra", "Receiving Yards": "Yardas recibidas", "Hits": "Hits", "Home Runs": "Jonrones", "RBIs": "Carreras impulsadas", "Saves": "Atajadas", "Batting Average": "Promedio de bateo", "Earned Run Average": "Efectividad" };
+      var SCORE_TYPES = { "Touchdown": "Touchdown", "Field Goal": "Gol de campo", "Safety": "Safety", "Goal": "Gol" };
+      function esc(v) {
+        return String(v == null ? "" : v).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
+      }
+      function logoOf(t) { return (t.logos && t.logos[0] && t.logos[0].href) || t.logo || ""; }
+      function byTeam(list, id) { return (list || []).filter(function (x) { return x.team && String(x.team.id) === String(id); })[0]; }
+      function eventsOf(j, sport) {
+        var out = [];
+        if (sport === "soccer") {
+          (j.keyEvents || []).forEach(function (e) {
+            var t = (e.type && e.type.type) || "";
+            var who = (e.participants && e.participants[0] && e.participants[0].athlete && e.participants[0].athlete.displayName) || "";
+            var label = null, cls = "";
+            if (e.scoringPlay) { label = t.indexOf("own") !== -1 ? "Autogol" : t.indexOf("penalty") !== -1 ? "Gol de penal" : "Gol"; cls = "goal"; }
+            else if (t === "yellow-card") { label = "Amarilla"; cls = "yellow"; }
+            else if (t === "red-card") { label = "Roja"; cls = "red"; }
+            if (label) out.push({ clock: e.clock && e.clock.displayValue, team: e.team && e.team.id, label: label, cls: cls, who: who });
+          });
+        } else if (sport === "hockey") {
+          (j.plays || []).filter(function (pl) { return pl.scoringPlay; }).forEach(function (pl) {
+            out.push({ clock: (pl.period ? pl.period.displayValue + " " : "") + (pl.clock ? pl.clock.displayValue : ""), team: pl.team && pl.team.id, label: "Gol", cls: "goal", who: pl.text });
+          });
+        } else if (sport === "football") {
+          (j.scoringPlays || []).forEach(function (pl) {
+            var type = pl.type && pl.type.text;
+            out.push({ clock: (pl.period ? "Q" + pl.period.number + " " : "") + (pl.clock ? pl.clock.displayValue : ""), team: pl.team && pl.team.id, label: SCORE_TYPES[type] || type || "Anotación", cls: "goal", who: pl.text });
+          });
+        }
+        return out;
+      }
+      function render(j, row) {
+        var comp = j.header.competitions[0];
+        var sport = row.dataset.league.split("/")[0];
+        var me = comp.competitors.filter(function (c) { return String(c.id) === row.dataset.team; })[0] || comp.competitors[0];
+        var rival = comp.competitors.filter(function (c) { return c !== me; })[0];
+        var st = comp.status.type;
+        var when = new Date(comp.date).toLocaleString("es-MX", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+        var status = st.state === "in" ? '<span class="live-badge">EN VIVO</span> ' + esc(st.shortDetail) : st.state === "post" ? "Final" : esc(when);
+        var html = '<p class="mm-status">' + status + (row.dataset.comp ? " &middot; " + esc(row.dataset.comp) : "") + (st.state !== "pre" ? " &middot; " + esc(when) : "") + "</p>";
+        html += '<div class="mm-score">' +
+          '<div class="mm-team"><img src="' + esc(logoOf(me.team)) + '" alt="" /><span>' + esc(me.team.displayName) + "</span></div>" +
+          '<div class="mm-nums">' + (st.state === "pre" ? "vs" : esc(me.score || "0") + " – " + esc(rival.score || "0")) + "</div>" +
+          '<div class="mm-team"><img src="' + esc(logoOf(rival.team)) + '" alt="" /><span>' + esc(rival.team.displayName) + "</span></div></div>";
+        var venue = j.gameInfo && j.gameInfo.venue && j.gameInfo.venue.fullName;
+        if (venue) html += '<p class="mm-venue">' + esc(venue) + "</p>";
+
+        if (sport !== "soccer" && me.linescores && me.linescores.length) {
+          var cols = me.linescores.map(function (_, i) { return "<th>" + (i + 1) + "</th>"; }).join("");
+          var line = function (c) {
+            return "<tr><td>" + esc(c.team.abbreviation || c.team.displayName) + "</td>" +
+              (c.linescores || []).map(function (l) { return "<td>" + esc(l.displayValue) + "</td>"; }).join("") +
+              "<td>" + esc(c.score) + "</td></tr>";
+          };
+          html += '<h4>Marcador por periodo</h4><table class="mm-lines"><tr><th></th>' + cols + "<th>T</th></tr>" + line(me) + line(rival) + "</table>";
+        }
+
+        var events = eventsOf(j, sport);
+        if (events.length) {
+          html += '<h4>Jugadas clave</h4><ul class="mm-events">' + events.map(function (e) {
+            var t = String(e.team) === String(me.id) ? me.team : rival.team;
+            return '<li><span class="ev-clock">' + esc(e.clock) + '</span><img class="ev-logo" src="' + esc(logoOf(t)) + '" alt="" /><span class="ev-tag ' + e.cls + '">' + esc(e.label) + '</span><span class="ev-who">' + esc(e.who) + "</span></li>";
+          }).join("") + "</ul>";
+        }
+
+        var teams = (j.boxscore && j.boxscore.teams) || [];
+        var a = byTeam(teams, me.id), b = byTeam(teams, rival.id);
+        if (a && b && a.statistics && a.statistics.length) {
+          var get = function (t, name) { return (t.statistics.filter(function (x) { return x.name === name; })[0] || {}).displayValue; };
+          var list = STATS[sport] || a.statistics.slice(0, 8).map(function (x) { return [x.name, x.label || x.name]; });
+          var rows = list.map(function (def) {
+            var va = get(a, def[0]), vb = get(b, def[0]);
+            if (va == null || vb == null) return "";
+            var na = parseFloat(va) || 0, nb = parseFloat(vb) || 0;
+            var share = na + nb > 0 ? Math.round((na / (na + nb)) * 100) : 50;
+            var suf = def[2] || "";
+            return '<div class="mm-stat"><div class="mm-stat-row"><span>' + esc(va) + suf + "</span><span>" + esc(def[1]) + "</span><span>" + esc(vb) + suf + '</span></div><div class="mm-bar"><span style="width:' + share + '%"></span></div></div>';
+          }).join("");
+          if (rows) html += "<h4>Estadísticas</h4>" + rows;
+        }
+
+        var leaders = j.leaders || [];
+        var la = byTeam(leaders, me.id), lb = byTeam(leaders, rival.id);
+        if (la && lb && la.leaders && la.leaders.length) {
+          var col = function (group) {
+            return (group.leaders || []).slice(0, 3).map(function (cat) {
+              var top = cat.leaders && cat.leaders[0];
+              if (!top) return "";
+              return "<p><small>" + esc(LEADERS[cat.displayName] || cat.displayName) + "</small>" + esc(top.athlete && top.athlete.displayName) + " &middot; " + esc(top.displayValue) + "</p>";
+            }).join("");
+          };
+          html += '<h4>Líderes</h4><div class="mm-leaders"><div>' + col(la) + "</div><div>" + col(lb) + "</div></div>";
+        }
+
+        if (row.href) html += '<a class="mm-espn" href="' + esc(row.href) + '" target="_blank" rel="noopener">Ver en ESPN ↗</a>';
+        body.innerHTML = html;
+        return st.state === "in";
+      }
+      function load(row) {
+        return fetch(BASE + row.dataset.league + "/summary?event=" + row.dataset.event)
+          .then(function (r) { return r.json(); })
+          .then(function (j) { return render(j, row); })
+          .catch(function () {
+            body.innerHTML = '<p class="mm-loading">No se pudo cargar el detalle.' + (row.href ? ' <a href="' + esc(row.href) + '" target="_blank" rel="noopener">Ver en ESPN</a>' : "") + "</p>";
+            return false;
+          });
+      }
+      function open(row) {
+        opener = row;
+        panel.style.setProperty("--team-color", getComputedStyle(row).getPropertyValue("--team-color") || "#fff");
+        body.innerHTML = '<p class="mm-loading">Cargando…</p>';
+        modal.hidden = false;
+        document.body.style.overflow = "hidden";
+        modal.querySelector(".mm-close").focus();
+        load(row).then(function (live) {
+          if (live) timer = setInterval(function () { load(row); }, 60000);
+        });
+      }
+      function close() {
+        modal.hidden = true;
+        document.body.style.overflow = "";
+        clearInterval(timer);
+        timer = null;
+        if (opener) opener.focus();
+      }
+      document.addEventListener("click", function (e) {
+        var row = e.target.closest("a.result-row[data-event], a.live-row[data-event]");
+        if (!row) return;
+        e.preventDefault();
+        open(row);
+      });
+      modal.querySelector(".mm-close").addEventListener("click", close);
+      modal.querySelector(".mm-backdrop").addEventListener("click", close);
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) close(); });
     })();
   </script>
   <script>
