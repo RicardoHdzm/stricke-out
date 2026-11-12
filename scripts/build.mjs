@@ -83,6 +83,7 @@ const MCLAREN = {
   sport: "racing",
   calendarTitle: (ev) => `F1: ${ev.rivalName}`,
   labels: { upcoming: "Próximas carreras" },
+  seasonPath: "racing/leagues/f1",
 };
 
 const SINNER = {
@@ -93,6 +94,7 @@ const SINNER = {
   badgeTextColor: "#ffffff",
   badgeLabel: "ATP",
   athleteId: "3623",
+  seasonPath: "tennis/leagues/atp",
   sport: "tennis",
 };
 
@@ -168,6 +170,7 @@ function parseEvent({ event, competitionName }, team) {
     statusDetail: liveDetail(comp.status),
     isTeamHome: self?.homeAway === "home",
     rivalName,
+    link: espnLink(event),
     // Nombres cortos ("Kings", "Capitals") para la agenda semanal.
     teamShort: self?.team?.shortDisplayName,
     rivalShort: rival?.team?.shortDisplayName,
@@ -177,6 +180,11 @@ function parseEvent({ event, competitionName }, team) {
     competitionName,
     rivalryLabel: findRivalry(team, rivalName),
   };
+}
+
+function espnLink(event) {
+  const links = event.links || [];
+  return (links.find((l) => l.rel?.includes("summary") && l.rel.includes("desktop")) || links.find((l) => l.rel?.includes("desktop")))?.href || null;
 }
 
 // /schedule devuelve el marcador como objeto y /scoreboard como texto.
@@ -245,6 +253,39 @@ function getSportsDbLast(team) {
   return getSportsDbEvent(team, "eventslast", "results", true);
 }
 
+const CORE_BASE = "https://sports.core.api.espn.com/v2/sports";
+
+function fmtDateYear(d) {
+  return d.toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric", timeZone: MAZATLAN_TZ }).replace(/-/g, " ");
+}
+
+// Inicio de la siguiente temporada (pretemporada y temporada regular) segun ESPN.
+async function getNextSeason(team) {
+  const path = team.seasonPath || team.competitions?.[0]?.path.replace("/", "/leagues/");
+  if (!path) return null;
+  const now = new Date();
+  for (const year of [now.getUTCFullYear(), now.getUTCFullYear() + 1]) {
+    try {
+      const [season, first] = await Promise.all([
+        fetchJson(`${CORE_BASE}/${path}/seasons/${year}`),
+        fetchJson(`${CORE_BASE}/${path}/seasons/${year}/types/1`).catch(() => null),
+      ]);
+      const items = [];
+      if (first && first.name !== "Regular Season" && new Date(first.startDate) > now) {
+        items.push({ label: first.name === "Spring Training" ? "Spring Training" : "Pretemporada", date: new Date(first.startDate) });
+      }
+      const regular = season.type?.name === "Regular Season" ? season.type.startDate : season.startDate;
+      if (regular && new Date(regular) > now) {
+        items.push({ label: items.length ? "Temporada regular" : `Temporada ${year}`, date: new Date(regular) });
+      }
+      if (items.length) return { items, target: items[0].date };
+    } catch {
+      // La temporada aun no existe en ESPN.
+    }
+  }
+  return null;
+}
+
 async function getSeasonStatus(team) {
   const primaryCompetition = team.competitions[0];
   try {
@@ -270,7 +311,21 @@ async function getStandingEntry(team) {
       const entry = entries[idx];
       const statByName = (name) => entry.stats.find((s) => s.name === name)?.displayValue;
       const overall = entry.stats.find((s) => s.type === "total")?.displayValue;
+      // En futbol y hockey la tabla se ordena por puntos; en las demas ligas, por record.
+      const sport = primaryCompetition.path.split("/")[0];
+      const usesPoints = sport === "soccer" || sport === "hockey";
+      const table = windowAround(entries, idx).map(({ item, rank }) => {
+        const pts = item.stats.find((st) => st.name === "points")?.displayValue;
+        const record = item.stats.find((st) => st.type === "total")?.displayValue;
+        return {
+          rank,
+          name: sport === "soccer" ? item.team.displayName : item.team.shortDisplayName,
+          value: usesPoints ? `${pts ?? "-"} pts` : record || "",
+          self: String(item.team.id) === String(team.teamId),
+        };
+      });
       return {
+        table,
         groupName: group.name || group.abbreviation || "",
         competitionName: primaryCompetition.name,
         rank: idx + 1,
@@ -283,11 +338,30 @@ async function getStandingEntry(team) {
   return null;
 }
 
+// Hasta 5 posiciones alrededor de idx (2 arriba y 2 abajo cuando se puede).
+function windowAround(list, idx, size = 5) {
+  const start = Math.max(0, Math.min(idx - Math.floor(size / 2), list.length - size));
+  return list.slice(start, start + size).map((item, i) => ({ item, rank: start + i + 1 }));
+}
+
+function renderMiniTable(rows, title = "Tabla de posiciones") {
+  if (!rows || !rows.length) return "";
+  const items = rows
+    .map((r) => `<li class="${r.self ? "self" : ""}"><span class="mt-rank">${r.rank}</span><span class="mt-name">${r.name}</span><span class="mt-value">${r.value}</span></li>`)
+    .join("");
+  return `<h3>${title}</h3><ol class="mini-table">${items}</ol>`;
+}
+
 const RESULT_LABEL = { win: "V", loss: "D", draw: "E" };
 const MAZATLAN_TZ = "America/Mazatlan";
 
 function fmtDate(d) {
   return d.toLocaleDateString("es-MX", { day: "2-digit", month: "short", timeZone: MAZATLAN_TZ }).replace("-", " ");
+}
+
+// El servidor escribe la hora de Mazatlan; el navegador la reescribe en la zona horaria local (ver script al final).
+function tsAttrs(d, fmt) {
+  return `data-ts="${d.getTime()}" data-fmt="${fmt}"`;
 }
 
 function fmtTime(d) {
@@ -317,12 +391,14 @@ function renderResultRow(ev, showCompetition) {
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
   const compTag = compTagHtml(ev, showCompetition);
   const score = ev.rivalScore !== "" ? `${ev.teamScore}&ndash;${ev.rivalScore}` : ev.teamScore;
-  return `<div class="result-row ${ev.result}${ev.rivalryLabel ? " rivalry" : ""}">
+  const tag = ev.link ? "a" : "div";
+  const href = ev.link ? ` href="${ev.link}" target="_blank" rel="noopener" title="Ver el partido en ESPN"` : "";
+  return `<${tag} class="result-row ${ev.result}${ev.rivalryLabel ? " rivalry" : ""}"${href}>
     <span class="result-badge">${ev.formLabel || RESULT_LABEL[ev.result]}</span>
-    <span class="result-date">${fmtDate(ev.date)}</span>
+    <span class="result-date" ${tsAttrs(ev.date, "date")}>${fmtDate(ev.date)}</span>
     <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
     <span class="result-score">${score}</span>
-  </div>`;
+  </${tag}>`;
 }
 
 // Duracion aproximada del evento en el calendario, segun el deporte.
@@ -355,9 +431,9 @@ function renderUpcomingRow(ev, showCompetition, team) {
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
   const compTag = compTagHtml(ev, showCompetition);
   return `<div class="upcoming-row${ev.rivalryLabel ? " rivalry" : ""}">
-    <span class="result-date">${fmtDate(ev.date)}</span>
+    <span class="result-date" ${tsAttrs(ev.date, "date")}>${fmtDate(ev.date)}</span>
     <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
-    <span class="upcoming-time${ev.timeValid === false ? " tbd" : ""}">${fmtMatchTime(ev)}</span>
+    <span class="upcoming-time${ev.timeValid === false ? " tbd" : ""}" ${ev.timeValid === false ? "" : tsAttrs(ev.date, "time")}>${fmtMatchTime(ev)}</span>
     <a class="cal-link" href="${googleCalendarUrl(ev, team)}" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
     </a>
@@ -369,12 +445,14 @@ function renderLiveRow(ev, showCompetition) {
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
   const compTag = compTagHtml(ev, showCompetition);
   const score = ev.rivalScore !== "" ? `${ev.teamScore || 0}&ndash;${ev.rivalScore}` : ev.teamScore;
-  return `<div class="live-row${ev.rivalryLabel ? " rivalry" : ""}">
+  const tag = ev.link ? "a" : "div";
+  const href = ev.link ? ` href="${ev.link}" target="_blank" rel="noopener" title="Ver el partido en ESPN"` : "";
+  return `<${tag} class="live-row${ev.rivalryLabel ? " rivalry" : ""}"${href}>
     <span class="live-badge">EN VIVO</span>
     <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
     <span class="live-clock">${ev.statusDetail}</span>
     <span class="result-score">${score}</span>
-  </div>`;
+  </${tag}>`;
 }
 
 function renderLiveSection(liveEvents, showCompetition) {
@@ -399,6 +477,7 @@ async function gatherTeamData(team, order) {
   let envivo = "";
   let form = [];
   let agenda = [];
+  let tabla = "";
   const showCompetition = team.competitions.length > 1;
 
   try {
@@ -458,6 +537,7 @@ async function gatherTeamData(team, order) {
 
   try {
     const standing = await getStandingEntry(team);
+    tabla = renderMiniTable(standing?.table);
     standingsHtml = standing
       ? `<div class="standing-row">
           <span class="rank-badge">${standing.rank}º</span>
@@ -468,7 +548,7 @@ async function gatherTeamData(team, order) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form, agenda };
+  return { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form, agenda, tabla };
 }
 
 // "Esta semana": hoy y los 6 dias siguientes (hora de Mazatlan), con los partidos de todos los equipos.
@@ -505,11 +585,11 @@ function renderAgenda(teamData) {
       const teamLabel = useShort && ev.teamShort ? ev.teamShort : team.name;
       const rivalLabel = useShort && ev.rivalShort ? ev.rivalShort : ev.rivalName;
       const matchup = `<strong class="agenda-team">${teamLabel}</strong> <span class="agenda-rival">${sede}${rivalLabel}</span>`;
-      return `<a class="agenda-row" href="#${team.key}" style="--team-color: ${team.color}">
+      return `<a class="agenda-row" href="#${team.key}" style="--team-color: ${team.color}" data-ts="${ev.date.getTime()}"${ev.live ? " data-live" : ""}>
         <img class="agenda-logo" src="${team.logo}" alt="" />
         <span class="agenda-match">${matchup}</span>
         <span class="agenda-meta">
-          <span class="agenda-time${ev.timeValid === false ? " tbd" : ""}">${time}</span>
+          <span class="agenda-time${ev.timeValid === false ? " tbd" : ""}" ${ev.live || ev.timeValid === false ? "" : tsAttrs(ev.date, "time")}>${time}</span>
           ${compTagHtml(ev, true)}
         </span>
       </a>`;
@@ -528,11 +608,11 @@ function renderForm(form) {
 }
 
 function renderTeamCard(data) {
-  const { team, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo = "", form } = data;
+  const { team, order, lastUpdated, nextMatch, nextSeason, seasonStatus, standingsHtml, resultados, proximos, envivo = "", form, tabla = "" } = data;
   const countdownHtml = nextMatch?.live
     ? `<span class="countdown live">● EN VIVO</span>`
-    : nextMatch
-      ? `<span class="countdown" data-target="${nextMatch.date.getTime()}">Calculando...</span>`
+    : nextMatch || nextSeason
+      ? `<span class="countdown" data-target="${(nextMatch?.date || nextSeason.target).getTime()}">Calculando...</span>`
       : `<span class="countdown no-match">Sin Anunciar</span>`;
   return `
   <section class="card" id="${team.key}" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
@@ -546,9 +626,10 @@ function renderTeamCard(data) {
     </div>
     ${envivo}
     <div class="card-details">
+      ${tabla}
       <h3>Últimos resultados</h3>
       ${resultados}
-      <h3>${team.labels?.upcoming || "Próximos partidos"}</h3>
+      <h3>${nextSeason ? "Próxima temporada" : team.labels?.upcoming || "Próximos partidos"}</h3>
       ${proximos}
     </div>
     ${countdownHtml}
@@ -573,6 +654,7 @@ async function gatherMcLarenData(order) {
   let envivo = "";
   let form = [];
   let agenda = [];
+  let tabla = "";
 
   try {
     const year = new Date().getUTCFullYear();
@@ -608,6 +690,7 @@ async function gatherMcLarenData(order) {
         completed,
         live,
         isRace: true,
+        link: espnLink(event),
         formLabel: bestOrder != null ? String(bestOrder) : null,
         timeValid: comp.timeValid !== false,
         statusDetail: live ? comp.status?.type?.shortDetail || "" : "",
@@ -654,6 +737,17 @@ async function gatherMcLarenData(order) {
     const constructors = standings.children?.find((c) => c.name === "Constructor Standings");
     const entries = constructors?.standings?.entries || [];
     const idx = entries.findIndex((e) => e.team?.displayName === "McLaren");
+    if (idx !== -1) {
+      tabla = renderMiniTable(
+        windowAround(entries, idx).map(({ item, rank }) => ({
+          rank,
+          name: item.team.displayName,
+          value: `${item.stats.find((st) => st.name === "points")?.displayValue ?? "-"} pts`,
+          self: item.team.displayName === "McLaren",
+        })),
+        "Constructores"
+      );
+    }
     standingsHtml =
       idx !== -1
         ? `<div class="standing-row">
@@ -665,7 +759,7 @@ async function gatherMcLarenData(order) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team: MCLAREN, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form, agenda };
+  return { team: MCLAREN, order, lastUpdated, nextMatch, seasonStatus, standingsHtml, resultados, proximos, envivo, form, agenda, tabla };
 }
 
 async function gatherSinnerData(order) {
@@ -676,6 +770,7 @@ async function gatherSinnerData(order) {
   let nextMatch = null;
   let form = [];
   let agenda = [];
+  let tabla = "";
 
   try {
     const year = new Date().getUTCFullYear();
@@ -750,7 +845,19 @@ async function gatherSinnerData(order) {
 
   try {
     const rankings = await fetchJson(`${BASE}/tennis/atp/rankings`);
-    const entry = rankings.rankings?.[0]?.ranks?.find((r) => String(r.athlete?.id) === SINNER.athleteId);
+    const ranks = rankings.rankings?.[0]?.ranks || [];
+    const entry = ranks.find((r) => String(r.athlete?.id) === SINNER.athleteId);
+    if (entry) {
+      tabla = renderMiniTable(
+        windowAround(ranks, ranks.indexOf(entry)).map(({ item }) => ({
+          rank: item.current,
+          name: item.athlete?.displayName || "",
+          value: `${item.points} pts`,
+          self: item === entry,
+        })),
+        "Ranking ATP"
+      );
+    }
     standingsHtml = entry
       ? `<div class="standing-row">
           <span class="rank-badge">${entry.current}º</span>
@@ -761,7 +868,7 @@ async function gatherSinnerData(order) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
 
-  return { team: SINNER, order, lastUpdated, nextMatch, seasonStatus: "started", standingsHtml, resultados, proximos, form, agenda };
+  return { team: SINNER, order, lastUpdated, nextMatch, seasonStatus: "started", standingsHtml, resultados, proximos, form, agenda, tabla };
 }
 
 async function main() {
@@ -771,6 +878,17 @@ async function main() {
   }
   teamData.push(await gatherMcLarenData(TEAMS.length));
   teamData.push(await gatherSinnerData(TEAMS.length + 1));
+
+  // Equipos sin partidos programados: mostrar cuando empieza su siguiente temporada.
+  for (const d of teamData) {
+    if (d.nextMatch) continue;
+    d.nextSeason = await getNextSeason(d.team);
+    if (!d.nextSeason) continue;
+    d.seasonStatus = "not-started";
+    d.proximos = `<div class="next-season">${d.nextSeason.items
+      .map((it) => `<p><span>${it.label}</span><strong ${tsAttrs(it.date, "dateyear")}>${fmtDateYear(it.date)}</strong></p>`)
+      .join("")}</div>`;
+  }
 
   // Cinta: partidos en vivo primero y luego el proximo partido de cada equipo, en orden de fecha.
   const tickerItems = teamData
@@ -788,7 +906,10 @@ async function main() {
           }
           const day = ev.date.toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short", timeZone: MAZATLAN_TZ });
           const vs = ev.isRace ? "&middot;" : ev.isTeamHome ? "vs" : "@";
-          return `<strong>${team.name}</strong> ${vs} ${ev.rivalName} &mdash; ${day}, ${fmtMatchTime(ev)}`;
+          const when = ev.timeValid === false
+            ? `<span ${tsAttrs(ev.date, "day")}>${day}</span>, Por confirmar`
+            : `<span ${tsAttrs(ev.date, "daytime")}>${day}, ${fmtTime(ev.date)}</span>`;
+          return `<strong>${team.name}</strong> ${vs} ${ev.rivalName} &mdash; ${when}`;
         });
         // Se repite la lista para que la cinta siempre llene la pantalla; la velocidad depende de su largo.
         const reps = Math.ceil(10 / msgs.length);
@@ -1031,6 +1152,20 @@ async function main() {
   @media (min-width: 1100px) {
     .agenda-days { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .5rem; }
   }
+  a.result-row, a.live-row { color: inherit; text-decoration: none; }
+  a.result-row:hover, a.live-row:hover { background: rgba(255,255,255,0.08); }
+  a.result-row::after, a.live-row::after { content: "↗"; flex: none; color: var(--muted); font-size: .7rem; }
+  .mini-table { list-style: none; margin: 0; padding: 0; font-size: .82rem; }
+  .mini-table li {
+    display: flex; align-items: center; gap: .6rem; padding: .3rem .5rem; border-radius: 6px;
+  }
+  .mini-table li.self { background: color-mix(in srgb, var(--team-color) 22%, transparent); font-weight: 700; }
+  .mt-rank { flex: none; width: 1.4rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mt-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mt-value { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mini-table li.self .mt-rank, .mini-table li.self .mt-value { color: var(--text); }
+  .next-season p { display: flex; justify-content: space-between; margin: 0 0 .3rem; padding: .4rem .5rem; border-radius: 6px; background: rgba(255,255,255,0.04); font-size: .85rem; }
+  .next-season span { color: var(--muted); }
   .card-toggle { display: none; }
   /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
@@ -1059,7 +1194,7 @@ async function main() {
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: ${updatedAt}</p>
+  <p class="updated">Actualizado: <span ${tsAttrs(now, "datetime")}>${updatedAt}</span> &middot; Horarios en tu hora local</p>
   ${renderAgenda(teamData)}
   <div class="sort-bar">
     <span class="sort-label">Ordenar:</span>
@@ -1073,6 +1208,55 @@ async function main() {
     <p>&copy; ${now.getFullYear()} STRICKEOUT &middot; @RicardoHdzm &middot; Uso Personal</p>
     <p>Datos: <a href="https://www.espn.com" target="_blank" rel="noopener">ESPN</a> y <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a></p>
   </footer>
+  <script>
+    (function () {
+      var opts = {
+        date: { day: "2-digit", month: "short" },
+        dateyear: { day: "2-digit", month: "short", year: "numeric" },
+        time: { hour: "numeric", minute: "2-digit" },
+        day: { weekday: "short", day: "numeric", month: "short" },
+        weekday: { weekday: "long", day: "numeric", month: "short" },
+        datetime: { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" },
+      };
+      function fmt(ts, kind) {
+        var d = new Date(Number(ts));
+        if (kind === "time") return d.toLocaleTimeString("es-MX", opts.time);
+        if (kind === "daytime") return d.toLocaleDateString("es-MX", opts.day) + ", " + d.toLocaleTimeString("es-MX", opts.time);
+        if (kind === "datetime") return d.toLocaleString("es-MX", opts.datetime);
+        var text = d.toLocaleDateString("es-MX", opts[kind]);
+        return kind === "date" || kind === "dateyear" ? text.replace(/-/g, " ") : text;
+      }
+      document.querySelectorAll("[data-fmt]").forEach(function (el) { el.textContent = fmt(el.dataset.ts, el.dataset.fmt); });
+
+      // Reagrupa "Esta semana" por los dias locales del visitante.
+      var days = document.querySelector(".agenda-days");
+      if (!days) return;
+      var rows = Array.prototype.slice.call(days.querySelectorAll(".agenda-row"));
+      var key = function (d) { return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); };
+      var now = new Date();
+      days.innerHTML = "";
+      for (var i = 0; i < 7; i++) {
+        var date = new Date(now.getTime() + i * 86400000);
+        var dayRows = rows.filter(function (r) {
+          return r.hasAttribute("data-live") ? i === 0 : key(new Date(Number(r.dataset.ts))) === key(date);
+        });
+        var box = document.createElement("div");
+        box.className = "agenda-day" + (dayRows.length ? "" : " empty");
+        var title = document.createElement("h3");
+        title.textContent = date.toLocaleDateString("es-MX", opts.weekday);
+        box.appendChild(title);
+        if (dayRows.length) {
+          dayRows.forEach(function (r) { box.appendChild(r); });
+        } else {
+          var empty = document.createElement("p");
+          empty.className = "agenda-empty";
+          empty.textContent = "Sin partidos";
+          box.appendChild(empty);
+        }
+        days.appendChild(box);
+      }
+    })();
+  </script>
   <script>
     (function () {
       var els = document.querySelectorAll(".countdown");
