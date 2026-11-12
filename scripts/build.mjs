@@ -304,16 +304,19 @@ async function getStandingEntry(team) {
   const primaryCompetition = team.competitions[0];
   const data = await fetchJson(`${STANDINGS_BASE}/${primaryCompetition.path}/standings`);
   const groups = data.children && data.children.length ? data.children : [{ name: data.name, standings: data.standings }];
+  // En futbol y hockey la tabla se ordena por puntos; en las demas ligas, por record.
+  const sport = primaryCompetition.path.split("/")[0];
+  const usesPoints = sport === "soccer" || sport === "hockey";
+  // ESPN no siempre entrega NFL/NBA/MLB en orden de record (p. ej. por sembrado de playoffs), asi que se reordena.
+  const winPct = (e) => Number(e.stats.find((st) => st.name === "winPercent")?.value ?? 0);
   for (const group of groups) {
-    const entries = group.standings?.entries || [];
+    const raw = group.standings?.entries || [];
+    const entries = usesPoints ? raw : [...raw].sort((x, y) => winPct(y) - winPct(x));
     const idx = entries.findIndex((e) => String(e.team.id) === String(team.teamId));
     if (idx !== -1) {
       const entry = entries[idx];
       const statByName = (name) => entry.stats.find((s) => s.name === name)?.displayValue;
       const overall = entry.stats.find((s) => s.type === "total")?.displayValue;
-      // En futbol y hockey la tabla se ordena por puntos; en las demas ligas, por record.
-      const sport = primaryCompetition.path.split("/")[0];
-      const usesPoints = sport === "soccer" || sport === "hockey";
       const table = windowAround(entries, idx).map(({ item, rank }) => {
         const pts = item.stats.find((st) => st.name === "points")?.displayValue;
         const record = item.stats.find((st) => st.type === "total")?.displayValue;
