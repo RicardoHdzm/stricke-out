@@ -1181,7 +1181,8 @@ async function main() {
   }
   .cal-link:hover, .cal-link:focus-visible { color: #fff; background: rgba(255,255,255,0.1); }
   .form { display: flex; gap: .3rem; margin-top: .6rem; }
-  .form-dot:last-child { box-shadow: 0 0 0 1.5px #050505, 0 0 0 3px #fff; }
+  .form-dot:last-child { box-shadow: 0 0 0 1.5px #050505, 0 0 0 3px var(--ring, #fff); }
+  .form-dot.win { --ring: var(--win); } .form-dot.loss { --ring: var(--loss); } .form-dot.draw { --ring: var(--draw); }
   .form-dot {
     width: 1.15rem; height: 1.15rem; border-radius: 3px;
     display: flex; align-items: center; justify-content: center;
