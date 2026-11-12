@@ -276,6 +276,13 @@
   .mm-team img { width: 60px; height: 60px; object-fit: contain; }
   .mm-team span { display: block; font-weight: 700; font-size: .88rem; margin-top: .35rem; }
   .mm-nums { font-family: "Teko", "Arial Narrow", sans-serif; font-weight: 600; font-size: 3.2rem; line-height: 1; letter-spacing: .04em; white-space: nowrap; }
+  .mm-scorers { display: grid; grid-template-columns: 1fr auto 1fr; gap: .6rem; margin-top: .7rem; font-size: .82rem; }
+  .mm-scorers p { margin: 0 0 .3rem; }
+  .mm-scorers b { color: var(--muted); font-weight: 600; }
+  .mm-scorers small, .ev-assist { display: block; color: var(--muted); font-size: .7rem; }
+  .ev-assist { display: inline; }
+  .mm-sc-me { text-align: right; }
+  .mm-ball { font-size: .8rem; opacity: .6; }
   .mm-venue { text-align: center; color: var(--muted); font-size: .75rem; margin: .6rem 0 0; }
   .mm-body h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 1.3rem 0 .5rem; }
   .mm-lines { width: 100%; border-collapse: collapse; font-size: .8rem; font-variant-numeric: tabular-nums; }
@@ -353,7 +360,7 @@
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: <span data-ts="1794508288717" data-fmt="datetime">12 nov 2026, 11:31 a.m.</span> &middot; Horarios en tu hora local</p>
+  <p class="updated">Actualizado: <span data-ts="1794508662901" data-fmt="datetime">12 nov 2026, 11:37 a.m.</span> &middot; Horarios en tu hora local</p>
   <section class="agenda"><div class="agenda-head"><h2>Esta semana</h2><div class="agenda-filter" role="group" aria-label="Filtrar por deporte">
         <button class="filter-btn active" type="button" data-sport="all">Todos</button>
         <button class="filter-btn" type="button" data-sport="hockey">NHL</button><button class="filter-btn" type="button" data-sport="basketball">NBA</button><button class="filter-btn" type="button" data-sport="soccer">Fútbol</button><button class="filter-btn" type="button" data-sport="football">NFL</button>
@@ -1434,7 +1441,10 @@
       function shareMatch(d) {
         var events = (d.events || []).slice(0, 10);
         var stats = (d.stats || []).slice(0, 5);
-        var h = 640 + (events.length ? 80 + events.length * 66 : 0) + (stats.length ? 80 + stats.length * 92 : 0) + 170;
+        var sc = d.scorers || { me: [], rival: [] };
+        var scRows = Math.max(sc.me.length, sc.rival.length);
+        var off = scRows ? 30 + scRows * 42 : 0;
+        var h = 640 + off + (events.length ? 80 + events.length * 66 : 0) + (stats.length ? 80 + stats.length * 92 : 0) + 170;
         var cv = make(h), g = cv.g;
         topBar(g, d.color);
         return Promise.all([img(d.me.logo), img(d.rival.logo)]).then(function (ims) {
@@ -1444,9 +1454,15 @@
           text(g, d.me.name, 225, 450, "700 38px Barlow", "#ffffff", "center", 360);
           text(g, d.rival.name, W - 225, 450, "700 38px Barlow", "#ffffff", "center", 360);
           text(g, d.score, W / 2, 360, "600 200px Teko", "#ffffff", "center");
-          if (d.venue) text(g, d.venue, W / 2, 530, "500 30px Barlow", C.muted, "center", 940);
-          if (d.when) text(g, d.when, W / 2, 575, "500 30px Barlow", C.muted, "center", 940);
-          var y = 680;
+          for (var k = 0; k < scRows; k++) {
+            var a = sc.me[k], b = sc.rival[k];
+            if (a) text(g, a.who + "  " + a.clock, W / 2 - 50, 510 + k * 42, "500 30px Barlow", C.text, "right", 420);
+            if (b) text(g, b.who + "  " + b.clock, W / 2 + 50, 510 + k * 42, "500 30px Barlow", C.text, "left", 420);
+          }
+          if (scRows) text(g, "⚽", W / 2, 510, "28px sans-serif", C.muted, "center");
+          if (d.venue) text(g, d.venue, W / 2, 530 + off, "500 30px Barlow", C.muted, "center", 940);
+          if (d.when) text(g, d.when, W / 2, 575 + off, "500 30px Barlow", C.muted, "center", 940);
+          var y = 680 + off;
           if (events.length) {
             section(g, "Jugadas clave", y);
             y += 30;
@@ -1540,7 +1556,9 @@
             if (e.scoringPlay) { label = t.indexOf("own") !== -1 ? "Autogol" : t.indexOf("penalty") !== -1 ? "Gol de penal" : "Gol"; cls = "goal"; }
             else if (t === "yellow-card") { label = "Amarilla"; cls = "yellow"; }
             else if (t === "red-card") { label = "Roja"; cls = "red"; }
-            if (label) out.push({ clock: e.clock && e.clock.displayValue, team: e.team && e.team.id, label: label, cls: cls, who: who });
+            // En los goles, el segundo participante es quien dio la asistencia.
+            var assist = e.scoringPlay && e.participants && e.participants[1] && e.participants[1].athlete ? e.participants[1].athlete.displayName : "";
+            if (label) out.push({ clock: e.clock && e.clock.displayValue, team: e.team && e.team.id, label: label, cls: cls, who: who, assist: assist, own: label === "Autogol", pen: label === "Gol de penal" });
           });
         } else if (sport === "hockey") {
           (j.plays || []).filter(function (pl) { return pl.scoringPlay; }).forEach(function (pl) {
@@ -1567,6 +1585,21 @@
           '<div class="mm-team"><img src="' + esc(logoOf(me.team)) + '" alt="" /><span>' + esc(teamName(me.team)) + "</span></div>" +
           '<div class="mm-nums">' + (st.state === "pre" ? "vs" : esc(me.score || "0") + " – " + esc(rival.score || "0")) + "</div>" +
           '<div class="mm-team"><img src="' + esc(logoOf(rival.team)) + '" alt="" /><span>' + esc(teamName(rival.team)) + "</span></div></div>";
+        // Futbol: goleadores (y asistencias) de cada equipo debajo del marcador.
+        var goals = sport === "soccer" ? eventsOf(j, sport).filter(function (e) { return e.cls === "goal"; }) : [];
+        var scorers = { me: [], rival: [] };
+        goals.forEach(function (e) {
+          var side = String(e.team) === String(me.id) ? "me" : "rival";
+          scorers[side].push({ who: e.who + (e.pen ? " (p)" : e.own ? " (a.g.)" : ""), clock: e.clock || "", assist: e.assist });
+        });
+        if (goals.length) {
+          var scorerCol = function (list, cls) {
+            return '<div class="' + cls + '">' + list.map(function (g) {
+              return "<p>" + esc(g.who) + " <b>" + esc(g.clock) + "</b>" + (g.assist ? "<small>Asist. " + esc(g.assist) + "</small>" : "") + "</p>";
+            }).join("") + "</div>";
+          };
+          html += '<div class="mm-scorers">' + scorerCol(scorers.me, "mm-sc-me") + '<span class="mm-ball" aria-hidden="true">⚽</span>' + scorerCol(scorers.rival, "mm-sc-rival") + "</div>";
+        }
         var venue = j.gameInfo && j.gameInfo.venue && j.gameInfo.venue.fullName;
         if (venue) html += '<p class="mm-venue">' + esc(venue) + "</p>";
 
@@ -1588,7 +1621,7 @@
         if (events.length) {
           html += '<h4>Jugadas clave</h4><ul class="mm-events">' + events.map(function (e) {
             var t = String(e.team) === String(me.id) ? me.team : rival.team;
-            return '<li><span class="ev-clock">' + esc(e.clock) + '</span><img class="ev-logo" src="' + esc(logoOf(t)) + '" alt="" /><span class="ev-tag ' + e.cls + '">' + esc(e.label) + '</span><span class="ev-who">' + esc(e.who) + "</span></li>";
+            return '<li><span class="ev-clock">' + esc(e.clock) + '</span><img class="ev-logo" src="' + esc(logoOf(t)) + '" alt="" /><span class="ev-tag ' + e.cls + '">' + esc(e.label) + '</span><span class="ev-who">' + esc(e.who) + (e.assist ? ' <small class="ev-assist">asist. ' + esc(e.assist) + "</small>" : "") + "</span></li>";
           }).join("") + "</ul>";
         }
 
@@ -1641,6 +1674,7 @@
             return { clock: e.clock, label: e.label, cls: e.cls, who: e.who, team: t.abbreviation || "" };
           }),
           stats: shareStats,
+          scorers: scorers,
         };
         html += '<button class="share-btn mm-share" type="button" data-share="match"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg><span>Compartir imagen</span></button>';
         if (row.href) html += '<a class="mm-espn" href="' + esc(row.href) + '" target="_blank" rel="noopener">Ver en ESPN ↗</a>';
