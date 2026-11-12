@@ -257,6 +257,57 @@
   .mini-table li.self .mt-rank, .mini-table li.self .mt-value { color: var(--text); }
   .next-season p { display: flex; justify-content: space-between; margin: 0 0 .3rem; padding: .4rem .5rem; border-radius: 6px; background: rgba(255,255,255,0.04); font-size: .85rem; }
   .next-season span { color: var(--muted); }
+  .match-modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .match-modal[hidden] { display: none; }
+  .mm-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.72); }
+  .mm-panel {
+    position: relative; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+    background: #0d0d0f; border: 1px solid var(--card-border); border-top: 5px solid var(--team-color, #fff);
+    border-radius: 12px; padding: 1.25rem 1.1rem 1.1rem;
+  }
+  .mm-close {
+    position: absolute; top: .5rem; right: .6rem; width: 2rem; height: 2rem; border-radius: 50%;
+    font-size: 1.4rem; line-height: 1; color: var(--muted); background: rgba(255,255,255,0.06); border: 0; cursor: pointer;
+  }
+  .mm-close:hover { color: #fff; }
+  .mm-status { text-align: center; color: var(--muted); font-size: .78rem; margin: 0 2rem .9rem; }
+  .mm-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; text-align: center; }
+  .mm-team img { width: 60px; height: 60px; object-fit: contain; }
+  .mm-team span { display: block; font-weight: 700; font-size: .88rem; margin-top: .35rem; }
+  .mm-nums { font-family: "Anton", "Arial Black", sans-serif; font-size: 2.6rem; letter-spacing: .04em; white-space: nowrap; }
+  .mm-venue { text-align: center; color: var(--muted); font-size: .75rem; margin: .6rem 0 0; }
+  .mm-body h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 1.3rem 0 .5rem; }
+  .mm-lines { width: 100%; border-collapse: collapse; font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .mm-lines th, .mm-lines td { padding: .3rem .25rem; text-align: center; border-bottom: 1px solid var(--card-border); }
+  .mm-lines th { color: var(--muted); font-weight: 600; }
+  .mm-lines td:first-child, .mm-lines th:first-child { text-align: left; }
+  .mm-lines td:last-child { font-weight: 800; }
+  .mm-events { list-style: none; margin: 0; padding: 0; }
+  .mm-events li { display: flex; align-items: center; gap: .55rem; padding: .35rem .4rem; font-size: .82rem; border-radius: 6px; }
+  .mm-events li:nth-child(odd) { background: rgba(255,255,255,0.03); }
+  .ev-clock { flex: none; width: 3.6rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ev-logo { flex: none; width: 18px; height: 18px; object-fit: contain; }
+  .ev-tag { flex: none; font-size: .62rem; font-weight: 800; text-transform: uppercase; border-radius: 4px; padding: .1rem .35rem; background: rgba(255,255,255,0.1); }
+  .ev-tag.goal { background: var(--win); color: #fff; }
+  .ev-tag.yellow { background: var(--draw); color: #111; }
+  .ev-tag.red { background: var(--loss); color: #fff; }
+  .ev-who { flex: 1; min-width: 0; }
+  .mm-stat { margin-bottom: .55rem; }
+  .mm-stat-row { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: .2rem; font-variant-numeric: tabular-nums; }
+  .mm-stat-row span:nth-child(2) { color: var(--muted); }
+  .mm-stat-row span:first-child, .mm-stat-row span:last-child { font-weight: 700; min-width: 2.5rem; }
+  .mm-stat-row span:last-child { text-align: right; }
+  .mm-bar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,0.15); }
+  .mm-bar span { background: var(--team-color, #fff); }
+  .mm-leaders { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; font-size: .8rem; }
+  .mm-leaders p { margin: 0 0 .35rem; }
+  .mm-leaders small { display: block; color: var(--muted); font-size: .68rem; text-transform: uppercase; }
+  .mm-espn { display: block; text-align: center; margin-top: 1.3rem; font-size: .75rem; color: var(--muted); }
+  .mm-loading { text-align: center; color: var(--muted); padding: 2rem 0; }
+  @media (max-width: 600px) {
+    .match-modal { padding: 0; }
+    .mm-panel { max-width: none; max-height: none; height: 100%; border-radius: 0; }
+  }
   .card-toggle { display: none; }
   /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
@@ -285,7 +336,7 @@
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: <span data-ts="1794457119425" data-fmt="datetime">11 nov 2026, 09:18 p.m.</span> &middot; Horarios en tu hora local</p>
+  <p class="updated">Actualizado: <span data-ts="1794457421395" data-fmt="datetime">11 nov 2026, 09:23 p.m.</span> &middot; Horarios en tu hora local</p>
   <section class="agenda"><div class="agenda-head"><h2>Esta semana</h2><div class="agenda-filter" role="group" aria-label="Filtrar por deporte">
         <button class="filter-btn active" type="button" data-sport="all">Todos</button>
         <button class="filter-btn" type="button" data-sport="hockey">NHL</button><button class="filter-btn" type="button" data-sport="basketball">NBA</button><button class="filter-btn" type="button" data-sport="soccer">Fútbol</button><button class="filter-btn" type="button" data-sport="football">NFL</button>
@@ -377,27 +428,27 @@
     <div class="card-details">
       <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">1</span><span class="mt-name">Barcelona</span><span class="mt-value">33 pts</span></li><li class="self"><span class="mt-rank">2</span><span class="mt-name">Real Madrid</span><span class="mt-value">30 pts</span></li><li class=""><span class="mt-rank">3</span><span class="mt-name">Atlético Madrid</span><span class="mt-value">28 pts</span></li><li class=""><span class="mt-rank">4</span><span class="mt-name">Real Betis</span><span class="mt-value">26 pts</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Real Sociedad</span><span class="mt-value">22 pts</span></li></ol>
       <h3>Últimos resultados</h3>
-      <a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401882808/real-madrid-valencia" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+      <a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401882808/real-madrid-valencia" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401882808" data-league="soccer/esp.1" data-team="86" data-comp="LaLiga">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1794081600000" data-fmt="date">07 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Valencia <span class="comp-tag">LaLiga</span></span>
     <span class="result-score">3&ndash;0</span>
-  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401915383/real-madrid-aek-athens" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401915383/real-madrid-aek-athens" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401915383" data-league="soccer/uefa.champions" data-team="86" data-comp="Champions League">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793814300000" data-fmt="date">04 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> AEK Athens <span class="comp-tag">UCL</span></span>
     <span class="result-score">3&ndash;2</span>
-  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401882819/real-madrid-racing-santander" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401882819/real-madrid-racing-santander" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401882819" data-league="soccer/esp.1" data-team="86" data-comp="LaLiga">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793546100000" data-fmt="date">01 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Racing Santander <span class="comp-tag">LaLiga</span></span>
     <span class="result-score">3&ndash;0</span>
-  </a><a class="result-row win rivalry" href="https://www.espn.com/soccer/match/_/gameId/401882832/real-madrid-barcelona" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win rivalry" href="https://www.espn.com/soccer/match/_/gameId/401882832/real-madrid-barcelona" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401882832" data-league="soccer/esp.1" data-team="86" data-comp="LaLiga">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1792958400000" data-fmt="date">25 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> Barcelona <span class="rivalry-tag">★ Clásico</span><span class="comp-tag">LaLiga</span></span>
     <span class="result-score">2&ndash;1</span>
-  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401915313/rb-leipzig-real-madrid" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401915313/rb-leipzig-real-madrid" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401915313" data-league="soccer/uefa.champions" data-team="86" data-comp="Champions League">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1792609200000" data-fmt="date">21 oct</span>
     <span class="result-matchup">vs RB Leipzig <span class="comp-tag">UCL</span></span>
@@ -462,27 +513,27 @@
     <div class="card-details">
       <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">4</span><span class="mt-name">Toluca</span><span class="mt-value">27 pts</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Atlas</span><span class="mt-value">27 pts</span></li><li class="self"><span class="mt-rank">6</span><span class="mt-name">Santos</span><span class="mt-value">25 pts</span></li><li class=""><span class="mt-rank">7</span><span class="mt-name">León</span><span class="mt-value">23 pts</span></li><li class=""><span class="mt-rank">8</span><span class="mt-name">Pachuca</span><span class="mt-value">22 pts</span></li></ol>
       <h3>Últimos resultados</h3>
-      <a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876908/santos-atlante" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+      <a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876908/santos-atlante" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876908" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1794020400000" data-fmt="date">06 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Atlante </span>
     <span class="result-score">2&ndash;0</span>
-  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876912/necaxa-santos" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876912/necaxa-santos" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876912" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793574000000" data-fmt="date">01 nov</span>
     <span class="result-matchup">vs Necaxa </span>
     <span class="result-score">1&ndash;0</span>
-  </a><a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/401876920/santos-tijuana" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/401876920/santos-tijuana" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876920" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1792984200000" data-fmt="date">25 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> Tijuana </span>
     <span class="result-score">1&ndash;4</span>
-  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876929/pumas-unam-santos" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876929/pumas-unam-santos" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876929" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1792638600000" data-fmt="date">21 oct</span>
     <span class="result-matchup">vs Pumas UNAM </span>
     <span class="result-score">2&ndash;0</span>
-  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876942/queretaro-santos" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/soccer/match/_/gameId/401876942/queretaro-santos" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401876942" data-league="soccer/mex.1" data-team="225" data-comp="Liga MX">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1792278000000" data-fmt="date">17 oct</span>
     <span class="result-matchup">vs Querétaro </span>
@@ -516,27 +567,27 @@
     <div class="card-details">
       
       <h3>Últimos resultados</h3>
-      <a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/401903298/chile-mexico" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+      <a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/401903298/chile-mexico" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401903298" data-league="soccer/fifa.friendly" data-team="203" data-comp="Amistoso">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1791340200000" data-fmt="date">06 oct</span>
     <span class="result-matchup">vs Chile <span class="comp-tag">Amistoso</span></span>
     <span class="result-score">0&ndash;2</span>
-  </a><a class="result-row loss rivalry" href="https://www.espn.com/soccer/match/_/gameId/401905202/mexico-united-states" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss rivalry" href="https://www.espn.com/soccer/match/_/gameId/401905202/mexico-united-states" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401905202" data-league="soccer/fifa.friendly" data-team="203" data-comp="Amistoso">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1791079200000" data-fmt="date">03 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> Estados Unidos <span class="rivalry-tag">★ Clásico de Concacaf</span><span class="comp-tag">Amistoso</span></span>
     <span class="result-score">0&ndash;3</span>
-  </a><a class="result-row draw" href="https://www.espn.com/soccer/match/_/gameId/401903234/peru-mexico" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row draw" href="https://www.espn.com/soccer/match/_/gameId/401903234/peru-mexico" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401903234" data-league="soccer/fifa.friendly" data-team="203" data-comp="Amistoso">
     <span class="result-badge">E</span>
     <span class="result-date" data-ts="1790730000000" data-fmt="date">29 sep</span>
     <span class="result-matchup">vs Perú <span class="comp-tag">Amistoso</span></span>
     <span class="result-score">1&ndash;1</span>
-  </a><a class="result-row draw" href="https://www.espn.com/soccer/match/_/gameId/401903308/colombia-mexico" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row draw" href="https://www.espn.com/soccer/match/_/gameId/401903308/colombia-mexico" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401903308" data-league="soccer/fifa.friendly" data-team="203" data-comp="Amistoso">
     <span class="result-badge">E</span>
     <span class="result-date" data-ts="1790470800000" data-fmt="date">26 sep</span>
     <span class="result-matchup">vs Colombia <span class="comp-tag">Amistoso</span></span>
     <span class="result-score">1&ndash;1</span>
-  </a><a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/760505/england-mexico" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/760505/england-mexico" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="760505" data-league="soccer/fifa.world" data-team="203" data-comp="Mundial">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1783299600000" data-fmt="date">05 jul</span>
     <span class="result-matchup">vs Inglaterra <span class="comp-tag">Mundial</span></span>
@@ -580,27 +631,27 @@
     <div class="card-details">
       <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">7</span><span class="mt-name">Patriots</span><span class="mt-value">5-4</span></li><li class=""><span class="mt-rank">8</span><span class="mt-name">Browns</span><span class="mt-value">5-4</span></li><li class="self"><span class="mt-rank">9</span><span class="mt-name">Raiders</span><span class="mt-value">4-5</span></li><li class=""><span class="mt-rank">10</span><span class="mt-name">Ravens</span><span class="mt-value">4-5</span></li><li class=""><span class="mt-rank">11</span><span class="mt-name">Texans</span><span class="mt-value">3-5</span></li></ol>
       <h3>Últimos resultados</h3>
-      <a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873047/raiders-49ers" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+      <a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873047/raiders-49ers" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401873047" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794173100000" data-fmt="date">08 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> San Francisco 49ers </span>
     <span class="result-score">17&ndash;38</span>
-  </a><a class="result-row win" href="https://www.espn.com/nfl/game/_/gameId/401873029/raiders-jets" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/nfl/game/_/gameId/401873029/raiders-jets" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401873029" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793556000000" data-fmt="date">01 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> New York Jets </span>
     <span class="result-score">38&ndash;33</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873021/rams-raiders" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873021/rams-raiders" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401873021" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1792959900000" data-fmt="date">25 oct</span>
     <span class="result-matchup">vs Los Angeles Rams </span>
     <span class="result-score">21&ndash;35</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873005/bills-raiders" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401873005/bills-raiders" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401873005" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1792355100000" data-fmt="date">18 oct</span>
     <span class="result-matchup">vs Buffalo Bills </span>
     <span class="result-score">30&ndash;33</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401872986/raiders-patriots" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nfl/game/_/gameId/401872986/raiders-patriots" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401872986" data-league="football/nfl" data-team="13" data-comp="NFL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1791738000000" data-fmt="date">11 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> New England Patriots </span>
@@ -665,27 +716,27 @@
     <div class="card-details">
       <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">3</span><span class="mt-name">Braves</span><span class="mt-value">94-68</span></li><li class=""><span class="mt-rank">4</span><span class="mt-name">Padres</span><span class="mt-value">91-71</span></li><li class="self"><span class="mt-rank">5</span><span class="mt-name">Cubs</span><span class="mt-value">89-73</span></li><li class=""><span class="mt-rank">6</span><span class="mt-name">Phillies</span><span class="mt-value">88-74</span></li><li class=""><span class="mt-rank">7</span><span class="mt-name">Diamondbacks</span><span class="mt-value">86-76</span></li></ol>
       <h3>Últimos resultados</h3>
-      <a class="result-row loss" href="https://www.espn.com/mlb/game/_/gameId/401907975/cubs-padres" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+      <a class="result-row loss" href="https://www.espn.com/mlb/game/_/gameId/401907975/cubs-padres" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401907975" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1790820000000" data-fmt="date">30 sep</span>
     <span class="result-matchup"><span class="away-marker">@</span> San Diego Padres </span>
     <span class="result-score">1&ndash;4</span>
-  </a><a class="result-row loss" href="https://www.espn.com/mlb/game/_/gameId/401907974/cubs-padres" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/mlb/game/_/gameId/401907974/cubs-padres" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401907974" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1790733600000" data-fmt="date">29 sep</span>
     <span class="result-matchup"><span class="away-marker">@</span> San Diego Padres </span>
     <span class="result-score">0&ndash;8</span>
-  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697332/cardinals-cubs" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697332/cardinals-cubs" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401697332" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1759087200000" data-fmt="date">28 sep</span>
     <span class="result-matchup">vs St. Louis Cardinals </span>
     <span class="result-score">2&ndash;0</span>
-  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697317/cardinals-cubs" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697317/cardinals-cubs" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401697317" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1758997200000" data-fmt="date">27 sep</span>
     <span class="result-matchup">vs St. Louis Cardinals </span>
     <span class="result-score">7&ndash;3</span>
-  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697302/cardinals-cubs" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/mlb/game/_/gameId/401697302/cardinals-cubs" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401697302" data-league="baseball/mlb" data-team="16" data-comp="MLB">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1758910800000" data-fmt="date">26 sep</span>
     <span class="result-matchup">vs St. Louis Cardinals </span>
@@ -715,27 +766,27 @@
     <div class="card-details">
       <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">11</span><span class="mt-name">Wizards</span><span class="mt-value">4-8</span></li><li class=""><span class="mt-rank">12</span><span class="mt-name">Magic</span><span class="mt-value">3-7</span></li><li class=""><span class="mt-rank">13</span><span class="mt-name">Nets</span><span class="mt-value">3-8</span></li><li class="self"><span class="mt-rank">14</span><span class="mt-name">Bulls</span><span class="mt-value">1-9</span></li><li class=""><span class="mt-rank">15</span><span class="mt-name">Bucks</span><span class="mt-value">1-11</span></li></ol>
       <h3>Últimos resultados</h3>
-      <a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909969/spurs-bulls" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+      <a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909969/spurs-bulls" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909969" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794445200000" data-fmt="date">11 nov</span>
     <span class="result-matchup">vs San Antonio Spurs </span>
     <span class="result-score">119&ndash;124</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909945/76ers-bulls" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909945/76ers-bulls" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909945" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794169800000" data-fmt="date">08 nov</span>
     <span class="result-matchup">vs Philadelphia 76ers </span>
     <span class="result-score">121&ndash;127</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909926/bulls-knicks" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909926/bulls-knicks" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909926" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1793838600000" data-fmt="date">04 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> New York Knicks </span>
     <span class="result-score">105&ndash;135</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909912/bulls-76ers" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909912/bulls-76ers" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909912" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1793665800000" data-fmt="date">02 nov</span>
     <span class="result-matchup"><span class="away-marker">@</span> Philadelphia 76ers </span>
     <span class="result-score">107&ndash;126</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909278/bulls-celtics" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nba/game/_/gameId/401909278/bulls-celtics" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401909278" data-league="basketball/nba" data-team="4" data-comp="NBA">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1793403000000" data-fmt="date">30 oct</span>
     <span class="result-matchup"><span class="away-marker">@</span> Boston Celtics </span>
@@ -800,27 +851,27 @@
     <div class="card-details">
       <h3>Tabla de posiciones</h3><ol class="mini-table"><li class=""><span class="mt-rank">12</span><span class="mt-name">Flames</span><span class="mt-value">17 pts</span></li><li class=""><span class="mt-rank">13</span><span class="mt-name">Sharks</span><span class="mt-value">17 pts</span></li><li class="self"><span class="mt-rank">14</span><span class="mt-name">Kings</span><span class="mt-value">12 pts</span></li><li class=""><span class="mt-rank">15</span><span class="mt-name">Blackhawks</span><span class="mt-value">9 pts</span></li><li class=""><span class="mt-rank">16</span><span class="mt-name">Canucks</span><span class="mt-value">7 pts</span></li></ol>
       <h3>Últimos resultados</h3>
-      <a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892689/predators-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+      <a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892689/predators-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892689" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794366000000" data-fmt="date">10 nov</span>
     <span class="result-matchup">vs Nashville Predators </span>
     <span class="result-score">0&ndash;3</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892672/penguins-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892672/penguins-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892672" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1794103200000" data-fmt="date">07 nov</span>
     <span class="result-matchup">vs Pittsburgh Penguins </span>
     <span class="result-score">2&ndash;5</span>
-  </a><a class="result-row win" href="https://www.espn.com/nhl/game/_/gameId/401892646/sharks-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/nhl/game/_/gameId/401892646/sharks-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892646" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793847600000" data-fmt="date">04 nov</span>
     <span class="result-matchup">vs San Jose Sharks </span>
     <span class="result-score">7&ndash;2</span>
-  </a><a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892618/sabres-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row loss" href="https://www.espn.com/nhl/game/_/gameId/401892618/sabres-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892618" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1793476800000" data-fmt="date">31 oct</span>
     <span class="result-matchup">vs Buffalo Sabres </span>
     <span class="result-score">2&ndash;3</span>
-  </a><a class="result-row win" href="https://www.espn.com/nhl/game/_/gameId/401892609/senators-kings" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row win" href="https://www.espn.com/nhl/game/_/gameId/401892609/senators-kings" target="_blank" rel="noopener" title="Ver detalle del partido" data-event="401892609" data-league="hockey/nhl" data-team="8" data-comp="NHL">
     <span class="result-badge">V</span>
     <span class="result-date" data-ts="1793325600000" data-fmt="date">29 oct</span>
     <span class="result-matchup">vs Ottawa Senators </span>
@@ -885,27 +936,27 @@
     <div class="card-details">
       <h3>Constructores</h3><ol class="mini-table"><li class=""><span class="mt-rank">2</span><span class="mt-name">Ferrari</span><span class="mt-value">510 pts</span></li><li class=""><span class="mt-rank">3</span><span class="mt-name">Red Bull</span><span class="mt-value">415 pts</span></li><li class="self"><span class="mt-rank">4</span><span class="mt-name">McLaren</span><span class="mt-value">398 pts</span></li><li class=""><span class="mt-rank">5</span><span class="mt-name">Racing Bulls</span><span class="mt-value">114 pts</span></li><li class=""><span class="mt-rank">6</span><span class="mt-name">Alpine</span><span class="mt-value">69 pts</span></li></ol>
       <h3>Últimos resultados</h3>
-      <a class="result-row win" href="https://www.espn.com/f1/race/_/id/600057448" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+      <a class="result-row win" href="https://www.espn.com/f1/race/_/id/600057448" target="_blank" rel="noopener" title="Ver detalle del partido">
     <span class="result-badge">1</span>
     <span class="result-date" data-ts="1794157200000" data-fmt="date">08 nov</span>
     <span class="result-matchup"> São Paulo GP </span>
     <span class="result-score">P1 · P6</span>
-  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057447" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057447" target="_blank" rel="noopener" title="Ver detalle del partido">
     <span class="result-badge">5</span>
     <span class="result-date" data-ts="1793563200000" data-fmt="date">01 nov</span>
     <span class="result-matchup"> Mexico City GP </span>
     <span class="result-score">P5 · P13</span>
-  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057446" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057446" target="_blank" rel="noopener" title="Ver detalle del partido">
     <span class="result-badge">5</span>
     <span class="result-date" data-ts="1792958400000" data-fmt="date">25 oct</span>
     <span class="result-matchup"> United States GP </span>
     <span class="result-score">P5 · P7</span>
-  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057445" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600057445" target="_blank" rel="noopener" title="Ver detalle del partido">
     <span class="result-badge">4</span>
     <span class="result-date" data-ts="1791720000000" data-fmt="date">11 oct</span>
     <span class="result-matchup"> Singapore GP </span>
     <span class="result-score">P4 · P5</span>
-  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600060990" target="_blank" rel="noopener" title="Ver el partido en ESPN">
+  </a><a class="result-row draw" href="https://www.espn.com/f1/race/_/id/600060990" target="_blank" rel="noopener" title="Ver detalle del partido">
     <span class="result-badge">6</span>
     <span class="result-date" data-ts="1791097200000" data-fmt="date">04 oct</span>
     <span class="result-matchup"> Bahrain GP in Malaysia </span>
@@ -989,6 +1040,13 @@
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>
   </div>
+  <div class="match-modal" id="match-modal" hidden>
+    <div class="mm-backdrop"></div>
+    <div class="mm-panel" role="dialog" aria-modal="true" aria-label="Detalle del partido">
+      <button class="mm-close" type="button" aria-label="Cerrar">&times;</button>
+      <div class="mm-body"></div>
+    </div>
+  </div>
   <footer class="site-footer">
     <p>&copy; 2026 STRICKEOUT &middot; @RicardoHdzm &middot; Uso Personal</p>
     <p>Datos: <a href="https://www.espn.com" target="_blank" rel="noopener">ESPN</a> y <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a></p>
@@ -1040,6 +1098,169 @@
         }
         days.appendChild(box);
       }
+    })();
+  </script>
+  <script>
+    (function () {
+      // Detalle del partido dentro del sitio, con datos de ESPN pedidos al abrir la ventana.
+      var BASE = "https://site.api.espn.com/apis/site/v2/sports/";
+      var modal = document.getElementById("match-modal");
+      var panel = modal.querySelector(".mm-panel");
+      var body = modal.querySelector(".mm-body");
+      var timer = null;
+      var opener = null;
+      var STATS = {
+        soccer: [["possessionPct", "Posesión", "%"], ["totalShots", "Tiros"], ["shotsOnTarget", "Tiros a gol"], ["wonCorners", "Tiros de esquina"], ["foulsCommitted", "Faltas"], ["yellowCards", "Tarjetas amarillas"], ["redCards", "Tarjetas rojas"], ["offsides", "Fueras de lugar"], ["saves", "Atajadas"]],
+        hockey: [["shotsTotal", "Tiros"], ["hits", "Golpes"], ["blockedShots", "Tiros bloqueados"], ["faceoffPercent", "Faceoffs ganados", "%"], ["powerPlayGoals", "Goles en power play"], ["penaltyMinutes", "Minutos de castigo"], ["giveaways", "Pérdidas"], ["takeaways", "Recuperaciones"]],
+        basketball: [["fieldGoalPct", "Tiros de campo", "%"], ["threePointFieldGoalPct", "Triples", "%"], ["freeThrowPct", "Tiros libres", "%"], ["totalRebounds", "Rebotes"], ["assists", "Asistencias"], ["steals", "Robos"], ["blocks", "Tapones"], ["turnovers", "Pérdidas"]]
+      };
+      var LEADERS = { "Points": "Puntos", "Rebounds": "Rebotes", "Assists": "Asistencias", "Goals": "Goles", "Passing Yards": "Yardas por pase", "Rushing Yards": "Yardas por tierra", "Receiving Yards": "Yardas recibidas", "Hits": "Hits", "Home Runs": "Jonrones", "RBIs": "Carreras impulsadas", "Saves": "Atajadas", "Batting Average": "Promedio de bateo", "Earned Run Average": "Efectividad", "Total Shots": "Tiros", "Shots On Target": "Tiros a gol", "Accurate Passes": "Pases precisos", "Fouls Committed": "Faltas", "Tackles": "Entradas", "Defensive Interventions": "Intervenciones defensivas", "Passing": "Pase", "Rushing": "Carrera", "Receiving": "Recepción" };
+      var COUNTRY_ES = {"United States":"Estados Unidos","England":"Inglaterra","Peru":"Perú","Spain":"España","Brazil":"Brasil","Germany":"Alemania","France":"Francia","Italy":"Italia","Netherlands":"Países Bajos","Belgium":"Bélgica","Switzerland":"Suiza","Croatia":"Croacia","Poland":"Polonia","Wales":"Gales","Scotland":"Escocia","Turkey":"Turquía","Türkiye":"Turquía","Denmark":"Dinamarca","Sweden":"Suecia","Norway":"Noruega","Austria":"Austria","Ukraine":"Ucrania","Czechia":"Chequia","Czech Republic":"República Checa","Serbia":"Serbia","Greece":"Grecia","Ireland":"Irlanda","Republic of Ireland":"Irlanda","Northern Ireland":"Irlanda del Norte","Hungary":"Hungría","Romania":"Rumania","Canada":"Canadá","Panama":"Panamá","Haiti":"Haití","Trinidad and Tobago":"Trinidad y Tobago","Suriname":"Surinam","Dominican Republic":"República Dominicana","Curacao":"Curazao","Curaçao":"Curazao","Martinique":"Martinica","Guadeloupe":"Guadalupe","Saint Kitts and Nevis":"San Cristóbal y Nieves","Saint Lucia":"Santa Lucía","Belize":"Belice","French Guiana":"Guayana Francesa","South Korea":"Corea del Sur","Korea Republic":"Corea del Sur","Japan":"Japón","South Africa":"Sudáfrica","Morocco":"Marruecos","Egypt":"Egipto","Cameroon":"Camerún","Ivory Coast":"Costa de Marfil","Cote d'Ivoire":"Costa de Marfil","Tunisia":"Túnez","Algeria":"Argelia","Saudi Arabia":"Arabia Saudita","Iran":"Irán","Iraq":"Irak","Jordan":"Jordania","New Zealand":"Nueva Zelanda","Uzbekistan":"Uzbekistán","United Arab Emirates":"Emiratos Árabes Unidos","Cape Verde":"Cabo Verde","Mexico":"México"};
+      function teamName(t) { return COUNTRY_ES[t.displayName] || t.displayName; }
+      function scoreType(type) {
+        if (!type) return "Anotación";
+        if (type.indexOf("Touchdown") !== -1) return "Touchdown";
+        if (type.indexOf("Field Goal") !== -1) return "Gol de campo";
+        if (type.indexOf("Safety") !== -1) return "Safety";
+        if (type.indexOf("Two") !== -1) return "Conversión de 2";
+        return type;
+      }
+      function esc(v) {
+        return String(v == null ? "" : v).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
+      }
+      function logoOf(t) { return (t.logos && t.logos[0] && t.logos[0].href) || t.logo || ""; }
+      function byTeam(list, id) { return (list || []).filter(function (x) { return x.team && String(x.team.id) === String(id); })[0]; }
+      function eventsOf(j, sport) {
+        var out = [];
+        if (sport === "soccer") {
+          (j.keyEvents || []).forEach(function (e) {
+            var t = (e.type && e.type.type) || "";
+            var who = (e.participants && e.participants[0] && e.participants[0].athlete && e.participants[0].athlete.displayName) || "";
+            var label = null, cls = "";
+            if (e.scoringPlay) { label = t.indexOf("own") !== -1 ? "Autogol" : t.indexOf("penalty") !== -1 ? "Gol de penal" : "Gol"; cls = "goal"; }
+            else if (t === "yellow-card") { label = "Amarilla"; cls = "yellow"; }
+            else if (t === "red-card") { label = "Roja"; cls = "red"; }
+            if (label) out.push({ clock: e.clock && e.clock.displayValue, team: e.team && e.team.id, label: label, cls: cls, who: who });
+          });
+        } else if (sport === "hockey") {
+          (j.plays || []).filter(function (pl) { return pl.scoringPlay; }).forEach(function (pl) {
+            out.push({ clock: (pl.period ? pl.period.displayValue + " " : "") + (pl.clock ? pl.clock.displayValue : ""), team: pl.team && pl.team.id, label: "Gol", cls: "goal", who: pl.text });
+          });
+        } else if (sport === "football") {
+          (j.scoringPlays || []).forEach(function (pl) {
+            var type = pl.type && pl.type.text;
+            out.push({ clock: (pl.period ? "Q" + pl.period.number + " " : "") + (pl.clock ? pl.clock.displayValue : ""), team: pl.team && pl.team.id, label: scoreType(type), cls: "goal", who: pl.text });
+          });
+        }
+        return out;
+      }
+      function render(j, row) {
+        var comp = j.header.competitions[0];
+        var sport = row.dataset.league.split("/")[0];
+        var me = comp.competitors.filter(function (c) { return String(c.id) === row.dataset.team; })[0] || comp.competitors[0];
+        var rival = comp.competitors.filter(function (c) { return c !== me; })[0];
+        var st = comp.status.type;
+        var when = new Date(comp.date).toLocaleString("es-MX", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+        var status = st.state === "in" ? '<span class="live-badge">EN VIVO</span> ' + esc(st.shortDetail) : st.state === "post" ? "Final" : esc(when);
+        var html = '<p class="mm-status">' + status + (row.dataset.comp ? " &middot; " + esc(row.dataset.comp) : "") + (st.state !== "pre" ? " &middot; " + esc(when) : "") + "</p>";
+        html += '<div class="mm-score">' +
+          '<div class="mm-team"><img src="' + esc(logoOf(me.team)) + '" alt="" /><span>' + esc(teamName(me.team)) + "</span></div>" +
+          '<div class="mm-nums">' + (st.state === "pre" ? "vs" : esc(me.score || "0") + " – " + esc(rival.score || "0")) + "</div>" +
+          '<div class="mm-team"><img src="' + esc(logoOf(rival.team)) + '" alt="" /><span>' + esc(teamName(rival.team)) + "</span></div></div>";
+        var venue = j.gameInfo && j.gameInfo.venue && j.gameInfo.venue.fullName;
+        if (venue) html += '<p class="mm-venue">' + esc(venue) + "</p>";
+
+        if (sport !== "soccer" && me.linescores && me.linescores.length) {
+          // En beisbol el local puede no batear la ultima entrada; se rellena para que las columnas cuadren.
+          var periods = Math.max(me.linescores.length, (rival.linescores || []).length);
+          var cols = "";
+          for (var i = 0; i < periods; i++) cols += "<th>" + (i + 1) + "</th>";
+          var line = function (c) {
+            var cells = "";
+            for (var k = 0; k < periods; k++) cells += "<td>" + esc(c.linescores && c.linescores[k] ? c.linescores[k].displayValue : "–") + "</td>";
+            return "<tr><td>" + esc(c.team.abbreviation || c.team.displayName) + "</td>" + cells +
+              "<td>" + esc(c.score) + "</td></tr>";
+          };
+          html += '<h4>Marcador por periodo</h4><table class="mm-lines"><tr><th></th>' + cols + "<th>T</th></tr>" + line(me) + line(rival) + "</table>";
+        }
+
+        var events = eventsOf(j, sport);
+        if (events.length) {
+          html += '<h4>Jugadas clave</h4><ul class="mm-events">' + events.map(function (e) {
+            var t = String(e.team) === String(me.id) ? me.team : rival.team;
+            return '<li><span class="ev-clock">' + esc(e.clock) + '</span><img class="ev-logo" src="' + esc(logoOf(t)) + '" alt="" /><span class="ev-tag ' + e.cls + '">' + esc(e.label) + '</span><span class="ev-who">' + esc(e.who) + "</span></li>";
+          }).join("") + "</ul>";
+        }
+
+        var teams = (j.boxscore && j.boxscore.teams) || [];
+        var a = byTeam(teams, me.id), b = byTeam(teams, rival.id);
+        if (a && b && a.statistics && a.statistics.length) {
+          var get = function (t, name) { return (t.statistics.filter(function (x) { return x.name === name; })[0] || {}).displayValue; };
+          var list = STATS[sport] || a.statistics.slice(0, 8).map(function (x) { return [x.name, x.label || x.name]; });
+          var rows = list.map(function (def) {
+            var va = get(a, def[0]), vb = get(b, def[0]);
+            if (va == null || vb == null) return "";
+            var na = parseFloat(va) || 0, nb = parseFloat(vb) || 0;
+            var share = na + nb > 0 ? Math.round((na / (na + nb)) * 100) : 50;
+            var suf = def[2] || "";
+            return '<div class="mm-stat"><div class="mm-stat-row"><span>' + esc(va) + suf + "</span><span>" + esc(def[1]) + "</span><span>" + esc(vb) + suf + '</span></div><div class="mm-bar"><span style="width:' + share + '%"></span></div></div>';
+          }).join("");
+          if (rows) html += "<h4>Estadísticas</h4>" + rows;
+        }
+
+        var leaders = j.leaders || [];
+        var la = byTeam(leaders, me.id), lb = byTeam(leaders, rival.id);
+        if (la && lb && la.leaders && la.leaders.length) {
+          var col = function (group) {
+            return (group.leaders || []).slice(0, 3).map(function (cat) {
+              var top = cat.leaders && cat.leaders[0];
+              if (!top) return "";
+              return "<p><small>" + esc(LEADERS[cat.displayName] || cat.displayName) + "</small>" + esc(top.athlete && top.athlete.displayName) + " &middot; " + esc(top.displayValue) + "</p>";
+            }).join("");
+          };
+          html += '<h4>Líderes</h4><div class="mm-leaders"><div>' + col(la) + "</div><div>" + col(lb) + "</div></div>";
+        }
+
+        if (row.href) html += '<a class="mm-espn" href="' + esc(row.href) + '" target="_blank" rel="noopener">Ver en ESPN ↗</a>';
+        body.innerHTML = html;
+        return st.state === "in";
+      }
+      function load(row) {
+        return fetch(BASE + row.dataset.league + "/summary?event=" + row.dataset.event)
+          .then(function (r) { return r.json(); })
+          .then(function (j) { return render(j, row); })
+          .catch(function () {
+            body.innerHTML = '<p class="mm-loading">No se pudo cargar el detalle.' + (row.href ? ' <a href="' + esc(row.href) + '" target="_blank" rel="noopener">Ver en ESPN</a>' : "") + "</p>";
+            return false;
+          });
+      }
+      function open(row) {
+        opener = row;
+        panel.style.setProperty("--team-color", getComputedStyle(row).getPropertyValue("--team-color") || "#fff");
+        body.innerHTML = '<p class="mm-loading">Cargando…</p>';
+        modal.hidden = false;
+        document.body.style.overflow = "hidden";
+        modal.querySelector(".mm-close").focus();
+        load(row).then(function (live) {
+          if (live) timer = setInterval(function () { load(row); }, 60000);
+        });
+      }
+      function close() {
+        modal.hidden = true;
+        document.body.style.overflow = "";
+        clearInterval(timer);
+        timer = null;
+        if (opener) opener.focus();
+      }
+      document.addEventListener("click", function (e) {
+        var row = e.target.closest("a.result-row[data-event], a.live-row[data-event]");
+        if (!row) return;
+        e.preventDefault();
+        open(row);
+      });
+      modal.querySelector(".mm-close").addEventListener("click", close);
+      modal.querySelector(".mm-backdrop").addEventListener("click", close);
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) close(); });
     })();
   </script>
   <script>
