@@ -1031,7 +1031,7 @@ async function main() {
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />
 <style>
   :root {
     color-scheme: dark;
@@ -1076,12 +1076,12 @@ async function main() {
   }
   h1 { text-align: center; margin: 3rem 0 .4rem; line-height: 1; }
   .brand {
-    display: inline-block; font-family: "Anton", "Arial Black", sans-serif; transform: skewX(-8deg);
-    font-size: clamp(2.75rem, 11vw, 5rem);
+    display: inline-block; font-family: "Teko", "Arial Narrow", sans-serif; font-weight: 700; line-height: .9; transform: skewX(-8deg);
+    font-size: clamp(3.4rem, 14vw, 6.2rem);
   }
   .brand-main { display: block; letter-spacing: .05em; margin-bottom: .18em; color: #ffffff; }
   .brand-sub {
-    display: block; font-size: .2em; letter-spacing: .35em;
+    display: block; font-size: .16em; letter-spacing: .35em;
     color: #fff; padding-left: .35em;
     font-family: "Barlow", system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-weight: 500;
   }
@@ -1116,8 +1116,8 @@ async function main() {
   }
   .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 4; margin: 0; }
   .card-header h2 {
-    margin: 0; font-family: "Anton", "Arial Black", sans-serif; font-weight: 400; font-size: 1.45rem;
-    letter-spacing: .02em; line-height: 1.15;
+    margin: 0; font-family: "Teko", "Arial Narrow", sans-serif; font-weight: 600; font-size: 1.8rem;
+    letter-spacing: .02em; line-height: 1;
   }
   .league { margin-top: .35rem; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border: 1px solid currentColor; border-radius: 999px; padding: .15rem .6rem; text-align: center; }
   .countdown {
@@ -1296,7 +1296,7 @@ async function main() {
   .mm-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; text-align: center; }
   .mm-team img { width: 60px; height: 60px; object-fit: contain; }
   .mm-team span { display: block; font-weight: 700; font-size: .88rem; margin-top: .35rem; }
-  .mm-nums { font-family: "Anton", "Arial Black", sans-serif; font-size: 2.6rem; letter-spacing: .04em; white-space: nowrap; }
+  .mm-nums { font-family: "Teko", "Arial Narrow", sans-serif; font-weight: 600; font-size: 3.2rem; line-height: 1; letter-spacing: .04em; white-space: nowrap; }
   .mm-venue { text-align: center; color: var(--muted); font-size: .75rem; margin: .6rem 0 0; }
   .mm-body h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 1.3rem 0 .5rem; }
   .mm-lines { width: 100%; border-collapse: collapse; font-size: .8rem; font-variant-numeric: tabular-nums; }
@@ -1335,7 +1335,7 @@ async function main() {
   @media (max-width: 600px) {
     .card { cursor: pointer; }
     .card .logo { width: 64px; height: 64px; }
-    .card-header h2 { font-size: 1.2rem; }
+    .card-header h2 { font-size: 1.5rem; }
     .card:not(.expanded) > :not(.card-header):not(.offseason) { display: none; }
     .card:not(.expanded) .card-header { margin-bottom: -1.1rem; border-radius: 7px; }
     .card-toggle {
