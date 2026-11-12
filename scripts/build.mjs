@@ -282,6 +282,15 @@ function parseSportsDbEvent(event, team, completed) {
   };
 }
 
+// Mismo partido en ESPN y TheSportsDB: fechas a menos de 12 h, o mismo rival a menos de 3 dias
+// (a veces una de las dos fuentes no ha actualizado un cambio de horario).
+function sameMatch(a, b) {
+  const diff = Math.abs(a.date - b.date);
+  if (diff < 12 * 60 * 60 * 1000) return true;
+  const word = (name) => normalize(name).split(" ")[0];
+  return diff < 3 * 24 * 60 * 60 * 1000 && word(a.rivalName) === word(b.rivalName);
+}
+
 async function getSportsDbEvent(team, endpoint, resultsKey, completed) {
   if (!team.sportsDbId) return null;
   try {
@@ -551,7 +560,7 @@ async function gatherTeamData(team, order) {
 
     let finished = finishedBase;
     if (sportsDbLast) {
-      const alreadyHave = parsed.some((e) => Math.abs(e.date - sportsDbLast.date) < 12 * 60 * 60 * 1000);
+      const alreadyHave = parsed.some((e) => sameMatch(e, sportsDbLast));
       if (!alreadyHave) {
         finished = [sportsDbLast, ...finishedBase].sort((a, b) => b.date - a.date);
       }
@@ -562,7 +571,7 @@ async function gatherTeamData(team, order) {
 
     let upcoming = upcomingBase;
     if (sportsDbEvent) {
-      const alreadyHave = parsed.some((e) => Math.abs(e.date - sportsDbEvent.date) < 12 * 60 * 60 * 1000);
+      const alreadyHave = parsed.some((e) => sameMatch(e, sportsDbEvent));
       if (!alreadyHave) {
         upcoming = [sportsDbEvent, ...upcomingBase].sort((a, b) => a.date - b.date);
       }
@@ -1022,7 +1031,7 @@ async function main() {
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />
 <style>
   :root {
     color-scheme: dark;
@@ -1038,7 +1047,7 @@ async function main() {
   * { box-sizing: border-box; }
   html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body {
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-family: "Barlow", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     margin: 0; padding: 0 .25rem 2rem; color: var(--text);
     background-color: var(--bg);
     background-image:
@@ -1074,7 +1083,7 @@ async function main() {
   .brand-sub {
     display: block; font-size: .2em; letter-spacing: .35em;
     color: #fff; padding-left: .35em;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-weight: 500;
+    font-family: "Barlow", system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-weight: 500;
   }
   .updated { text-align: center; color: var(--muted); font-size: .85rem; margin: .35rem 0 2.5rem; }
   .sort-bar { display: flex; justify-content: flex-end; align-items: center; gap: .4rem; max-width: 1500px; margin: 0 auto .6rem; }
@@ -1108,7 +1117,7 @@ async function main() {
   .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 4; margin: 0; }
   .card-header h2 {
     margin: 0; font-family: "Anton", "Arial Black", sans-serif; font-weight: 400; font-size: 1.45rem;
-    letter-spacing: .02em; line-height: 1.15; transform: skewX(-8deg); transform-origin: left bottom;
+    letter-spacing: .02em; line-height: 1.15;
   }
   .league { margin-top: .35rem; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border: 1px solid currentColor; border-radius: 999px; padding: .15rem .6rem; text-align: center; }
   .countdown {
@@ -1339,6 +1348,12 @@ async function main() {
     h1 { padding: 0 .75rem; }
     .ticker-track { animation-duration: 110s; }
   }
+  /* Etiquetas en mayusculas con la version angosta de Barlow. */
+  .sort-btn, .sort-label, .offseason, .league, .card h3, .comp-tag, .agenda h3, .filter-btn, .mm-body h4, .ev-tag,
+  .mm-leaders small, .card-toggle, .live-badge, .ticker-live, .countdown, .rivalry-tag {
+    font-family: "Barlow Condensed", "Barlow", sans-serif;
+  }
+  .card h3, .agenda h3, .mm-body h4 { font-size: .8rem; letter-spacing: .07em; }
 </style>
 </head>
 <body>
