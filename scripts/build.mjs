@@ -1433,8 +1433,17 @@ async function main() {
         hockey: [["shotsTotal", "Tiros"], ["hits", "Golpes"], ["blockedShots", "Tiros bloqueados"], ["faceoffPercent", "Faceoffs ganados", "%"], ["powerPlayGoals", "Goles en power play"], ["penaltyMinutes", "Minutos de castigo"], ["giveaways", "Pérdidas"], ["takeaways", "Recuperaciones"]],
         basketball: [["fieldGoalPct", "Tiros de campo", "%"], ["threePointFieldGoalPct", "Triples", "%"], ["freeThrowPct", "Tiros libres", "%"], ["totalRebounds", "Rebotes"], ["assists", "Asistencias"], ["steals", "Robos"], ["blocks", "Tapones"], ["turnovers", "Pérdidas"]]
       };
-      var LEADERS = { "Points": "Puntos", "Rebounds": "Rebotes", "Assists": "Asistencias", "Goals": "Goles", "Passing Yards": "Yardas por pase", "Rushing Yards": "Yardas por tierra", "Receiving Yards": "Yardas recibidas", "Hits": "Hits", "Home Runs": "Jonrones", "RBIs": "Carreras impulsadas", "Saves": "Atajadas", "Batting Average": "Promedio de bateo", "Earned Run Average": "Efectividad" };
-      var SCORE_TYPES = { "Touchdown": "Touchdown", "Field Goal": "Gol de campo", "Safety": "Safety", "Goal": "Gol" };
+      var LEADERS = { "Points": "Puntos", "Rebounds": "Rebotes", "Assists": "Asistencias", "Goals": "Goles", "Passing Yards": "Yardas por pase", "Rushing Yards": "Yardas por tierra", "Receiving Yards": "Yardas recibidas", "Hits": "Hits", "Home Runs": "Jonrones", "RBIs": "Carreras impulsadas", "Saves": "Atajadas", "Batting Average": "Promedio de bateo", "Earned Run Average": "Efectividad", "Total Shots": "Tiros", "Shots On Target": "Tiros a gol", "Accurate Passes": "Pases precisos", "Fouls Committed": "Faltas", "Tackles": "Entradas", "Defensive Interventions": "Intervenciones defensivas", "Passing": "Pase", "Rushing": "Carrera", "Receiving": "Recepción" };
+      var COUNTRY_ES = ${JSON.stringify({ ...COUNTRY_ES, Mexico: "México" })};
+      function teamName(t) { return COUNTRY_ES[t.displayName] || t.displayName; }
+      function scoreType(type) {
+        if (!type) return "Anotación";
+        if (type.indexOf("Touchdown") !== -1) return "Touchdown";
+        if (type.indexOf("Field Goal") !== -1) return "Gol de campo";
+        if (type.indexOf("Safety") !== -1) return "Safety";
+        if (type.indexOf("Two") !== -1) return "Conversión de 2";
+        return type;
+      }
       function esc(v) {
         return String(v == null ? "" : v).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
       }
@@ -1459,7 +1468,7 @@ async function main() {
         } else if (sport === "football") {
           (j.scoringPlays || []).forEach(function (pl) {
             var type = pl.type && pl.type.text;
-            out.push({ clock: (pl.period ? "Q" + pl.period.number + " " : "") + (pl.clock ? pl.clock.displayValue : ""), team: pl.team && pl.team.id, label: SCORE_TYPES[type] || type || "Anotación", cls: "goal", who: pl.text });
+            out.push({ clock: (pl.period ? "Q" + pl.period.number + " " : "") + (pl.clock ? pl.clock.displayValue : ""), team: pl.team && pl.team.id, label: scoreType(type), cls: "goal", who: pl.text });
           });
         }
         return out;
@@ -1474,17 +1483,21 @@ async function main() {
         var status = st.state === "in" ? '<span class="live-badge">EN VIVO</span> ' + esc(st.shortDetail) : st.state === "post" ? "Final" : esc(when);
         var html = '<p class="mm-status">' + status + (row.dataset.comp ? " &middot; " + esc(row.dataset.comp) : "") + (st.state !== "pre" ? " &middot; " + esc(when) : "") + "</p>";
         html += '<div class="mm-score">' +
-          '<div class="mm-team"><img src="' + esc(logoOf(me.team)) + '" alt="" /><span>' + esc(me.team.displayName) + "</span></div>" +
+          '<div class="mm-team"><img src="' + esc(logoOf(me.team)) + '" alt="" /><span>' + esc(teamName(me.team)) + "</span></div>" +
           '<div class="mm-nums">' + (st.state === "pre" ? "vs" : esc(me.score || "0") + " – " + esc(rival.score || "0")) + "</div>" +
-          '<div class="mm-team"><img src="' + esc(logoOf(rival.team)) + '" alt="" /><span>' + esc(rival.team.displayName) + "</span></div></div>";
+          '<div class="mm-team"><img src="' + esc(logoOf(rival.team)) + '" alt="" /><span>' + esc(teamName(rival.team)) + "</span></div></div>";
         var venue = j.gameInfo && j.gameInfo.venue && j.gameInfo.venue.fullName;
         if (venue) html += '<p class="mm-venue">' + esc(venue) + "</p>";
 
         if (sport !== "soccer" && me.linescores && me.linescores.length) {
-          var cols = me.linescores.map(function (_, i) { return "<th>" + (i + 1) + "</th>"; }).join("");
+          // En beisbol el local puede no batear la ultima entrada; se rellena para que las columnas cuadren.
+          var periods = Math.max(me.linescores.length, (rival.linescores || []).length);
+          var cols = "";
+          for (var i = 0; i < periods; i++) cols += "<th>" + (i + 1) + "</th>";
           var line = function (c) {
-            return "<tr><td>" + esc(c.team.abbreviation || c.team.displayName) + "</td>" +
-              (c.linescores || []).map(function (l) { return "<td>" + esc(l.displayValue) + "</td>"; }).join("") +
+            var cells = "";
+            for (var k = 0; k < periods; k++) cells += "<td>" + esc(c.linescores && c.linescores[k] ? c.linescores[k].displayValue : "–") + "</td>";
+            return "<tr><td>" + esc(c.team.abbreviation || c.team.displayName) + "</td>" + cells +
               "<td>" + esc(c.score) + "</td></tr>";
           };
           html += '<h4>Marcador por periodo</h4><table class="mm-lines"><tr><th></th>' + cols + "<th>T</th></tr>" + line(me) + line(rival) + "</table>";
