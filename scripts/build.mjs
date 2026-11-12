@@ -217,6 +217,7 @@ function parseEvent({ event, competitionName, competitionPath }, team) {
     // Nombres cortos ("Kings", "Capitals") para la agenda semanal.
     teamShort: self?.team?.shortDisplayName,
     rivalShort: rival?.team?.shortDisplayName,
+    rivalLogo: smallLogo(rival?.team?.logos?.[0]?.href || rival?.team?.logo),
     teamScore: scoreValue(self?.score),
     rivalScore: scoreValue(rival?.score),
     result,
@@ -229,6 +230,17 @@ function parseEvent({ event, competitionName, competitionPath }, team) {
 function matchAttrs(ev) {
   if (!ev.eventId || !ev.leaguePath || !ev.selfId) return "";
   return ` data-event="${ev.eventId}" data-league="${ev.leaguePath}" data-team="${ev.selfId}" data-comp="${ev.competitionName || ""}"`;
+}
+
+// Version reducida (40 px) de un logo de ESPN, para las filas de resultados.
+function smallLogo(url) {
+  if (!url) return null;
+  const m = url.match(/^https:\/\/a\.espncdn\.com(\/i\/.+\.png)$/);
+  return m ? `https://a.espncdn.com/combiner/i?img=${m[1]}&w=40&h=40` : url;
+}
+
+function rivalLogoHtml(ev) {
+  return ev.rivalLogo ? `<img class="rival-logo" src="${ev.rivalLogo.replace(/&/g, "&amp;")}" alt="" loading="lazy" />` : "";
 }
 
 function espnLink(event) {
@@ -454,13 +466,17 @@ function renderResultRow(ev, showCompetition) {
   const sede = ev.isRace ? "" : ev.isTeamHome ? "vs" : '<span class="away-marker">@</span>';
   const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
   const compTag = compTagHtml(ev, showCompetition);
-  const score = ev.rivalScore !== "" ? `${ev.teamScore}&ndash;${ev.rivalScore}` : ev.teamScore;
+  const mine = ev.result === "win" ? "won" : ev.result === "loss" ? "lost" : "";
+  const theirs = ev.result === "win" ? "lost" : ev.result === "loss" ? "won" : "";
+  const score = ev.rivalScore !== ""
+    ? `<span class="${mine}">${ev.teamScore}</span>&ndash;<span class="${theirs}">${ev.rivalScore}</span>`
+    : ev.teamScore;
   const tag = ev.link ? "a" : "div";
   const href = ev.link ? ` href="${ev.link}" target="_blank" rel="noopener" title="Ver detalle del partido"` : "";
   return `<${tag} class="result-row ${ev.result}${ev.rivalryLabel ? " rivalry" : ""}"${href}${matchAttrs(ev)}>
     <span class="result-badge">${ev.formLabel || RESULT_LABEL[ev.result]}</span>
     <span class="result-date" ${tsAttrs(ev.date, "date")}>${fmtDate(ev.date)}</span>
-    <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
+    <span class="result-matchup">${rivalLogoHtml(ev)}${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
     <span class="result-score">${score}</span>
   </${tag}>`;
 }
@@ -496,7 +512,7 @@ function renderUpcomingRow(ev, showCompetition, team) {
   const compTag = compTagHtml(ev, showCompetition);
   return `<div class="upcoming-row${ev.rivalryLabel ? " rivalry" : ""}">
     <span class="result-date" ${tsAttrs(ev.date, "date")}>${fmtDate(ev.date)}</span>
-    <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
+    <span class="result-matchup">${rivalLogoHtml(ev)}${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
     <span class="upcoming-time${ev.timeValid === false ? " tbd" : ""}" ${ev.timeValid === false ? "" : tsAttrs(ev.date, "time")}>${fmtMatchTime(ev)}</span>
     <a class="cal-link" href="${googleCalendarUrl(ev, team)}" target="_blank" rel="noopener" title="Agregar a Google Calendar" aria-label="Agregar a Google Calendar">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v5M9.5 16.5h5"/></svg>
@@ -513,7 +529,7 @@ function renderLiveRow(ev, showCompetition) {
   const href = ev.link ? ` href="${ev.link}" target="_blank" rel="noopener" title="Ver el partido en ESPN"` : "";
   return `<${tag} class="live-row${ev.rivalryLabel ? " rivalry" : ""}"${href}${matchAttrs(ev)}>
     <span class="live-badge">EN VIVO</span>
-    <span class="result-matchup">${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
+    <span class="result-matchup">${rivalLogoHtml(ev)}${sede} ${ev.rivalName} ${rivalryTag}${compTag}</span>
     <span class="live-clock">${ev.statusDetail}</span>
     <span class="result-score">${score}</span>
   </${tag}>`;
@@ -624,6 +640,35 @@ function teamSport(team) {
   return team.sport || team.competitions?.[0]?.path.split("/")[0] || "";
 }
 
+// Tarjeta grande con el partido en vivo o el proximo partido de todos los equipos.
+function renderHero(teamData) {
+  const items = teamData
+    .filter((d) => d.nextMatch)
+    .map((d) => ({ team: d.team, ev: d.nextMatch }))
+    .sort((a, b) => (b.ev.live ? 1 : 0) - (a.ev.live ? 1 : 0) || a.ev.date - b.ev.date);
+  if (!items.length) return "";
+  const { team, ev } = items[0];
+  const rival = ev.isRace
+    ? `<span class="hero-vs">${ev.rivalName}</span>`
+    : `<span class="hero-vs">${ev.isTeamHome ? "vs" : "@"}</span>${ev.rivalLogo ? `<img class="hero-logo" src="${ev.rivalLogo.replace("w=40&h=40", "w=160&h=160").replace(/&/g, "&amp;")}" alt="" />` : ""}`;
+  const when = ev.timeValid === false
+    ? `<span ${tsAttrs(ev.date, "weekday")}>${fmtDate(ev.date)}</span> &middot; Hora por confirmar`
+    : `<span ${tsAttrs(ev.date, "weekday")}>${fmtDate(ev.date)}</span> &middot; <span ${tsAttrs(ev.date, "time")}>${fmtTime(ev.date)}</span>`;
+  const countdown = ev.live
+    ? `<span class="hero-count live">● EN VIVO${ev.rivalScore !== "" ? ` &middot; ${ev.teamScore || 0}&ndash;${ev.rivalScore}` : ""}</span>`
+    : `<span class="hero-count countdown" data-target="${ev.date.getTime()}" data-long>Calculando...</span>`;
+  return `<a class="hero" href="#${team.key}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
+    <span class="hero-label">${ev.live ? "En vivo ahora" : ev.isRace ? "Próxima carrera" : "Próximo partido"}</span>
+    <span class="hero-match">
+      <img class="hero-logo" src="${team.logo}" alt="" />
+      ${rival}
+    </span>
+    <span class="hero-title">${team.name}${ev.isRace ? "" : ` ${ev.isTeamHome ? "vs" : "@"} ${ev.rivalName}`}</span>
+    <span class="hero-when">${ev.competitionName ? `${COMPETITION_SHORT[ev.competitionName] || ev.competitionName} &middot; ` : ""}${when}</span>
+    ${countdown}
+  </a>`;
+}
+
 function dayKey(d) {
   return d.toLocaleDateString("en-CA", { timeZone: MAZATLAN_TZ });
 }
@@ -643,11 +688,11 @@ function renderAgenda(teamData) {
     groups.get(item.ev.live ? today : dayKey(item.ev.date)).push(item);
   }
 
-  const days = week.map((date) => {
+  const days = week.map((date, i) => {
     const list = groups.get(dayKey(date));
     const weekday = date.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short", timeZone: MAZATLAN_TZ });
     if (!list.length) {
-      return `<div class="agenda-day empty"><h3>${weekday}</h3><p class="agenda-empty">Sin partidos</p></div>`;
+      return `<div class="agenda-day empty${i === 0 ? " today" : ""}"><h3>${weekday}</h3><p class="agenda-empty">Sin partidos</p></div>`;
     }
     const rows = list.map(({ team, ev }) => {
       const time = ev.live ? `<span class="live-badge">EN VIVO</span>` : fmtMatchTime(ev);
@@ -670,7 +715,7 @@ function renderAgenda(teamData) {
         </span>
       </a>`;
     }).join("");
-    return `<div class="agenda-day"><h3>${weekday}</h3>${rows}</div>`;
+    return `<div class="agenda-day${i === 0 ? " today" : ""}"><h3>${weekday}</h3>${rows}</div>`;
   }).join("");
 
   const sports = [...new Set(items.map(({ team }) => teamSport(team)))];
@@ -708,7 +753,7 @@ function renderTeamCard(data) {
       ? `<span class="countdown" data-target="${(nextMatch?.date || nextSeason.target).getTime()}">Calculando...</span>`
       : `<span class="countdown no-match">Sin Anunciar</span>`;
   return `
-  <section class="card" id="${team.key}" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
+  <section class="card${seasonStatus === "not-started" ? " off" : ""}" id="${team.key}" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
     ${seasonStatus === "not-started" ? `<span class="offseason">Fuera de temporada</span>` : ""}
     <div class="card-header">
       <img class="logo" src="${team.logo}" alt="${team.name}" />
@@ -1027,6 +1072,16 @@ async function main() {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>STRICKEOUT | @RicardoHdzm</title>
+<meta name="description" content="Resultados, calendario y posiciones de Real Madrid, Santos, México, Raiders, Cubs, Bulls, Kings, McLaren y Sinner." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="STRICKEOUT · Sports Dashboard" />
+<meta property="og:description" content="Resultados, calendario y posiciones de mis equipos, actualizados cada 30 minutos." />
+<meta property="og:url" content="https://ricardohdzm.github.io/stricke-out/" />
+<meta property="og:image" content="https://ricardohdzm.github.io/stricke-out/assets/social/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="theme-color" content="#050505" />
 <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="assets/favicon/apple-touch-icon.png" type="image/png" />
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
@@ -1349,6 +1404,41 @@ async function main() {
   .share-btn:disabled { opacity: .6; cursor: progress; }
   .card-share { display: flex; margin: .8rem auto 0; }
   .mm-share { display: flex; margin: 1.3rem auto 0; }
+  .rival-logo { width: 18px; height: 18px; object-fit: contain; vertical-align: -4px; margin-right: .35rem; }
+  .result-score .won { color: #fff; font-weight: 800; }
+  .result-score .lost { color: var(--muted); font-weight: 600; }
+  .agenda-day.today { background: rgba(255,255,255,0.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25); }
+  .agenda .agenda-day.today h3 { color: #fff; }
+  @media (max-width: 600px) {
+    .agenda-day.today { margin: 0 -.5rem; padding: .1rem .5rem .3rem; border-radius: 8px; }
+  }
+  .card.off { opacity: .55; filter: grayscale(.7); transition: opacity .2s, filter .2s; }
+  .card.off:hover, .card.off.expanded { opacity: 1; filter: none; }
+  .mm-ball { display: flex; align-items: flex-start; padding-top: .15rem; color: var(--muted); }
+  .hero {
+    display: flex; flex-direction: column; align-items: center; gap: .45rem; text-align: center;
+    max-width: 1500px; margin: 0 auto 1.25rem; padding: 1.2rem 1rem 1.3rem; color: var(--text); text-decoration: none;
+    border: 1px solid var(--card-border); border-top: 5px solid var(--team-color); border-radius: 12px;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--team-color) 26%, transparent), rgba(0,0,0,0.5) 70%);
+  }
+  .hero:hover { border-color: rgba(255,255,255,0.25); border-top-color: var(--team-color); }
+  .hero-label { font-family: "Barlow Condensed", "Barlow", sans-serif; font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .hero-match { display: flex; align-items: center; gap: 1.2rem; }
+  .hero-logo { width: 72px; height: 72px; object-fit: contain; }
+  .hero-vs { font-family: "Teko", sans-serif; font-size: 1.6rem; font-weight: 600; color: var(--muted); }
+  .hero-title { font-family: "Teko", sans-serif; font-size: 2rem; font-weight: 600; line-height: 1; }
+  .hero-when { font-size: .85rem; color: var(--muted); }
+  .hero-count {
+    margin-top: .3rem; font-family: "Barlow Condensed", "Barlow", sans-serif; font-size: 1rem; font-weight: 800; letter-spacing: .04em;
+    color: var(--team-badge-text); background: var(--team-color); border-radius: 999px; padding: .35rem 1.1rem;
+  }
+  .hero-count.live { color: #fff; background: var(--loss); animation: live-blink 1.6s infinite; }
+  @keyframes card-reveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 600px) {
+    .card.expanded > :not(.card-header) { animation: card-reveal .25s ease; }
+    .hero-logo { width: 60px; height: 60px; }
+    .hero-title { font-size: 1.7rem; }
+  }
   .card-toggle { display: none; }
   /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
@@ -1384,6 +1474,7 @@ async function main() {
     </span>
   </h1>
   <p class="updated">Actualizado: <span ${tsAttrs(now, "datetime")}>${updatedAt}</span> &middot; Horarios en tu hora local</p>
+  ${renderHero(teamData)}
   ${renderAgenda(teamData)}
   <div class="sort-bar">
     <span class="sort-label">Ordenar:</span>
@@ -1437,7 +1528,7 @@ async function main() {
           return r.hasAttribute("data-live") ? i === 0 : key(new Date(Number(r.dataset.ts))) === key(date);
         });
         var box = document.createElement("div");
-        box.className = "agenda-day" + (dayRows.length ? "" : " empty");
+        box.className = "agenda-day" + (dayRows.length ? "" : " empty") + (i === 0 ? " today" : "");
         var title = document.createElement("h3");
         title.textContent = date.toLocaleDateString("es-MX", opts.weekday);
         box.appendChild(title);
@@ -1737,7 +1828,13 @@ async function main() {
             if (a) text(g, a.who + "  " + a.clock, W / 2 - 50, 510 + k * 42, "500 30px Barlow", C.text, "right", 420);
             if (b) text(g, b.who + "  " + b.clock, W / 2 + 50, 510 + k * 42, "500 30px Barlow", C.text, "left", 420);
           }
-          if (scRows) text(g, "⚽", W / 2, 510, "28px sans-serif", C.muted, "center");
+          if (scRows) {
+            g.strokeStyle = C.muted;
+            g.lineWidth = 3;
+            g.beginPath();
+            g.arc(W / 2, 500, 13, 0, Math.PI * 2);
+            g.stroke();
+          }
           if (d.venue) text(g, d.venue, W / 2, 530 + off, "500 30px Barlow", C.muted, "center", 940);
           if (d.when) text(g, d.when, W / 2, 575 + off, "500 30px Barlow", C.muted, "center", 940);
           var y = 680 + off;
@@ -1876,7 +1973,7 @@ async function main() {
               return "<p>" + esc(g.who) + " <b>" + esc(g.clock) + "</b>" + (g.assist ? "<small>Asist. " + esc(g.assist) + "</small>" : "") + "</p>";
             }).join("") + "</div>";
           };
-          html += '<div class="mm-scorers">' + scorerCol(scorers.me, "mm-sc-me") + '<span class="mm-ball" aria-hidden="true">⚽</span>' + scorerCol(scorers.rival, "mm-sc-rival") + "</div>";
+          html += '<div class="mm-scorers">' + scorerCol(scorers.me, "mm-sc-me") + '<span class="mm-ball"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5l3.6 2.6-1.4 4.2H9.8l-1.4-4.2z" fill="currentColor"/><path d="M12 7.5V2.6M15.6 10.1l4.6-1.5M14.2 14.3l2.9 3.9M9.8 14.3l-2.9 3.9M8.4 10.1L3.8 8.6"/></svg></span>' + scorerCol(scorers.rival, "mm-sc-rival") + "</div>";
         }
         var venue = j.gameInfo && j.gameInfo.venue && j.gameInfo.venue.fullName;
         if (venue) html += '<p class="mm-venue">' + esc(venue) + "</p>";
@@ -2095,6 +2192,11 @@ async function main() {
           }
           var days = Math.floor(diff / 86400000);
           var hours = Math.floor((diff % 86400000) / 3600000);
+          if (el.hasAttribute("data-long")) {
+            var mins = Math.floor((diff % 3600000) / 60000);
+            el.textContent = days > 0 ? "Faltan " + days + "d " + hours + "h " + mins + "m" : "Faltan " + hours + "h " + mins + "m";
+            return;
+          }
           el.textContent = "Faltan " + days + "d " + hours + "h";
         });
       }
@@ -2150,6 +2252,7 @@ async function main() {
   await fs.writeFile(`${outDir}/index.html`, html, "utf8");
   await fs.cp("assets/teams", `${outDir}/assets/teams`, { recursive: true });
   await fs.cp("assets/favicon", `${outDir}/assets/favicon`, { recursive: true });
+  await fs.cp("assets/social", `${outDir}/assets/social`, { recursive: true });
   console.log(`${outDir}/index.html y assets generados.`);
 }
 
