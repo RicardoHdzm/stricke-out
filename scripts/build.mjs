@@ -29,7 +29,7 @@ const TEAMS = [
     name: "Santos Laguna",
     teamId: "225",
     sportsDbId: "134192",
-    logo: "assets/teams/santos.png",
+    logo: "assets/teams/santos.webp",
     color: "#0f9d58",
     badgeTextColor: "#ffffff",
     competitions: [{ path: "soccer/mex.1", name: "Liga MX" }],
@@ -51,7 +51,8 @@ const TEAMS = [
       { path: "soccer/fifa.world", name: "Mundial" },
       { path: "soccer/concacaf.gold", name: "Copa Oro" },
     ],
-    rivals: [{ match: "united states", label: "Clásico de Concacaf" }],
+    national: true,
+    rivals: [{ match: "estados unidos", label: "Clásico de Concacaf" }],
   },
   {
     key: "raiders",
@@ -75,7 +76,7 @@ const TEAMS = [
     key: "bulls",
     name: "Chicago Bulls",
     teamId: "4",
-    logo: "assets/teams/bulls.png",
+    logo: "assets/teams/bulls.webp",
     color: "#ce1141",
     badgeTextColor: "#ffffff",
     competitions: [{ path: "basketball/nba", name: "NBA" }],
@@ -84,7 +85,7 @@ const TEAMS = [
     key: "kings",
     name: "Los Angeles Kings",
     teamId: "8",
-    logo: "assets/teams/la.png",
+    logo: "assets/teams/la.webp",
     color: "#8b5cf6",
     badgeTextColor: "#ffffff",
     competitions: [{ path: "hockey/nhl", name: "NHL" }],
@@ -94,7 +95,7 @@ const TEAMS = [
 const MCLAREN = {
   key: "mclaren",
   name: "McLaren",
-  logo: "assets/teams/mclaren.png",
+  logo: "assets/teams/mclaren.webp",
   color: "#ff8700",
   badgeTextColor: "#111111",
   badgeLabel: "F1",
@@ -108,7 +109,7 @@ const MCLAREN = {
 const SINNER = {
   key: "sinner",
   name: "Jannik Sinner",
-  logo: "assets/teams/sinner.png",
+  logo: "assets/teams/sinner.webp",
   color: "#1d4ed8",
   badgeTextColor: "#ffffff",
   badgeLabel: "ATP",
@@ -151,8 +152,9 @@ async function getSchedule(team) {
   results.forEach((result, i) => {
     if (result.status !== "fulfilled") return;
     const competitionName = requests[i].comp.name;
+    const competitionPath = requests[i].comp.path;
     for (const event of result.value.events || []) {
-      eventsById.set(event.id, { event, competitionName });
+      eventsById.set(event.id, { event, competitionName, competitionPath });
     }
   });
   return [...eventsById.values()];
@@ -165,7 +167,25 @@ function findRivalry(team, rivalName) {
   return rivalry ? rivalry.label : null;
 }
 
-function parseEvent({ event, competitionName }, team) {
+// ESPN da los nombres de las selecciones en ingles.
+const COUNTRY_ES = {
+  "United States": "Estados Unidos", England: "Inglaterra", Peru: "Perú", Spain: "España", Brazil: "Brasil",
+  Germany: "Alemania", France: "Francia", Italy: "Italia", Netherlands: "Países Bajos", Belgium: "Bélgica",
+  Switzerland: "Suiza", Croatia: "Croacia", Poland: "Polonia", Wales: "Gales", Scotland: "Escocia", Turkey: "Turquía",
+  Türkiye: "Turquía", Denmark: "Dinamarca", Sweden: "Suecia", Norway: "Noruega", Austria: "Austria", Ukraine: "Ucrania",
+  "Czechia": "Chequia", "Czech Republic": "República Checa", Serbia: "Serbia", Greece: "Grecia", Ireland: "Irlanda",
+  "Republic of Ireland": "Irlanda", "Northern Ireland": "Irlanda del Norte", Hungary: "Hungría", Romania: "Rumania",
+  Canada: "Canadá", Panama: "Panamá", Haiti: "Haití", "Trinidad and Tobago": "Trinidad y Tobago", Suriname: "Surinam",
+  "Dominican Republic": "República Dominicana", Curacao: "Curazao", "Curaçao": "Curazao", Martinique: "Martinica",
+  Guadeloupe: "Guadalupe", "Saint Kitts and Nevis": "San Cristóbal y Nieves", "Saint Lucia": "Santa Lucía",
+  Belize: "Belice", "French Guiana": "Guayana Francesa", "South Korea": "Corea del Sur", "Korea Republic": "Corea del Sur",
+  Japan: "Japón", "South Africa": "Sudáfrica", Morocco: "Marruecos", Egypt: "Egipto", Cameroon: "Camerún",
+  "Ivory Coast": "Costa de Marfil", "Cote d'Ivoire": "Costa de Marfil", Tunisia: "Túnez", Algeria: "Argelia",
+  "Saudi Arabia": "Arabia Saudita", Iran: "Irán", Iraq: "Irak", Jordan: "Jordania", "New Zealand": "Nueva Zelanda",
+  Uzbekistan: "Uzbekistán", "United Arab Emirates": "Emiratos Árabes Unidos", "Cape Verde": "Cabo Verde",
+};
+
+function parseEvent({ event, competitionName, competitionPath }, team) {
   const comp = event.competitions[0];
   const competitors = comp.competitors;
   const self = competitors.find((c) => String(c.team.id) === String(team.teamId));
@@ -179,7 +199,8 @@ function parseEvent({ event, competitionName }, team) {
     else result = "draw";
   }
 
-  const rivalName = rival?.team?.displayName || "?";
+  const rawRival = rival?.team?.displayName || "?";
+  const rivalName = team.national ? COUNTRY_ES[rawRival] || rawRival : rawRival;
 
   return {
     date: new Date(event.date),
@@ -190,6 +211,8 @@ function parseEvent({ event, competitionName }, team) {
     isTeamHome: self?.homeAway === "home",
     rivalName,
     link: espnLink(event),
+    eventId: event.id,
+    leaguePath: competitionPath,
     // Nombres cortos ("Kings", "Capitals") para la agenda semanal.
     teamShort: self?.team?.shortDisplayName,
     rivalShort: rival?.team?.shortDisplayName,
@@ -579,6 +602,12 @@ async function gatherTeamData(team, order) {
 }
 
 // "Esta semana": hoy y los 6 dias siguientes (hora de Mazatlan), con los partidos de todos los equipos.
+const SPORT_LABEL = { soccer: "Fútbol", football: "NFL", baseball: "MLB", basketball: "NBA", hockey: "NHL", racing: "F1", tennis: "Tenis" };
+
+function teamSport(team) {
+  return team.sport || team.competitions?.[0]?.path.split("/")[0] || "";
+}
+
 function dayKey(d) {
   return d.toLocaleDateString("en-CA", { timeZone: MAZATLAN_TZ });
 }
@@ -612,19 +641,40 @@ function renderAgenda(teamData) {
       const teamLabel = useShort && ev.teamShort ? ev.teamShort : team.name;
       const rivalLabel = useShort && ev.rivalShort ? ev.rivalShort : ev.rivalName;
       const matchup = `<strong class="agenda-team">${teamLabel}</strong> <span class="agenda-rival">${sede}${rivalLabel}</span>`;
-      return `<a class="agenda-row" href="#${team.key}" style="--team-color: ${team.color}" data-ts="${ev.date.getTime()}"${ev.live ? " data-live" : ""}>
+      const liveData = ev.eventId && ev.leaguePath
+        ? ` data-event="${ev.eventId}" data-league="${ev.leaguePath}" data-team="${team.teamId}"`
+        : "";
+      const rivalryTag = ev.rivalryLabel ? `<span class="rivalry-tag">★ ${ev.rivalryLabel}</span>` : "";
+      return `<a class="agenda-row${ev.rivalryLabel ? " rivalry" : ""}" href="#${team.key}" style="--team-color: ${team.color}" data-ts="${ev.date.getTime()}" data-sport="${teamSport(team)}"${liveData}${ev.live ? " data-live" : ""}>
         <img class="agenda-logo" src="${team.logo}" alt="" />
         <span class="agenda-match">${matchup}</span>
         <span class="agenda-meta">
           <span class="agenda-time${ev.timeValid === false ? " tbd" : ""}" ${ev.live || ev.timeValid === false ? "" : tsAttrs(ev.date, "time")}>${time}</span>
-          ${compTagHtml(ev, true)}
+          ${compTagHtml(ev, true)}${rivalryTag}
         </span>
       </a>`;
     }).join("");
     return `<div class="agenda-day"><h3>${weekday}</h3>${rows}</div>`;
   }).join("");
 
-  return `<section class="agenda"><h2>Esta semana</h2><div class="agenda-days">${days}</div></section>`;
+  const sports = [...new Set(items.map(({ team }) => teamSport(team)))];
+  const filter = sports.length > 1
+    ? `<div class="agenda-filter" role="group" aria-label="Filtrar por deporte">
+        <button class="filter-btn active" type="button" data-sport="all">Todos</button>
+        ${sports.map((sp) => `<button class="filter-btn" type="button" data-sport="${sp}">${SPORT_LABEL[sp] || sp}</button>`).join("")}
+      </div>`
+    : "";
+  return `<section class="agenda"><div class="agenda-head"><h2>Esta semana</h2>${filter}</div><div class="agenda-days">${days}</div></section>`;
+}
+
+function renderLastResult(ev, team) {
+  if (!ev || !ev.result) return "";
+  const score = ev.rivalScore !== "" ? `${ev.teamScore}&ndash;${ev.rivalScore}` : ev.teamScore;
+  const head = [ev.formLabel ? "" : RESULT_LABEL[ev.result], score].filter(Boolean).join(" ");
+  const sede = ev.isRace ? "" : ev.isTeamHome ? "vs " : "@ ";
+  // Igual que en la agenda: nombres cortos fuera del futbol ("@ 49ers").
+  const short = team.competitions && !team.competitions[0].path.startsWith("soccer/") && ev.rivalShort;
+  return `<span class="last-result">Último: <strong class="${ev.result}">${head}</strong> ${sede}${short || ev.rivalName}</span>`;
 }
 
 // Racha: ultimos resultados del mas antiguo (izquierda) al mas reciente (derecha).
@@ -649,6 +699,7 @@ function renderTeamCard(data) {
       <h2>${team.name}</h2>
       <span class="league">${team.badgeLabel || team.competitions.map((c) => c.name).join(" · ")}</span>
       ${renderForm(form)}
+      ${renderLastResult(form?.[0], team)}
       ${standingsHtml}
     </div>
     ${envivo}
@@ -1047,7 +1098,7 @@ async function main() {
     margin: -1.1rem -1.1rem .25rem; padding: 1.1rem; border-radius: 7px 7px 0 0;
     background: linear-gradient(to bottom, color-mix(in srgb, var(--team-color) 22%, transparent), transparent);
   }
-  .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 3; margin: 0; }
+  .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 4; margin: 0; }
   .card-header h2 {
     margin: 0; font-family: "Anton", "Arial Black", sans-serif; font-weight: 400; font-size: 1.45rem;
     letter-spacing: .02em; line-height: 1.15; transform: skewX(-8deg); transform-origin: left bottom;
@@ -1061,8 +1112,9 @@ async function main() {
   .muted { color: var(--muted); font-size: .9rem; margin: 0; }
 
   .standing-row { display: flex; align-items: center; gap: .75rem; }
+  .card-header h2, .card-header .league, .card-header .form { grid-column: 2; }
   .card-header .standing-row {
-    grid-column: 3; grid-row: 1 / span 3; justify-self: end;
+    grid-column: 3; grid-row: 1 / span 4; justify-self: end;
     flex-direction: column; gap: .3rem; text-align: center;
   }
   .card-header .rank-badge { width: 3rem; height: 3rem; font-size: 1.1rem; }
@@ -1156,6 +1208,24 @@ async function main() {
     background: rgba(255,255,255,0.04); border-left: 4px solid var(--team-color);
   }
   .agenda-row:hover { background: rgba(255,255,255,0.08); }
+  .agenda-row.rivalry { background: rgba(234,179,8,0.12); }
+  .agenda-row .rivalry-tag { margin-left: .35rem; }
+  .agenda-row .live-badge { margin-right: .25rem; }
+  .agenda-time.is-live { color: var(--text); font-weight: 700; }
+  .agenda-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+  .agenda-head h2 { margin: 0; }
+  .agenda-filter { display: flex; flex-wrap: wrap; gap: .3rem; }
+  .filter-btn {
+    font-family: inherit; font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+    border-radius: 999px; padding: .2rem .65rem; cursor: pointer;
+  }
+  .filter-btn.active { color: #0a0a0b; background: #ffffff; border-color: #ffffff; }
+  .last-result {
+    grid-column: 2; margin-top: .35rem; min-width: 0; max-width: 100%;
+    font-size: .72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .last-result strong.win { color: var(--win); } .last-result strong.loss { color: var(--loss); } .last-result strong.draw { color: var(--draw); }
   .agenda-meta { display: contents; }
   .agenda-time { order: -1; flex: none; width: 4.6rem; color: var(--muted); font-size: .78rem; }
   .agenda-time.tbd { font-style: italic; }
@@ -1282,6 +1352,84 @@ async function main() {
         }
         days.appendChild(box);
       }
+    })();
+  </script>
+  <script>
+    (function () {
+      // Filtro por deporte en "Esta semana" (se recuerda en este navegador).
+      var buttons = document.querySelectorAll(".filter-btn");
+      if (!buttons.length) return;
+      function apply(sport) {
+        buttons.forEach(function (b) { b.classList.toggle("active", b.dataset.sport === sport); });
+        document.querySelectorAll(".agenda-day").forEach(function (day) {
+          var visible = 0;
+          day.querySelectorAll(".agenda-row").forEach(function (row) {
+            var show = sport === "all" || row.dataset.sport === sport;
+            row.style.display = show ? "" : "none";
+            if (show) visible++;
+          });
+          var empty = day.querySelector(".agenda-empty");
+          if (!visible && !empty) {
+            empty = document.createElement("p");
+            empty.className = "agenda-empty";
+            empty.textContent = "Sin partidos";
+            day.appendChild(empty);
+          }
+          if (empty) empty.style.display = visible ? "none" : "";
+          day.classList.toggle("empty", !visible);
+        });
+        try { localStorage.setItem("agendaSport", sport); } catch (e) {}
+      }
+      buttons.forEach(function (b) { b.addEventListener("click", function () { apply(b.dataset.sport); }); });
+      var saved = null;
+      try { saved = localStorage.getItem("agendaSport"); } catch (e) {}
+      if (saved && document.querySelector('.filter-btn[data-sport="' + saved + '"]')) apply(saved);
+    })();
+  </script>
+  <script>
+    (function () {
+      // Marcadores en vivo: consulta ESPN cada minuto para los partidos de "Esta semana" que ya empezaron.
+      var BASE = "https://site.api.espn.com/apis/site/v2/sports/";
+      function update(row) {
+        fetch(BASE + row.dataset.league + "/summary?event=" + row.dataset.event)
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            var comp = j.header && j.header.competitions && j.header.competitions[0];
+            if (!comp) return;
+            var state = comp.status.type.state;
+            if (state === "pre") return;
+            var me = comp.competitors.find(function (c) { return c.id === row.dataset.team; });
+            var rival = comp.competitors.find(function (c) { return c.id !== row.dataset.team; });
+            if (!me || !rival) return;
+            var score = (me.score || "0") + "–" + (rival.score || "0");
+            var cell = row.querySelector(".agenda-time");
+            cell.removeAttribute("data-fmt");
+            cell.classList.add("is-live");
+            if (state === "in") {
+              cell.innerHTML = '<span class="live-badge">EN VIVO</span>' + score + " · " + comp.status.type.shortDetail;
+            } else {
+              row.dataset.final = "1";
+              cell.textContent = "Final " + score;
+            }
+          })
+          .catch(function () {});
+      }
+      function poll() {
+        if (document.visibilityState === "hidden") return;
+        var now = Date.now();
+        document.querySelectorAll(".agenda-row[data-event]").forEach(function (row) {
+          var start = Number(row.dataset.ts);
+          if (row.dataset.final || start > now + 5 * 60000 || start < now - 6 * 3600000) return;
+          update(row);
+        });
+      }
+      poll();
+      setInterval(poll, 60000);
+      // La pagina se regenera cada 30 minutos; si sigue abierta, se recarga para traer lo nuevo.
+      var loadedAt = Date.now();
+      setInterval(function () {
+        if (document.visibilityState === "visible" && Date.now() - loadedAt > 30 * 60000) location.reload();
+      }, 60000);
     })();
   </script>
   <script>
