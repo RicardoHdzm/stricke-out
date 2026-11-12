@@ -1076,7 +1076,7 @@ async function main() {
   }
   h1 { text-align: center; margin: 3rem 0 .4rem; line-height: 1; }
   .brand {
-    display: inline-block; font-family: "Teko", "Arial Narrow", sans-serif; font-weight: 700; line-height: .9; transform: skewX(-8deg);
+    display: inline-block; font-family: "Teko", "Arial Narrow", sans-serif; font-weight: 700; line-height: .9;
     font-size: clamp(3.4rem, 14vw, 6.2rem);
   }
   .brand-main { display: block; letter-spacing: .05em; margin-bottom: .18em; color: #ffffff; }
