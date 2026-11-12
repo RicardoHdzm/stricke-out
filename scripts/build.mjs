@@ -39,9 +39,7 @@ const TEAMS = [
     name: "México",
     teamId: "203",
     logo: "assets/teams/mex.webp",
-    color: "#006847",
-    // Borde superior de la tarjeta en rojo (el resto usa el verde de la seleccion).
-    borderColor: "#ce1126",
+    color: "#ce1126",
     badgeTextColor: "#ffffff",
     badgeLabel: "SELECCIÓN",
     // Las selecciones no tienen tabla de posiciones ni "temporada".
@@ -710,7 +708,7 @@ function renderTeamCard(data) {
       ? `<span class="countdown" data-target="${(nextMatch?.date || nextSeason.target).getTime()}">Calculando...</span>`
       : `<span class="countdown no-match">Sin Anunciar</span>`;
   return `
-  <section class="card" id="${team.key}" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}${team.borderColor ? `; --team-border: ${team.borderColor}` : ""}">
+  <section class="card" id="${team.key}" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
     ${seasonStatus === "not-started" ? `<span class="offseason">Fuera de temporada</span>` : ""}
     <div class="card-header">
       <img class="logo" src="${team.logo}" alt="${team.name}" />
@@ -1102,7 +1100,7 @@ async function main() {
     position: relative;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-top: 5px solid var(--team-border, var(--team-color));
+    border-top: 5px solid var(--team-color);
     border-radius: 12px;
     padding: 1.1rem;
   }
