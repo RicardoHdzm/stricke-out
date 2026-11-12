@@ -92,7 +92,7 @@
     margin: -1.1rem -1.1rem .25rem; padding: 1.1rem; border-radius: 7px 7px 0 0;
     background: linear-gradient(to bottom, color-mix(in srgb, var(--team-color) 22%, transparent), transparent);
   }
-  .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 3; margin: 0; }
+  .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 4; margin: 0; }
   .card-header h2 {
     margin: 0; font-family: "Anton", "Arial Black", sans-serif; font-weight: 400; font-size: 1.45rem;
     letter-spacing: .02em; line-height: 1.15; transform: skewX(-8deg); transform-origin: left bottom;
@@ -106,8 +106,9 @@
   .muted { color: var(--muted); font-size: .9rem; margin: 0; }
 
   .standing-row { display: flex; align-items: center; gap: .75rem; }
+  .card-header h2, .card-header .league, .card-header .form { grid-column: 2; }
   .card-header .standing-row {
-    grid-column: 3; grid-row: 1 / span 3; justify-self: end;
+    grid-column: 3; grid-row: 1 / span 4; justify-self: end;
     flex-direction: column; gap: .3rem; text-align: center;
   }
   .card-header .rank-badge { width: 3rem; height: 3rem; font-size: 1.1rem; }
@@ -201,6 +202,24 @@
     background: rgba(255,255,255,0.04); border-left: 4px solid var(--team-color);
   }
   .agenda-row:hover { background: rgba(255,255,255,0.08); }
+  .agenda-row.rivalry { background: rgba(234,179,8,0.12); }
+  .agenda-row .rivalry-tag { margin-left: .35rem; }
+  .agenda-row .live-badge { margin-right: .25rem; }
+  .agenda-time.is-live { color: var(--text); font-weight: 700; }
+  .agenda-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+  .agenda-head h2 { margin: 0; }
+  .agenda-filter { display: flex; flex-wrap: wrap; gap: .3rem; }
+  .filter-btn {
+    font-family: inherit; font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+    border-radius: 999px; padding: .2rem .65rem; cursor: pointer;
+  }
+  .filter-btn.active { color: #0a0a0b; background: #ffffff; border-color: #ffffff; }
+  .last-result {
+    grid-column: 2; margin-top: .35rem; min-width: 0; max-width: 100%;
+    font-size: .72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .last-result strong.win { color: var(--win); } .last-result strong.loss { color: var(--loss); } .last-result strong.draw { color: var(--draw); }
   .agenda-meta { display: contents; }
   .agenda-time { order: -1; flex: none; width: 4.6rem; color: var(--muted); font-size: .78rem; }
   .agenda-time.tbd { font-style: italic; }
@@ -266,64 +285,67 @@
       <span class="brand-sub">@RicardoHdzm</span>
     </span>
   </h1>
-  <p class="updated">Actualizado: <span data-ts="1794456488307" data-fmt="datetime">11 nov 2026, 09:08 p.m.</span> &middot; Horarios en tu hora local</p>
-  <section class="agenda"><h2>Esta semana</h2><div class="agenda-days"><div class="agenda-day empty"><h3>miércoles 11 de nov</h3><p class="agenda-empty">Sin partidos</p></div><div class="agenda-day"><h3>jueves 12 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794538800000">
-        <img class="agenda-logo" src="assets/teams/la.png" alt="" />
+  <p class="updated">Actualizado: <span data-ts="1794457119425" data-fmt="datetime">11 nov 2026, 09:18 p.m.</span> &middot; Horarios en tu hora local</p>
+  <section class="agenda"><div class="agenda-head"><h2>Esta semana</h2><div class="agenda-filter" role="group" aria-label="Filtrar por deporte">
+        <button class="filter-btn active" type="button" data-sport="all">Todos</button>
+        <button class="filter-btn" type="button" data-sport="hockey">NHL</button><button class="filter-btn" type="button" data-sport="basketball">NBA</button><button class="filter-btn" type="button" data-sport="soccer">Fútbol</button><button class="filter-btn" type="button" data-sport="football">NFL</button>
+      </div></div><div class="agenda-days"><div class="agenda-day empty"><h3>miércoles 11 de nov</h3><p class="agenda-empty">Sin partidos</p></div><div class="agenda-day"><h3>jueves 12 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794538800000" data-sport="hockey" data-event="401892705" data-league="hockey/nhl" data-team="8">
+        <img class="agenda-logo" src="assets/teams/la.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival">vs Islanders</span></span>
         <span class="agenda-meta">
           <span class="agenda-time" data-ts="1794538800000" data-fmt="time">8:00 p.m.</span>
           <span class="comp-tag">NHL</span>
         </span>
-      </a></div><div class="agenda-day"><h3>viernes 13 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794618000000">
-        <img class="agenda-logo" src="assets/teams/bulls.png" alt="" />
+      </a></div><div class="agenda-day"><h3>viernes 13 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794618000000" data-sport="basketball" data-event="401909299" data-league="basketball/nba" data-team="4">
+        <img class="agenda-logo" src="assets/teams/bulls.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Bulls</strong> <span class="agenda-rival">vs Hawks</span></span>
         <span class="agenda-meta">
           <span class="agenda-time" data-ts="1794618000000" data-fmt="time">6:00 p.m.</span>
           <span class="comp-tag">NBA</span>
         </span>
-      </a></div><div class="agenda-day"><h3>sábado 14 de nov</h3><a class="agenda-row" href="#mexico" style="--team-color: #006847" data-ts="1794704400000">
+      </a></div><div class="agenda-day"><h3>sábado 14 de nov</h3><a class="agenda-row" href="#mexico" style="--team-color: #006847" data-ts="1794704400000" data-sport="soccer" data-event="401929772" data-league="soccer/concacaf.nations.league" data-team="203">
         <img class="agenda-logo" src="assets/teams/mex.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">México</strong> <span class="agenda-rival"><span class="away-marker">@</span> Jamaica</span></span>
         <span class="agenda-meta">
           <span class="agenda-time" data-ts="1794704400000" data-fmt="time">6:00 p.m.</span>
           <span class="comp-tag">CNL</span>
         </span>
-      </a><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794704400000">
-        <img class="agenda-logo" src="assets/teams/bulls.png" alt="" />
+      </a><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794704400000" data-sport="basketball" data-event="401909984" data-league="basketball/nba" data-team="4">
+        <img class="agenda-logo" src="assets/teams/bulls.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Bulls</strong> <span class="agenda-rival"><span class="away-marker">@</span> Timberwolves</span></span>
         <span class="agenda-meta">
           <span class="agenda-time" data-ts="1794704400000" data-fmt="time">6:00 p.m.</span>
           <span class="comp-tag">NBA</span>
         </span>
-      </a><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794711600000">
-        <img class="agenda-logo" src="assets/teams/la.png" alt="" />
+      </a><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794711600000" data-sport="hockey" data-event="401892720" data-league="hockey/nhl" data-team="8">
+        <img class="agenda-logo" src="assets/teams/la.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival">vs Flames</span></span>
         <span class="agenda-meta">
           <span class="agenda-time" data-ts="1794711600000" data-fmt="time">8:00 p.m.</span>
           <span class="comp-tag">NHL</span>
         </span>
-      </a></div><div class="agenda-day"><h3>domingo 15 de nov</h3><a class="agenda-row" href="#raiders" style="--team-color: #a5acaf" data-ts="1794776700000">
+      </a></div><div class="agenda-day"><h3>domingo 15 de nov</h3><a class="agenda-row" href="#raiders" style="--team-color: #a5acaf" data-ts="1794776700000" data-sport="football" data-event="401873062" data-league="football/nfl" data-team="13">
         <img class="agenda-logo" src="assets/teams/raiders.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Raiders</strong> <span class="agenda-rival">vs Seahawks</span></span>
         <span class="agenda-meta">
           <span class="agenda-time" data-ts="1794776700000" data-fmt="time">2:05 p.m.</span>
           <span class="comp-tag">NFL</span>
         </span>
-      </a></div><div class="agenda-day"><h3>lunes 16 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794873600000">
-        <img class="agenda-logo" src="assets/teams/bulls.png" alt="" />
+      </a></div><div class="agenda-day"><h3>lunes 16 de nov</h3><a class="agenda-row" href="#bulls" style="--team-color: #ce1141" data-ts="1794873600000" data-sport="basketball" data-event="401909995" data-league="basketball/nba" data-team="4">
+        <img class="agenda-logo" src="assets/teams/bulls.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Bulls</strong> <span class="agenda-rival"><span class="away-marker">@</span> Cavaliers</span></span>
         <span class="agenda-meta">
           <span class="agenda-time" data-ts="1794873600000" data-fmt="time">5:00 p.m.</span>
           <span class="comp-tag">NBA</span>
         </span>
-      </a></div><div class="agenda-day"><h3>martes 17 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794960000000">
-        <img class="agenda-logo" src="assets/teams/la.png" alt="" />
+      </a></div><div class="agenda-day"><h3>martes 17 de nov</h3><a class="agenda-row" href="#kings" style="--team-color: #8b5cf6" data-ts="1794960000000" data-sport="hockey" data-event="401892728" data-league="hockey/nhl" data-team="8">
+        <img class="agenda-logo" src="assets/teams/la.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">Kings</strong> <span class="agenda-rival"><span class="away-marker">@</span> Bruins</span></span>
         <span class="agenda-meta">
           <span class="agenda-time" data-ts="1794960000000" data-fmt="time">5:00 p.m.</span>
           <span class="comp-tag">NHL</span>
         </span>
-      </a><a class="agenda-row" href="#mexico" style="--team-color: #006847" data-ts="1794969000000">
+      </a><a class="agenda-row" href="#mexico" style="--team-color: #006847" data-ts="1794969000000" data-sport="soccer" data-event="401929763" data-league="soccer/concacaf.nations.league" data-team="203">
         <img class="agenda-logo" src="assets/teams/mex.webp" alt="" />
         <span class="agenda-match"><strong class="agenda-team">México</strong> <span class="agenda-rival">vs Jamaica</span></span>
         <span class="agenda-meta">
@@ -345,6 +367,7 @@
       <h2>Real Madrid</h2>
       <span class="league">LALIGA</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
+      <span class="last-result">Último: <strong class="win">V 3&ndash;0</strong> @ Valencia</span>
       <div class="standing-row">
           <span class="rank-badge">2º</span>
           <span class="standing-detail" title="de 20 en LaLiga">de 20 &middot; LaLiga</span>
@@ -425,10 +448,11 @@
   <section class="card" id="santos-laguna" data-order="1" data-updated="1794020400000" style="--team-color: #0f9d58; --team-badge-text: #ffffff">
     
     <div class="card-header">
-      <img class="logo" src="assets/teams/santos.png" alt="Santos Laguna" />
+      <img class="logo" src="assets/teams/santos.webp" alt="Santos Laguna" />
       <h2>Santos Laguna</h2>
       <span class="league">Liga MX</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
+      <span class="last-result">Último: <strong class="win">V 2&ndash;0</strong> @ Atlante</span>
       <div class="standing-row">
           <span class="rank-badge">6º</span>
           <span class="standing-detail" title="de 18 en Torneo Apertura (Liga MX)">de 18 &middot; Liga MX</span>
@@ -485,6 +509,7 @@
       <h2>México</h2>
       <span class="league">SELECCIÓN</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot loss">D</span><span class="form-dot draw">E</span><span class="form-dot draw">E</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
+      <span class="last-result">Último: <strong class="loss">D 0&ndash;2</strong> vs Chile</span>
       
     </div>
     
@@ -499,12 +524,12 @@
   </a><a class="result-row loss rivalry" href="https://www.espn.com/soccer/match/_/gameId/401905202/mexico-united-states" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1791079200000" data-fmt="date">03 oct</span>
-    <span class="result-matchup"><span class="away-marker">@</span> United States <span class="rivalry-tag">★ Clásico de Concacaf</span><span class="comp-tag">Amistoso</span></span>
+    <span class="result-matchup"><span class="away-marker">@</span> Estados Unidos <span class="rivalry-tag">★ Clásico de Concacaf</span><span class="comp-tag">Amistoso</span></span>
     <span class="result-score">0&ndash;3</span>
   </a><a class="result-row draw" href="https://www.espn.com/soccer/match/_/gameId/401903234/peru-mexico" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">E</span>
     <span class="result-date" data-ts="1790730000000" data-fmt="date">29 sep</span>
-    <span class="result-matchup">vs Peru <span class="comp-tag">Amistoso</span></span>
+    <span class="result-matchup">vs Perú <span class="comp-tag">Amistoso</span></span>
     <span class="result-score">1&ndash;1</span>
   </a><a class="result-row draw" href="https://www.espn.com/soccer/match/_/gameId/401903308/colombia-mexico" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">E</span>
@@ -514,7 +539,7 @@
   </a><a class="result-row loss" href="https://www.espn.com/soccer/match/_/gameId/760505/england-mexico" target="_blank" rel="noopener" title="Ver el partido en ESPN">
     <span class="result-badge">D</span>
     <span class="result-date" data-ts="1783299600000" data-fmt="date">05 jul</span>
-    <span class="result-matchup">vs England <span class="comp-tag">Mundial</span></span>
+    <span class="result-matchup">vs Inglaterra <span class="comp-tag">Mundial</span></span>
     <span class="result-score">2&ndash;3</span>
   </a>
       <h3>Próximos partidos</h3>
@@ -545,6 +570,7 @@
       <h2>Las Vegas Raiders</h2>
       <span class="league">NFL</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot loss">D</span></div>
+      <span class="last-result">Último: <strong class="loss">D 17&ndash;38</strong> @ 49ers</span>
       <div class="standing-row">
           <span class="rank-badge">9º</span>
           <span class="standing-detail" title="de 16 en American Football Conference (NFL)">de 16 &middot; NFL</span>
@@ -629,6 +655,7 @@
       <h2>Chicago Cubs</h2>
       <span class="league">MLB</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
+      <span class="last-result">Último: <strong class="loss">D 1&ndash;4</strong> @ Padres</span>
       <div class="standing-row">
           <span class="rank-badge">5º</span>
           <span class="standing-detail" title="de 15 en National League (MLB)">de 15 &middot; MLB</span>
@@ -674,10 +701,11 @@
   <section class="card" id="bulls" data-order="5" data-updated="1794445200000" style="--team-color: #ce1141; --team-badge-text: #ffffff">
     
     <div class="card-header">
-      <img class="logo" src="assets/teams/bulls.png" alt="Chicago Bulls" />
+      <img class="logo" src="assets/teams/bulls.webp" alt="Chicago Bulls" />
       <h2>Chicago Bulls</h2>
       <span class="league">NBA</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
+      <span class="last-result">Último: <strong class="loss">D 119&ndash;124</strong> vs Spurs</span>
       <div class="standing-row">
           <span class="rank-badge">14º</span>
           <span class="standing-detail" title="de 15 en Eastern Conference (NBA)">de 15 &middot; NBA</span>
@@ -758,10 +786,11 @@
   <section class="card" id="kings" data-order="6" data-updated="1794366000000" style="--team-color: #8b5cf6; --team-badge-text: #ffffff">
     
     <div class="card-header">
-      <img class="logo" src="assets/teams/la.png" alt="Los Angeles Kings" />
+      <img class="logo" src="assets/teams/la.webp" alt="Los Angeles Kings" />
       <h2>Los Angeles Kings</h2>
       <span class="league">NHL</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot win">V</span><span class="form-dot loss">D</span><span class="form-dot loss">D</span></div>
+      <span class="last-result">Último: <strong class="loss">D 0&ndash;3</strong> vs Predators</span>
       <div class="standing-row">
           <span class="rank-badge">14º</span>
           <span class="standing-detail" title="de 16 en Western Conference (NHL)">de 16 &middot; NHL</span>
@@ -842,10 +871,11 @@
   <section class="card" id="mclaren" data-order="7" data-updated="1794157200000" style="--team-color: #ff8700; --team-badge-text: #111111">
     
     <div class="card-header">
-      <img class="logo" src="assets/teams/mclaren.png" alt="McLaren" />
+      <img class="logo" src="assets/teams/mclaren.webp" alt="McLaren" />
       <h2>McLaren</h2>
       <span class="league">F1</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot draw">6</span><span class="form-dot draw">4</span><span class="form-dot draw">5</span><span class="form-dot draw">5</span><span class="form-dot win">1</span></div>
+      <span class="last-result">Último: <strong class="win">P1 · P6</strong> São Paulo GP</span>
       <div class="standing-row">
             <span class="rank-badge">4º</span>
             <span class="standing-detail" title="de 11 en Constructores (F1)">de 11 &middot; Constructores</span>
@@ -912,10 +942,11 @@
   <section class="card" id="sinner" data-order="8" data-updated="1783868700000" style="--team-color: #1d4ed8; --team-badge-text: #ffffff">
     <span class="offseason">Fuera de temporada</span>
     <div class="card-header">
-      <img class="logo" src="assets/teams/sinner.png" alt="Jannik Sinner" />
+      <img class="logo" src="assets/teams/sinner.webp" alt="Jannik Sinner" />
       <h2>Jannik Sinner</h2>
       <span class="league">ATP</span>
       <div class="form" title="Últimos 5 resultados, del más antiguo al más reciente"><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span><span class="form-dot win">V</span></div>
+      <span class="last-result">Último: <strong class="win">V</strong> vs Alexander Zverev</span>
       <div class="standing-row">
           <span class="rank-badge">2º</span>
           <span class="standing-detail">ATP &middot; 9450 pts</span>
@@ -1009,6 +1040,84 @@
         }
         days.appendChild(box);
       }
+    })();
+  </script>
+  <script>
+    (function () {
+      // Filtro por deporte en "Esta semana" (se recuerda en este navegador).
+      var buttons = document.querySelectorAll(".filter-btn");
+      if (!buttons.length) return;
+      function apply(sport) {
+        buttons.forEach(function (b) { b.classList.toggle("active", b.dataset.sport === sport); });
+        document.querySelectorAll(".agenda-day").forEach(function (day) {
+          var visible = 0;
+          day.querySelectorAll(".agenda-row").forEach(function (row) {
+            var show = sport === "all" || row.dataset.sport === sport;
+            row.style.display = show ? "" : "none";
+            if (show) visible++;
+          });
+          var empty = day.querySelector(".agenda-empty");
+          if (!visible && !empty) {
+            empty = document.createElement("p");
+            empty.className = "agenda-empty";
+            empty.textContent = "Sin partidos";
+            day.appendChild(empty);
+          }
+          if (empty) empty.style.display = visible ? "none" : "";
+          day.classList.toggle("empty", !visible);
+        });
+        try { localStorage.setItem("agendaSport", sport); } catch (e) {}
+      }
+      buttons.forEach(function (b) { b.addEventListener("click", function () { apply(b.dataset.sport); }); });
+      var saved = null;
+      try { saved = localStorage.getItem("agendaSport"); } catch (e) {}
+      if (saved && document.querySelector('.filter-btn[data-sport="' + saved + '"]')) apply(saved);
+    })();
+  </script>
+  <script>
+    (function () {
+      // Marcadores en vivo: consulta ESPN cada minuto para los partidos de "Esta semana" que ya empezaron.
+      var BASE = "https://site.api.espn.com/apis/site/v2/sports/";
+      function update(row) {
+        fetch(BASE + row.dataset.league + "/summary?event=" + row.dataset.event)
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            var comp = j.header && j.header.competitions && j.header.competitions[0];
+            if (!comp) return;
+            var state = comp.status.type.state;
+            if (state === "pre") return;
+            var me = comp.competitors.find(function (c) { return c.id === row.dataset.team; });
+            var rival = comp.competitors.find(function (c) { return c.id !== row.dataset.team; });
+            if (!me || !rival) return;
+            var score = (me.score || "0") + "–" + (rival.score || "0");
+            var cell = row.querySelector(".agenda-time");
+            cell.removeAttribute("data-fmt");
+            cell.classList.add("is-live");
+            if (state === "in") {
+              cell.innerHTML = '<span class="live-badge">EN VIVO</span>' + score + " · " + comp.status.type.shortDetail;
+            } else {
+              row.dataset.final = "1";
+              cell.textContent = "Final " + score;
+            }
+          })
+          .catch(function () {});
+      }
+      function poll() {
+        if (document.visibilityState === "hidden") return;
+        var now = Date.now();
+        document.querySelectorAll(".agenda-row[data-event]").forEach(function (row) {
+          var start = Number(row.dataset.ts);
+          if (row.dataset.final || start > now + 5 * 60000 || start < now - 6 * 3600000) return;
+          update(row);
+        });
+      }
+      poll();
+      setInterval(poll, 60000);
+      // La pagina se regenera cada 30 minutos; si sigue abierta, se recarga para traer lo nuevo.
+      var loadedAt = Date.now();
+      setInterval(function () {
+        if (document.visibilityState === "visible" && Date.now() - loadedAt > 30 * 60000) location.reload();
+      }, 60000);
     })();
   </script>
   <script>
