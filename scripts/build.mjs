@@ -680,7 +680,7 @@ function renderAgenda(teamData) {
         ${sports.map((sp) => `<button class="filter-btn" type="button" data-sport="${sp}">${SPORT_LABEL[sp] || sp}</button>`).join("")}
       </div>`
     : "";
-  return `<section class="agenda"><div class="agenda-head"><h2>Esta semana</h2>${filter}</div><div class="agenda-days">${days}</div></section>`;
+  return `<section class="agenda"><div class="agenda-head"><h2>Esta semana</h2>${filter}<button class="share-btn" type="button" data-share="agenda"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg><span>Compartir</span></button></div><div class="agenda-days">${days}</div></section>`;
 }
 
 function renderLastResult(ev, team) {
@@ -727,6 +727,7 @@ function renderTeamCard(data) {
       ${proximos}
     </div>
     ${countdownHtml}
+    <button class="share-btn card-share" type="button" data-share="team"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg><span>Compartir</span></button>
     <button class="card-toggle" type="button" aria-expanded="false">Ver más</button>
   </section>`;
 }
@@ -1331,6 +1332,16 @@ async function main() {
     .match-modal { padding: 0; }
     .mm-panel { max-width: none; max-height: none; height: 100%; border-radius: 0; }
   }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-family: "Barlow Condensed", "Barlow", sans-serif; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+    border-radius: 999px; padding: .25rem .7rem; cursor: pointer;
+  }
+  .share-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+  .share-btn:disabled { opacity: .6; cursor: progress; }
+  .card-share { display: flex; margin: .8rem auto 0; }
+  .mm-share { display: flex; margin: 1.3rem auto 0; }
   .card-toggle { display: none; }
   /* En movil cada tarjeta muestra solo su encabezado; el resto aparece al tocarla. */
   @media (max-width: 600px) {
@@ -1437,6 +1448,337 @@ async function main() {
   </script>
   <script>
     (function () {
+      // Imagenes para compartir (1080 px de ancho), dibujadas en un canvas con los datos de la pagina.
+      var W = 1080;
+      var C = { bg: "#050505", text: "#f0f0f2", muted: "#8b8d94", win: "#22c55e", loss: "#ef4444", draw: "#eab308", row: "rgba(255,255,255,0.05)" };
+      var NL = String.fromCharCode(10);
+      function squash(s) {
+        return String(s || "").split(NL).join(" ").split(String.fromCharCode(9)).join(" ").split(" ").filter(Boolean).join(" ");
+      }
+      function make(h) {
+        var c = document.createElement("canvas");
+        c.width = W;
+        c.height = h;
+        var g = c.getContext("2d");
+        g.fillStyle = C.bg;
+        g.fillRect(0, 0, W, h);
+        g.strokeStyle = "rgba(255,255,255,0.035)";
+        g.lineWidth = 1;
+        for (var x = 0; x <= W; x += 40) { g.beginPath(); g.moveTo(x + 0.5, 0); g.lineTo(x + 0.5, h); g.stroke(); }
+        for (var y = 0; y <= h; y += 40) { g.beginPath(); g.moveTo(0, y + 0.5); g.lineTo(W, y + 0.5); g.stroke(); }
+        return { c: c, g: g };
+      }
+      function img(src) {
+        return new Promise(function (res) {
+          if (!src) return res(null);
+          var i = new Image();
+          i.crossOrigin = "anonymous";
+          i.onload = function () { res(i); };
+          i.onerror = function () { res(null); };
+          i.src = src;
+        });
+      }
+      function drawImg(g, im, x, y, size) {
+        if (!im) return;
+        var k = Math.min(size / im.naturalWidth, size / im.naturalHeight);
+        var w = im.naturalWidth * k, h = im.naturalHeight * k;
+        g.drawImage(im, x + (size - w) / 2, y + (size - h) / 2, w, h);
+      }
+      function text(g, s, x, y, font, color, align, maxW) {
+        g.font = font;
+        g.fillStyle = color;
+        g.textAlign = align || "left";
+        g.textBaseline = "alphabetic";
+        s = String(s == null ? "" : s);
+        if (maxW && g.measureText(s).width > maxW) {
+          while (s.length > 1 && g.measureText(s + "…").width > maxW) s = s.slice(0, -1);
+          s = s.trim() + "…";
+        }
+        g.fillText(s, x, y);
+        return g.measureText(s).width;
+      }
+      function rrect(g, x, y, w, h, r) {
+        g.beginPath();
+        g.moveTo(x + r, y);
+        g.arcTo(x + w, y, x + w, y + h, r);
+        g.arcTo(x + w, y + h, x, y + h, r);
+        g.arcTo(x, y + h, x, y, r);
+        g.arcTo(x, y, x + w, y, r);
+        g.closePath();
+      }
+      function pill(g, s, x, y, font, bg, color) {
+        g.font = font;
+        var w = g.measureText(s).width + 24;
+        g.fillStyle = bg;
+        rrect(g, x, y - 30, w, 40, 8);
+        g.fill();
+        text(g, s, x + 12, y, font, color);
+        return w;
+      }
+      function row(g, y, h, stripe) {
+        g.fillStyle = C.row;
+        rrect(g, 60, y, W - 120, h, 14);
+        g.fill();
+        if (stripe) { g.fillStyle = stripe; g.fillRect(60, y, 8, h); }
+      }
+      function section(g, label, y) {
+        text(g, label.toUpperCase(), 60, y, "700 30px 'Barlow Condensed'", C.muted);
+      }
+      function topBar(g, color) {
+        g.fillStyle = color || "#ffffff";
+        g.fillRect(0, 0, W, 14);
+      }
+      function footer(g, h) {
+        g.fillStyle = "rgba(255,255,255,0.1)";
+        g.fillRect(60, h - 130, W - 120, 2);
+        var brandW = text(g, "STRICKEOUT", 60, h - 50, "700 72px Teko", "#ffffff");
+        text(g, "@RicardoHdzm", 60 + brandW + 24, h - 58, "500 30px Barlow", C.muted);
+        text(g, new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" }), W - 60, h - 58, "500 30px Barlow", C.muted, "right");
+      }
+      function fonts() {
+        var list = ["700 72px Teko", "600 96px Teko", "500 30px Barlow", "700 34px Barlow", "700 30px 'Barlow Condensed'"];
+        return Promise.all(list.map(function (f) { return document.fonts.load(f); })).catch(function () {});
+      }
+      function resultColor(r) { return r === "win" ? C.win : r === "loss" ? C.loss : r === "draw" ? C.draw : null; }
+      function share(c, name, title) {
+        return new Promise(function (res) {
+          c.toBlob(function (blob) {
+            if (!blob) return res();
+            var file = new File([blob], name, { type: "image/png" });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({ files: [file], title: title }).catch(function () {}).then(res);
+              return;
+            }
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+            res();
+          }, "image/png");
+        });
+      }
+      function slug(s) {
+        return squash(s).toLowerCase().normalize("NFD").replace(/[^a-z0-9 ]/g, "").split(" ").filter(Boolean).join("-");
+      }
+
+      // ---- Tarjeta de equipo: posicion, racha, ultimos resultados y proximos partidos ----
+      function clean(el) {
+        if (!el) return "";
+        var copy = el.cloneNode(true);
+        copy.querySelectorAll(".comp-tag, .rivalry-tag").forEach(function (n) { n.remove(); });
+        return squash(copy.textContent);
+      }
+      function shareTeam(card) {
+        var color = getComputedStyle(card).getPropertyValue("--team-color").trim() || "#ffffff";
+        var name = squash(card.querySelector("h2").textContent);
+        var league = squash((card.querySelector(".league") || {}).textContent);
+        var rank = squash((card.querySelector(".rank-badge") || {}).textContent);
+        var detail = squash((card.querySelector(".standing-detail") || {}).textContent);
+        var form = Array.prototype.map.call(card.querySelectorAll(".form-dot"), function (d) {
+          return { r: d.classList.contains("win") ? "win" : d.classList.contains("loss") ? "loss" : "draw", t: squash(d.textContent) };
+        });
+        var results = Array.prototype.map.call(card.querySelectorAll(".card-details .result-row"), function (r) {
+          return {
+            color: resultColor(r.classList.contains("win") ? "win" : r.classList.contains("loss") ? "loss" : "draw"),
+            badge: squash((r.querySelector(".result-badge") || {}).textContent),
+            date: squash((r.querySelector(".result-date") || {}).textContent),
+            match: clean(r.querySelector(".result-matchup")),
+            comp: squash((r.querySelector(".comp-tag") || {}).textContent),
+            score: squash((r.querySelector(".result-score") || {}).textContent),
+          };
+        });
+        var upcoming = Array.prototype.map.call(card.querySelectorAll(".card-details .upcoming-row"), function (r) {
+          return {
+            date: squash((r.querySelector(".result-date") || {}).textContent),
+            match: clean(r.querySelector(".result-matchup")),
+            comp: squash((r.querySelector(".comp-tag") || {}).textContent),
+            time: squash((r.querySelector(".upcoming-time") || {}).textContent),
+          };
+        });
+        var season = Array.prototype.map.call(card.querySelectorAll(".next-season p"), function (p) {
+          return { label: squash((p.querySelector("span") || {}).textContent), date: squash((p.querySelector("strong") || {}).textContent) };
+        });
+        var upTitle = squash((card.querySelector(".card-details h3:last-of-type") || {}).textContent) || "Próximos partidos";
+        var nextRows = upcoming.length || season.length;
+        var h = 360 + (results.length ? 80 + results.length * 96 : 0) + (nextRows ? 80 + nextRows * 96 : 0) + 170;
+        var cv = make(h), g = cv.g;
+        topBar(g, color);
+        return img(card.querySelector(".logo").src).then(function (logo) {
+          drawImg(g, logo, 60, 70, 190);
+          text(g, name, 290, 160, "600 96px Teko", "#ffffff", "left", 700);
+          text(g, [league, rank && detail ? rank + " " + detail : rank].filter(Boolean).join("  ·  "), 290, 210, "700 32px 'Barlow Condensed'", C.muted, "left", 700);
+          form.forEach(function (f, i) {
+            g.fillStyle = resultColor(f.r);
+            rrect(g, 290 + i * 58, 236, 48, 48, 8);
+            g.fill();
+            text(g, f.t, 314 + i * 58, 270, "700 26px Barlow", "#ffffff", "center");
+          });
+          var y = 380;
+          if (results.length) {
+            section(g, "Últimos resultados", y);
+            y += 26;
+            results.forEach(function (r) {
+              row(g, y, 80, r.color);
+              text(g, r.date, 96, y + 52, "500 30px Barlow", C.muted);
+              text(g, r.match, 230, y + 52, "700 34px Barlow", C.text, "left", 520);
+              if (r.comp) text(g, r.comp.toUpperCase(), 870, y + 50, "700 22px 'Barlow Condensed'", C.muted, "right");
+              text(g, r.score, W - 90, y + 54, "700 38px Barlow", "#ffffff", "right");
+              y += 96;
+            });
+            y += 54;
+          }
+          if (nextRows) {
+            section(g, upTitle, y);
+            y += 26;
+            if (upcoming.length) {
+              upcoming.forEach(function (r) {
+                row(g, y, 80, color);
+                text(g, r.date, 96, y + 52, "500 30px Barlow", C.muted);
+                text(g, r.match, 230, y + 52, "700 34px Barlow", C.text, "left", 520);
+                var timeW = text(g, r.time, W - 90, y + 52, "500 30px Barlow", C.text, "right");
+                if (r.comp) text(g, r.comp.toUpperCase(), W - 90 - timeW - 24, y + 50, "700 22px 'Barlow Condensed'", C.muted, "right");
+                y += 96;
+              });
+            } else {
+              season.forEach(function (s) {
+                row(g, y, 80, color);
+                text(g, s.label, 96, y + 52, "500 32px Barlow", C.muted);
+                text(g, s.date, W - 90, y + 52, "700 34px Barlow", C.text, "right");
+                y += 96;
+              });
+            }
+          }
+          footer(g, h);
+          return share(cv.c, "strickeout-" + slug(name) + ".png", name + " · STRICKEOUT");
+        });
+      }
+
+      // ---- "Esta semana" (respeta el filtro elegido) ----
+      function shareAgenda(section) {
+        var days = [];
+        section.querySelectorAll(".agenda-day").forEach(function (d) {
+          var rows = Array.prototype.filter.call(d.querySelectorAll(".agenda-row"), function (r) { return r.style.display !== "none"; });
+          if (!rows.length) return;
+          days.push({
+            title: squash(d.querySelector("h3").textContent),
+            rows: rows.map(function (r) {
+              return {
+                color: getComputedStyle(r).getPropertyValue("--team-color").trim() || "#ffffff",
+                logo: r.querySelector(".agenda-logo").src,
+                team: squash(r.querySelector(".agenda-team").textContent),
+                rival: squash(r.querySelector(".agenda-rival").textContent),
+                time: squash(r.querySelector(".agenda-time").textContent),
+                comp: squash((r.querySelector(".comp-tag") || {}).textContent),
+              };
+            }),
+          });
+        });
+        if (!days.length) return Promise.resolve();
+        var count = days.reduce(function (n, d) { return n + d.rows.length; }, 0);
+        var h = 260 + days.length * 70 + count * 92 + 170;
+        var cv = make(h), g = cv.g;
+        topBar(g, "#ffffff");
+        text(g, "ESTA SEMANA", 60, 170, "700 120px Teko", "#ffffff");
+        var active = section.querySelector(".filter-btn.active");
+        if (active && active.dataset.sport !== "all") text(g, squash(active.textContent).toUpperCase(), W - 60, 160, "700 34px 'Barlow Condensed'", C.muted, "right");
+        var logos = {};
+        var srcs = [];
+        days.forEach(function (d) { d.rows.forEach(function (r) { if (srcs.indexOf(r.logo) === -1) srcs.push(r.logo); }); });
+        return Promise.all(srcs.map(function (s) { return img(s).then(function (im) { logos[s] = im; }); })).then(function () {
+          var y = 250;
+          days.forEach(function (d) {
+            text(g, d.title.toUpperCase(), 60, y + 36, "700 30px 'Barlow Condensed'", C.muted);
+            y += 56;
+            d.rows.forEach(function (r) {
+              row(g, y, 78, r.color);
+              drawImg(g, logos[r.logo], 92, y + 13, 52);
+              var w = text(g, r.team, 166, y + 52, "700 34px Barlow", "#ffffff", "left", 380);
+              text(g, " " + r.rival, 166 + w, y + 52, "500 34px Barlow", C.text, "left", 640 - w);
+              var tW = text(g, r.time, W - 90, y + 52, "500 30px Barlow", C.text, "right");
+              if (r.comp) text(g, r.comp.toUpperCase(), W - 90 - tW - 24, y + 50, "700 22px 'Barlow Condensed'", C.muted, "right");
+              y += 92;
+            });
+            y += 14;
+          });
+          footer(g, h);
+          return share(cv.c, "strickeout-esta-semana.png", "Esta semana · STRICKEOUT");
+        });
+      }
+
+      // ---- Detalle de un partido (lo llama la ventana de detalle con los datos de ESPN) ----
+      function shareMatch(d) {
+        var events = (d.events || []).slice(0, 10);
+        var stats = (d.stats || []).slice(0, 5);
+        var h = 640 + (events.length ? 80 + events.length * 66 : 0) + (stats.length ? 80 + stats.length * 92 : 0) + 170;
+        var cv = make(h), g = cv.g;
+        topBar(g, d.color);
+        return Promise.all([img(d.me.logo), img(d.rival.logo)]).then(function (ims) {
+          text(g, d.status, W / 2, 100, "700 34px 'Barlow Condensed'", C.muted, "center", 940);
+          drawImg(g, ims[0], 110, 160, 230);
+          drawImg(g, ims[1], W - 340, 160, 230);
+          text(g, d.me.name, 225, 450, "700 38px Barlow", "#ffffff", "center", 360);
+          text(g, d.rival.name, W - 225, 450, "700 38px Barlow", "#ffffff", "center", 360);
+          text(g, d.score, W / 2, 360, "600 200px Teko", "#ffffff", "center");
+          if (d.venue) text(g, d.venue, W / 2, 530, "500 30px Barlow", C.muted, "center", 940);
+          if (d.when) text(g, d.when, W / 2, 575, "500 30px Barlow", C.muted, "center", 940);
+          var y = 680;
+          if (events.length) {
+            section(g, "Jugadas clave", y);
+            y += 30;
+            events.forEach(function (e) {
+              text(g, e.clock, 60, y + 40, "500 28px Barlow", C.muted, "left", 150);
+              var bg = e.cls === "goal" ? C.win : e.cls === "yellow" ? C.draw : e.cls === "red" ? C.loss : "rgba(255,255,255,0.15)";
+              var w = pill(g, e.label.toUpperCase(), 220, y + 42, "800 24px 'Barlow Condensed'", bg, e.cls === "yellow" ? "#111111" : "#ffffff");
+              text(g, e.team ? e.team + " · " + e.who : e.who, 236 + w, y + 40, "500 30px Barlow", C.text, "left", W - 296 - w);
+              y += 66;
+            });
+            y += 50;
+          }
+          if (stats.length) {
+            section(g, "Estadísticas", y);
+            y += 30;
+            stats.forEach(function (s) {
+              text(g, s.a, 60, y + 40, "700 34px Barlow", "#ffffff");
+              text(g, s.label, W / 2, y + 40, "500 30px Barlow", C.muted, "center");
+              text(g, s.b, W - 60, y + 40, "700 34px Barlow", "#ffffff", "right");
+              g.fillStyle = "rgba(255,255,255,0.15)";
+              rrect(g, 60, y + 58, W - 120, 10, 5);
+              g.fill();
+              g.fillStyle = d.color;
+              rrect(g, 60, y + 58, Math.max(10, (W - 120) * s.share / 100), 10, 5);
+              g.fill();
+              y += 92;
+            });
+          }
+          footer(g, h);
+          return share(cv.c, "strickeout-" + slug(d.me.name + " " + d.rival.name) + ".png", d.me.name + " vs " + d.rival.name);
+        });
+      }
+
+      function busy(btn, promise) {
+        var label = btn.innerHTML;
+        btn.disabled = true;
+        btn.textContent = "Generando…";
+        return fonts().then(function () { return promise(); }).catch(function () {}).then(function () {
+          btn.disabled = false;
+          btn.innerHTML = label;
+        });
+      }
+      window.STK_SHARE = { match: shareMatch, busy: busy };
+      document.addEventListener("click", function (e) {
+        var btn = e.target.closest(".share-btn[data-share]");
+        if (!btn || btn.dataset.share === "match") return;
+        e.preventDefault();
+        if (btn.dataset.share === "team") busy(btn, function () { return shareTeam(btn.closest(".card")); });
+        if (btn.dataset.share === "agenda") busy(btn, function () { return shareAgenda(btn.closest(".agenda")); });
+      });
+    })();
+  </script>
+  <script>
+    (function () {
       // Detalle del partido dentro del sitio, con datos de ESPN pedidos al abrir la ventana.
       var BASE = "https://site.api.espn.com/apis/site/v2/sports/";
       var modal = document.getElementById("match-modal");
@@ -1444,6 +1786,7 @@ async function main() {
       var body = modal.querySelector(".mm-body");
       var timer = null;
       var opener = null;
+      var lastShare = null;
       var STATS = {
         soccer: [["possessionPct", "Posesión", "%"], ["totalShots", "Tiros"], ["shotsOnTarget", "Tiros a gol"], ["wonCorners", "Tiros de esquina"], ["foulsCommitted", "Faltas"], ["yellowCards", "Tarjetas amarillas"], ["redCards", "Tarjetas rojas"], ["offsides", "Fueras de lugar"], ["saves", "Atajadas"]],
         hockey: [["shotsTotal", "Tiros"], ["hits", "Golpes"], ["blockedShots", "Tiros bloqueados"], ["faceoffPercent", "Faceoffs ganados", "%"], ["powerPlayGoals", "Goles en power play"], ["penaltyMinutes", "Minutos de castigo"], ["giveaways", "Pérdidas"], ["takeaways", "Recuperaciones"]],
@@ -1556,6 +1899,28 @@ async function main() {
           html += '<h4>Líderes</h4><div class="mm-leaders"><div>' + col(la) + "</div><div>" + col(lb) + "</div></div>";
         }
 
+        var statOf = function (t, name) { return t && t.statistics ? (t.statistics.filter(function (x) { return x.name === name; })[0] || {}).displayValue : null; };
+        var shareStats = (STATS[sport] || []).map(function (def) {
+          var va = statOf(a, def[0]), vb = statOf(b, def[0]);
+          if (va == null || vb == null) return null;
+          var na = parseFloat(va) || 0, nb = parseFloat(vb) || 0;
+          return { label: def[1], a: va + (def[2] || ""), b: vb + (def[2] || ""), share: na + nb > 0 ? Math.round((na / (na + nb)) * 100) : 50 };
+        }).filter(Boolean);
+        lastShare = {
+          color: panel.style.getPropertyValue("--team-color").trim() || "#ffffff",
+          status: (st.state === "in" ? "EN VIVO · " + st.shortDetail : st.state === "post" ? "FINAL" : "PRÓXIMO PARTIDO") + (row.dataset.comp ? " · " + row.dataset.comp.toUpperCase() : ""),
+          when: when,
+          venue: venue,
+          score: st.state === "pre" ? "VS" : (me.score || "0") + " – " + (rival.score || "0"),
+          me: { name: teamName(me.team), logo: logoOf(me.team) },
+          rival: { name: teamName(rival.team), logo: logoOf(rival.team) },
+          events: events.map(function (e) {
+            var t = String(e.team) === String(me.id) ? me.team : rival.team;
+            return { clock: e.clock, label: e.label, cls: e.cls, who: e.who, team: t.abbreviation || "" };
+          }),
+          stats: shareStats,
+        };
+        html += '<button class="share-btn mm-share" type="button" data-share="match"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg><span>Compartir imagen</span></button>';
         if (row.href) html += '<a class="mm-espn" href="' + esc(row.href) + '" target="_blank" rel="noopener">Ver en ESPN ↗</a>';
         body.innerHTML = html;
         return st.state === "in";
@@ -1595,6 +1960,12 @@ async function main() {
       });
       modal.querySelector(".mm-close").addEventListener("click", close);
       modal.querySelector(".mm-backdrop").addEventListener("click", close);
+      body.addEventListener("click", function (e) {
+        var btn = e.target.closest(".share-btn");
+        if (!btn || !lastShare || !window.STK_SHARE) return;
+        var data = lastShare;
+        window.STK_SHARE.busy(btn, function () { return window.STK_SHARE.match(data); });
+      });
       document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) close(); });
     })();
   </script>
@@ -1726,7 +2097,7 @@ async function main() {
       document.getElementById("grid").addEventListener("click", function (e) {
         var card = e.target.closest(".card");
         if (!card || !mobile.matches) return;
-        if (e.target.closest("a")) return;
+        if (e.target.closest("a, .share-btn")) return;
         var expanded = card.classList.toggle("expanded");
         var btn = card.querySelector(".card-toggle");
         btn.textContent = expanded ? "Ver menos" : "Ver más";
