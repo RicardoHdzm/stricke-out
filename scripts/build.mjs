@@ -82,7 +82,7 @@ const MCLAREN = {
   drivers: ["Lando Norris", "Oscar Piastri"],
   sport: "racing",
   calendarTitle: (ev) => `F1: ${ev.rivalName}`,
-  labels: { upcoming: "Proximas carreras" },
+  labels: { upcoming: "Próximas carreras" },
 };
 
 const SINNER = {
@@ -287,7 +287,7 @@ const RESULT_LABEL = { win: "V", loss: "D", draw: "E" };
 const MAZATLAN_TZ = "America/Mazatlan";
 
 function fmtDate(d) {
-  return d.toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric", timeZone: MAZATLAN_TZ });
+  return d.toLocaleDateString("es-MX", { day: "2-digit", month: "short", timeZone: MAZATLAN_TZ }).replace("-", " ");
 }
 
 function fmtTime(d) {
@@ -448,7 +448,7 @@ async function gatherTeamData(team, order) {
     const showUpcomingCompetition = showCompetition || upcoming.some((e) => !primaryCompetitionNames.has(e.competitionName));
     proximos = upcoming.length
       ? upcoming.map((e) => renderUpcomingRow(e, showUpcomingCompetition, team)).join("")
-      : `<p class="muted">Calendario aun no publicado.</p>`;
+      : `<p class="muted">Calendario aún no publicado.</p>`;
   } catch (err) {
     resultados = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
     proximos = `<p class="muted">No se pudo cargar.</p>`;
@@ -463,7 +463,7 @@ async function gatherTeamData(team, order) {
           <span class="rank-badge">${standing.rank}º</span>
           <span class="standing-detail" title="de ${standing.totalInGroup} en ${standingLabel(standing.groupName, standing.competitionName)}">de ${standing.totalInGroup} &middot; ${standing.competitionName}</span>
         </div>`
-      : `<p class="muted">Posicion no disponible.</p>`;
+      : `<p class="muted">Posición no disponible.</p>`;
   } catch (err) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
@@ -524,7 +524,7 @@ function renderAgenda(teamData) {
 function renderForm(form) {
   if (!form || !form.length) return "";
   const squares = [...form].reverse().map((e) => `<span class="form-dot ${e.result}">${e.formLabel || RESULT_LABEL[e.result]}</span>`).join("");
-  return `<div class="form" title="Ultimos ${form.length} resultados, del mas antiguo al mas reciente">${squares}</div>`;
+  return `<div class="form" title="Últimos ${form.length} resultados, del más antiguo al más reciente">${squares}</div>`;
 }
 
 function renderTeamCard(data) {
@@ -536,7 +536,7 @@ function renderTeamCard(data) {
       : `<span class="countdown no-match">Sin Anunciar</span>`;
   return `
   <section class="card" id="${team.key}" data-order="${order}" data-updated="${lastUpdated}" style="--team-color: ${team.color}; --team-badge-text: ${team.badgeTextColor}">
-    <span class="status-dot ${seasonStatus}" title="${seasonStatus === "started" ? "Temporada en curso" : "Temporada aun no comienza"}"></span>
+    ${seasonStatus === "not-started" ? `<span class="offseason">Fuera de temporada</span>` : ""}
     <div class="card-header">
       <img class="logo" src="${team.logo}" alt="${team.name}" />
       <h2>${team.name}</h2>
@@ -546,9 +546,9 @@ function renderTeamCard(data) {
     </div>
     ${envivo}
     <div class="card-details">
-      <h3>Ultimos resultados</h3>
+      <h3>Últimos resultados</h3>
       ${resultados}
-      <h3>${team.labels?.upcoming || "Proximos partidos"}</h3>
+      <h3>${team.labels?.upcoming || "Próximos partidos"}</h3>
       ${proximos}
     </div>
     ${countdownHtml}
@@ -643,7 +643,7 @@ async function gatherMcLarenData(order) {
       : `<p class="muted">Sin resultados recientes disponibles.</p>`;
     proximos = upcoming.length
       ? upcoming.map((e) => renderUpcomingRow(e, false, MCLAREN)).join("")
-      : `<p class="muted">Calendario aun no publicado.</p>`;
+      : `<p class="muted">Calendario aún no publicado.</p>`;
   } catch (err) {
     resultados = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
     proximos = `<p class="muted">No se pudo cargar.</p>`;
@@ -660,7 +660,7 @@ async function gatherMcLarenData(order) {
             <span class="rank-badge">${idx + 1}º</span>
             <span class="standing-detail" title="de ${entries.length} en Constructores (F1)">de ${entries.length} &middot; Constructores</span>
           </div>`
-        : `<p class="muted">Posicion no disponible.</p>`;
+        : `<p class="muted">Posición no disponible.</p>`;
   } catch (err) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
@@ -742,7 +742,7 @@ async function gatherSinnerData(order) {
       : `<p class="muted">Sin resultados recientes disponibles.</p>`;
     proximos = upcoming.length
       ? upcoming.map((e) => renderUpcomingRow(e, true, SINNER)).join("")
-      : `<p class="muted">Calendario aun no publicado.</p>`;
+      : `<p class="muted">Calendario aún no publicado.</p>`;
   } catch (err) {
     resultados = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
     proximos = `<p class="muted">No se pudo cargar.</p>`;
@@ -772,17 +772,29 @@ async function main() {
   teamData.push(await gatherMcLarenData(TEAMS.length));
   teamData.push(await gatherSinnerData(TEAMS.length + 1));
 
-  let nextUp = null;
-  for (const d of teamData) {
-    if (d.nextMatch && (!nextUp || d.nextMatch.date < nextUp.match.date)) {
-      nextUp = { team: d.team, match: d.nextMatch };
-    }
-  }
-  const tickerHtml = nextUp
+  // Cinta: partidos en vivo primero y luego el proximo partido de cada equipo, en orden de fecha.
+  const tickerItems = teamData
+    .flatMap((d) => [
+      ...(d.agenda || []).filter((ev) => ev.live).map((ev) => ({ team: d.team, ev })),
+      ...(d.nextMatch && !d.nextMatch.live ? [{ team: d.team, ev: d.nextMatch }] : []),
+    ])
+    .sort((a, b) => (b.ev.live ? 1 : 0) - (a.ev.live ? 1 : 0) || a.ev.date - b.ev.date);
+  const tickerHtml = tickerItems.length
     ? (() => {
-        const msg = `${nextUp.match.isRace ? "Proxima carrera" : "Proximo partido"}: <strong>${nextUp.team.name}</strong> ${nextUp.match.isRace ? "&middot;" : "vs"} <strong>${nextUp.match.rivalName}</strong> &mdash; ${fmtDate(nextUp.match.date)}, ${fmtMatchTime(nextUp.match)}`;
-        const repeated = Array.from({ length: 10 }, () => msg).join(" &nbsp;•&nbsp; ");
-        return `<div class="ticker"><div class="ticker-track"><span class="ticker-copy">${repeated} &nbsp;•&nbsp; </span><span class="ticker-copy">${repeated} &nbsp;•&nbsp; </span></div></div>`;
+        const msgs = tickerItems.map(({ team, ev }) => {
+          if (ev.live) {
+            const score = ev.rivalScore !== "" ? ` ${ev.teamScore || 0}&ndash;${ev.rivalScore} ` : " ";
+            return `<span class="ticker-live">EN VIVO</span> <strong>${team.name}</strong>${score}${ev.isRace ? "" : "<strong>" + ev.rivalName + "</strong>"} ${ev.statusDetail ? "&middot; " + ev.statusDetail : ""}`;
+          }
+          const day = ev.date.toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short", timeZone: MAZATLAN_TZ });
+          const vs = ev.isRace ? "&middot;" : ev.isTeamHome ? "vs" : "@";
+          return `<strong>${team.name}</strong> ${vs} ${ev.rivalName} &mdash; ${day}, ${fmtMatchTime(ev)}`;
+        });
+        // Se repite la lista para que la cinta siempre llene la pantalla; la velocidad depende de su largo.
+        const reps = Math.ceil(10 / msgs.length);
+        const copy = Array.from({ length: reps }, () => msgs).flat().join(" &nbsp;•&nbsp; ");
+        const seconds = Math.max(40, reps * msgs.length * 7);
+        return `<div class="ticker"><div class="ticker-track" style="animation-duration: ${seconds}s"><span class="ticker-copy">${copy} &nbsp;•&nbsp; </span><span class="ticker-copy">${copy} &nbsp;•&nbsp; </span></div></div>`;
       })()
     : "";
 
@@ -842,6 +854,7 @@ async function main() {
     font-size: .85rem; font-weight: 600; color: var(--text);
   }
   .ticker-track strong { color: #fff; }
+  .ticker-live { color: #fff; background: var(--loss); border-radius: 3px; padding: 0 .3rem; font-size: .7rem; font-weight: 800; }
   @keyframes ticker-scroll {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
@@ -857,12 +870,13 @@ async function main() {
     color: #fff; padding-left: .35em;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-weight: 500;
   }
-  .updated { text-align: center; color: var(--muted); font-size: .85rem; margin: .35rem 0 1.25rem; }
-  .sort-bar { display: flex; justify-content: center; gap: .5rem; margin-bottom: 2.5rem; }
+  .updated { text-align: center; color: var(--muted); font-size: .85rem; margin: .35rem 0 2.5rem; }
+  .sort-bar { display: flex; justify-content: flex-end; align-items: center; gap: .4rem; max-width: 1500px; margin: 0 auto .6rem; }
+  .sort-label { font-size: .7rem; color: var(--muted); }
   .sort-btn {
-    font-family: inherit; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    font-family: inherit; font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
     color: var(--muted); background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
-    border-radius: 999px; padding: .4rem 1.1rem; cursor: pointer;
+    border-radius: 999px; padding: .25rem .75rem; cursor: pointer;
   }
   .sort-btn.active { color: #0a0a0b; background: #ffffff; border-color: #ffffff; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(max(320px, calc((100% - 1.5rem) / 3)), 1fr)); gap: .75rem; max-width: 1500px; margin: 0 auto; }
@@ -874,29 +888,22 @@ async function main() {
     border-radius: 12px;
     padding: 1.1rem;
   }
-  .status-dot {
-    position: absolute; top: .9rem; right: .9rem; width: 12px; height: 12px; border-radius: 50%;
-  }
-  .status-dot.started { background: var(--win); animation: pulse-started 1.6s infinite; }
-  .status-dot.not-started { background: var(--loss); animation: pulse-not-started 1.6s infinite; }
-  @keyframes pulse-started {
-    0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.65); }
-    70% { box-shadow: 0 0 0 9px rgba(34,197,94,0); }
-    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
-  }
-  @keyframes pulse-not-started {
-    0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.65); }
-    70% { box-shadow: 0 0 0 9px rgba(239,68,68,0); }
-    100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+  .offseason {
+    position: absolute; top: .45rem; right: .6rem; z-index: 1;
+    font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--muted); border: 1px solid var(--card-border); border-radius: 999px; padding: .1rem .45rem;
   }
   .card-header {
     display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto auto; column-gap: 1rem;
     align-items: center; justify-items: start; text-align: left;
-    margin: -1.1rem -1.1rem .25rem; padding: 1.1rem 2rem 1.1rem 1.1rem; border-radius: 7px 7px 0 0;
+    margin: -1.1rem -1.1rem .25rem; padding: 1.1rem; border-radius: 7px 7px 0 0;
     background: linear-gradient(to bottom, color-mix(in srgb, var(--team-color) 22%, transparent), transparent);
   }
   .logo { width: 88px; height: 88px; object-fit: contain; grid-row: 1 / span 3; margin: 0; }
-  .card-header h2 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+  .card-header h2 {
+    margin: 0; font-family: "Anton", "Arial Black", sans-serif; font-weight: 400; font-size: 1.45rem;
+    letter-spacing: .02em; line-height: 1.15; transform: skewX(-8deg); transform-origin: left bottom;
+  }
   .league { margin-top: .35rem; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border: 1px solid currentColor; border-radius: 999px; padding: .15rem .6rem; text-align: center; }
   .countdown {
     display: block; width: fit-content; margin: 1.1rem auto 0; font-size: .75rem; font-weight: 700; letter-spacing: .03em;
@@ -939,10 +946,10 @@ async function main() {
   .win .result-badge { background: var(--win); }
   .loss .result-badge { background: var(--loss); }
   .draw .result-badge { background: var(--draw); }
-  .result-date { flex: none; color: var(--muted); width: 5.5rem; }
+  .result-date { flex: none; color: var(--muted); width: 3.6rem; }
   .result-matchup { flex: 1; font-weight: 600; }
   .result-score { flex: none; font-weight: 800; font-variant-numeric: tabular-nums; }
-  .upcoming-row .result-date { width: 5.5rem; }
+  .upcoming-row .result-date { width: 3.6rem; }
   .upcoming-time { flex: none; color: var(--muted); font-size: .78rem; }
   .rivalry-tag { color: #eab308; font-weight: 700; font-size: .75rem; margin-left: .35rem; }
   .away-marker { color: #ffffff; font-weight: 800; }
@@ -957,7 +964,8 @@ async function main() {
     color: var(--muted); border-radius: 4px; transition: color .15s, background .15s;
   }
   .cal-link:hover, .cal-link:focus-visible { color: #fff; background: rgba(255,255,255,0.1); }
-  .form { display: flex; gap: .25rem; margin-top: .6rem; }
+  .form { display: flex; gap: .3rem; margin-top: .6rem; }
+  .form-dot:last-child { box-shadow: 0 0 0 1.5px #050505, 0 0 0 3px #fff; }
   .form-dot {
     width: 1.15rem; height: 1.15rem; border-radius: 3px;
     display: flex; align-items: center; justify-content: center;
@@ -1028,8 +1036,8 @@ async function main() {
   @media (max-width: 600px) {
     .card { cursor: pointer; }
     .card .logo { width: 64px; height: 64px; }
-    .card-header h2 { font-size: 1.05rem; }
-    .card:not(.expanded) > :not(.card-header):not(.status-dot) { display: none; }
+    .card-header h2 { font-size: 1.2rem; }
+    .card:not(.expanded) > :not(.card-header):not(.offseason) { display: none; }
     .card:not(.expanded) .card-header { margin-bottom: -1.1rem; border-radius: 7px; }
     .card-toggle {
       display: block; margin: .9rem auto 0; font-family: inherit; font-size: .75rem; font-weight: 700;
@@ -1052,11 +1060,12 @@ async function main() {
     </span>
   </h1>
   <p class="updated">Actualizado: ${updatedAt}</p>
+  ${renderAgenda(teamData)}
   <div class="sort-bar">
+    <span class="sort-label">Ordenar:</span>
     <button class="sort-btn active" data-sort="deporte">Deporte</button>
     <button class="sort-btn" data-sort="reciente">Más reciente</button>
   </div>
-  ${renderAgenda(teamData)}
   <div class="grid" id="grid">
     ${cards.join("\n")}
   </div>
