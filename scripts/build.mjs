@@ -35,6 +35,25 @@ const TEAMS = [
     competitions: [{ path: "soccer/mex.1", name: "Liga MX" }],
   },
   {
+    key: "mexico",
+    name: "México",
+    teamId: "203",
+    logo: "assets/teams/mex.webp",
+    color: "#006847",
+    badgeTextColor: "#ffffff",
+    badgeLabel: "SELECCIÓN",
+    // Las selecciones no tienen tabla de posiciones ni "temporada".
+    noStandings: true,
+    noSeason: true,
+    competitions: [
+      { path: "soccer/concacaf.nations.league", name: "Nations League" },
+      { path: "soccer/fifa.friendly", name: "Amistoso" },
+      { path: "soccer/fifa.world", name: "Mundial" },
+      { path: "soccer/concacaf.gold", name: "Copa Oro" },
+    ],
+    rivals: [{ match: "united states", label: "Clásico de Concacaf" }],
+  },
+  {
     key: "raiders",
     name: "Las Vegas Raiders",
     teamId: "13",
@@ -236,7 +255,7 @@ function parseSportsDbEvent(event, team, completed) {
 async function getSportsDbEvent(team, endpoint, resultsKey, completed) {
   if (!team.sportsDbId) return null;
   try {
-    const data = await fetchJson(`https://www.thesportsdb.com/api/v1/json/3/${endpoint}.php?id=${team.sportsDbId}`);
+    const data = await fetchJson(`https://www.thesportsdb.com/api/v1/json/123/${endpoint}.php?id=${team.sportsDbId}`);
     const event = (data[resultsKey] || [])[0];
     if (!event) return null;
     return parseSportsDbEvent(event, team, completed);
@@ -261,6 +280,7 @@ function fmtDateYear(d) {
 
 // Inicio de la siguiente temporada (pretemporada y temporada regular) segun ESPN.
 async function getNextSeason(team) {
+  if (team.noSeason) return null;
   const path = team.seasonPath || team.competitions?.[0]?.path.replace("/", "/leagues/");
   if (!path) return null;
   const now = new Date();
@@ -287,6 +307,7 @@ async function getNextSeason(team) {
 }
 
 async function getSeasonStatus(team) {
+  if (team.noSeason) return "started";
   const primaryCompetition = team.competitions[0];
   try {
     const data = await fetchJson(`${BASE}/${primaryCompetition.path}/teams/${team.teamId}/schedule`);
@@ -378,6 +399,7 @@ const COMPETITION_SHORT = {
   "Supercopa de España": "Supercopa",
   "Spanish La Liga": "LaLiga",
   "Mexican Primera League": "Liga MX",
+  "Nations League": "CNL",
 };
 
 function compTagHtml(ev, showCompetition) {
@@ -539,14 +561,16 @@ async function gatherTeamData(team, order) {
   const seasonStatus = await getSeasonStatus(team);
 
   try {
-    const standing = await getStandingEntry(team);
+    const standing = team.noStandings ? null : await getStandingEntry(team);
     tabla = renderMiniTable(standing?.table);
     standingsHtml = standing
       ? `<div class="standing-row">
           <span class="rank-badge">${standing.rank}º</span>
           <span class="standing-detail" title="de ${standing.totalInGroup} en ${standingLabel(standing.groupName, standing.competitionName)}">de ${standing.totalInGroup} &middot; ${standing.competitionName}</span>
         </div>`
-      : `<p class="muted">Posición no disponible.</p>`;
+      : team.noStandings
+        ? ""
+        : `<p class="muted">Posición no disponible.</p>`;
   } catch (err) {
     standingsHtml = `<p class="muted">No se pudo cargar (${err.message}).</p>`;
   }
